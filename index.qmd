@@ -1,0 +1,38 @@
+---
+title: "AI vs. Non-AI Job Growth"
+subtitle: "AD688 – Project Selection I"
+author:
+  - Connor Coulter
+  - Wei Wang
+  - Balqis Bevi Abdul Hannan Kanaga
+format: html
+bibliography: references.bib
+csl: csl/econometrica.csl
+toc: true
+---
+
+# Introduction
+
+Artificial intelligence (AI) is changing the working world, affecting jobs and livelihood. This makes AI an important topic to study. Jobs that are related to AI, such as data science, robotics, and machine learning, are becoming more common, often paying well. Simultaneously, traditional jobs such as farming, retail, or office work are slowly being reduced and taken over due to automation and new advanced technology taking over. This does not imply that every job disappears; however, it does mean that the job market is shifting alongside AI, and people are starting to worry that their future careers might not be as secure as before.
+
+In 2024, people are worried about job security as many industries are already adopting AI tools. Some see AI as a threat to their jobs, while others see it as a chance to move into new roles. Looking at AI versus non-AI careers will help us further understand how and where job opportunities are growing, which areas are shrinking, and what skills people may need to adapt in the future.
+
+# Research Rationale
+
+This topic is not only important, but also interesting to understand because it highlights how the progress of AI can actually eliminate and create jobs at the same time. In 2024, many companies are integrating AI, accelerating changes in the job market. Automation is replacing repetitive tasks, while AI-driven roles are much higher in demand. However, this transition is not equal.
+
+AI affects people differently depending on their job, skill level, and where they live. For example, store cashiers are being replaced by self-checkout machines, but new jobs like AI engineers are being created to build and maintain those systems. The problem is that it might take five people to run a store, but an entire company may only need a few engineers to build the technology that replaces these cashiers. This means that some workers may lose jobs unless they learn new skills (see e.g., @tiwari2023impact).
+
+# Preliminary Discussion
+
+AI has already shown a large positive impact: it reduces the need for workers in routine tasks while simultaneously creating new job roles like AI ethics officers and prompt engineers. These jobs did not exist a decade ago, which shows that AI is not necessarily taking away jobs but also opening new career paths.
+
+The real issue is that the shift is uneven. It is not always a fair trade when losing one job and gaining another because some countries with strong economies may be able to support workers with training programs, but poorer countries may not. It should also be noted that there will be workers who are not interested in technological roles. This shows that AI’s impact depends on economics, training opportunities, and even personal preference and interest. In some settings AI tools raise worker productivity—especially for newer workers—rather than replace them outright (@brynjolfsson2023genai); employers are also placing more value on complementary human skills (teamwork, adaptability, digital literacy) even as purely routine tasks decline (@makela2024complement).
+
+# Literature Review
+
+Researchers have studied how AI is affecting jobs, and findings vary. @tiwari2023impact explains that while AI/ML can replace some roles—especially repetitive, routine work—they also create opportunities in areas like data analysis and AI system development. The key challenge is reskilling: workers’ ability to adapt to new roles determines whether they benefit.
+
+Other studies show that AI can help workers instead of only replacing them. @brynjolfsson2023genai find that customer service workers, especially new ones, became more productive when using AI tools alongside normal tasks. @makela2024complement analyze job ads across countries and find demand rising for human, complementary skills (teamwork, adaptability, digital literacy), while demand falls for narrowly routine tasks. Together, these findings suggest AI’s effects are heterogeneous: outcomes vary by occupation, tasks, skills, and context.
+
+# References
