@@ -1,4 +1,3 @@
-cat > about.qmd << 'EOF'
 ---
 title: "About the Team"
 ---
