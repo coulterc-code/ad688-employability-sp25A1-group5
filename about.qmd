@@ -1,3 +1,4 @@
+cat > about.qmd << 'EOF'
 ---
 title: "About the Team"
 ---
@@ -8,4 +9,4 @@ title: "About the Team"
 
 **Course:** AD688 – Employability
 
-This site hosts our research rationale, intro, and literature review for Project Selection I. 
+This site hosts our research rationale, intro, and literature review for Project Selection I.
