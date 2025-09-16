@@ -32,148 +32,148 @@ jupyter: python3
 # Import Data
 
 ```{python}
-import os, pandas as pd
+import pandas as pd, os
 
-csv_candidates = ["data/lightcast_job_postings.csv", "lightcast_job_postings.csv"]
-csv_path = next((p for p in csv_candidates if os.path.exists(p)), None)
+csv_path = "data/lightcast_job_postings.csv"
+df = pd.read_csv(csv_path, low_memory=False)
 
-if csv_path:
-    df = pd.read_csv(csv_path, low_memory=False)
-    print("Loaded:", csv_path, "Rows, Cols:", df.shape)
-    df.head(5)
-else:
-    print("⚠️ lightcast_job_postings.csv not found — skipping data load.")
-    df = None
+print("Rows, Cols:", df.shape)
+print(list(df.columns)[:40])
+df.head(5)
 ```
 
 # Data Cleaning & Preprocessing
 
 ## Dropping Unnecessary Columns
 ```{python}
-if df is None:
-    print("⚠️ No data available — skipping column drops.")
-else:
-    columns_to_drop = [
-        "ID","LAST_UPDATED_TIMESTAMP","DUPLICATES","ACTIVE_URLS","ACTIVE_SOURCES_INFO",
-        "TITLE_RAW","BODY","COMPANY_RAW",
-        "NAICS2","NAICS2_NAME","NAICS3","NAICS3_NAME","NAICS4","NAICS4_NAME",
-        "NAICS5","NAICS5_NAME","NAICS6","NAICS6_NAME",
-        "NAICS_2022_2","NAICS_2022_2_NAME","NAICS_2022_3","NAICS_2022_3_NAME",
-        "NAICS_2022_4","NAICS_2022_4_NAME","NAICS_2022_5","NAICS_2022_5_NAME",
-        "SOC_2","SOC_2_NAME","SOC_3","SOC_3_NAME","SOC_5","SOC_5_NAME",
-        "CIP2","CIP2_NAME","CIP4","CIP4_NAME","CIP6","CIP6_NAME",
-        "LOT_CAREER_AREA","LOT_CAREER_AREA_NAME","LOT_OCCUPATION","LOT_OCCUPATION_NAME",
-        "LOT_SPECIALIZED_OCCUPATION","LOT_SPECIALIZED_OCCUPATION_NAME",
-        "LOT_OCCUPATION_GROUP","LOT_OCCUPATION_GROUP_NAME",
-        "LOT_V6_SPECIALIZED_OCCUPATION","LOT_V6_SPECIALIZED_OCCUPATION_NAME",
-        "LOT_V6_OCCUPATION","LOT_V6_OCCUPATION_NAME","LOT_V6_OCCUPATION_GROUP",
-        "LOT_V6_OCCUPATION_GROUP_NAME","LOT_V6_CAREER_AREA","LOT_V6_CAREER_AREA_NAME",
-        "ONET","ONET_NAME","ONET_2019","ONET_2019_NAME"
-    ]
-    drop_existing = [c for c in columns_to_drop if c in df.columns]
-    df.drop(columns=drop_existing, inplace=True)
-    print("Remaining columns:", df.columns.tolist()[:25], "...")
+columns_to_drop = [
+    "ID","LAST_UPDATED_TIMESTAMP","DUPLICATES","ACTIVE_URLS","ACTIVE_SOURCES_INFO",
+    "TITLE_RAW","BODY","COMPANY_RAW",
+    "NAICS2","NAICS2_NAME","NAICS3","NAICS3_NAME","NAICS4","NAICS4_NAME",
+    "NAICS5","NAICS5_NAME","NAICS6","NAICS6_NAME",
+    "NAICS_2022_2","NAICS_2022_2_NAME","NAICS_2022_3","NAICS_2022_3_NAME",
+    "NAICS_2022_4","NAICS_2022_4_NAME","NAICS_2022_5","NAICS_2022_5_NAME",
+    "SOC_2","SOC_2_NAME","SOC_3","SOC_3_NAME","SOC_5","SOC_5_NAME",
+    "CIP2","CIP2_NAME","CIP4","CIP4_NAME","CIP6","CIP6_NAME",
+    "LOT_CAREER_AREA","LOT_CAREER_AREA_NAME","LOT_OCCUPATION","LOT_OCCUPATION_NAME",
+    "LOT_SPECIALIZED_OCCUPATION","LOT_SPECIALIZED_OCCUPATION_NAME",
+    "LOT_OCCUPATION_GROUP","LOT_OCCUPATION_GROUP_NAME",
+    "LOT_V6_SPECIALIZED_OCCUPATION","LOT_V6_SPECIALIZED_OCCUPATION_NAME",
+    "LOT_V6_OCCUPATION","LOT_V6_OCCUPATION_NAME","LOT_V6_OCCUPATION_GROUP",
+    "LOT_V6_OCCUPATION_GROUP_NAME","LOT_V6_CAREER_AREA","LOT_V6_CAREER_AREA_NAME",
+    "ONET","ONET_NAME","ONET_2019","ONET_2019_NAME"
+]
+drop_existing = [c for c in columns_to_drop if c in df.columns]
+df.drop(columns=drop_existing, inplace=True)
+print("Remaining columns (first 30):", list(df.columns)[:30])
 ```
 
 ## Handling Missing Values
 ```{python}
-if df is None:
-    print("⚠️ No data available — skipping missing-value handling.")
-else:
-    try:
-        import missingno as msno, matplotlib.pyplot as plt
-        msno.heatmap(df)
-        plt.title("Missing Values Heatmap")
-        plt.show()
-    except Exception as e:
-        print("missingno heatmap skipped:", e)
+try:
+    import missingno as msno, matplotlib.pyplot as plt
+    msno.heatmap(df)
+    plt.title("Missing Values Heatmap")
+    plt.show()
+except Exception as e:
+    print("missingno heatmap skipped:", e)
 
-    df.dropna(thresh=len(df) * 0.5, axis=1, inplace=True)
+df.dropna(thresh=len(df) * 0.5, axis=1, inplace=True)
 
-    if "SALARY" in df.columns:
-        df["SALARY"] = pd.to_numeric(df["SALARY"], errors="coerce")
-        df["SALARY"].fillna(df["SALARY"].median(), inplace=True)
+if "SALARY" in df.columns:
+    df["SALARY"] = pd.to_numeric(df["SALARY"], errors="coerce")
+    df["SALARY"].fillna(df["SALARY"].median(), inplace=True)
 
-    for col in df.select_dtypes(include="object").columns:
-        df[col].fillna("Unknown", inplace=True)
+for col in df.select_dtypes(include="object").columns:
+    df[col].fillna("Unknown", inplace=True)
 ```
 
 ## Removing Duplicates
 ```{python}
-if df is None:
-    print("⚠️ No data available — skipping duplicate removal.")
+subset_cols = [c for c in ["TITLE","COMPANY_NAME","LOCATION","POSTED"] if c in df.columns]
+if subset_cols:
+    before = len(df)
+    df.drop_duplicates(subset=subset_cols, keep="first", inplace=True)
+    print(f"Removed {before - len(df)} duplicates using {subset_cols}")
 else:
-    subset_cols = [c for c in ["TITLE","COMPANY_NAME","LOCATION","POSTED"] if c in df.columns]
-    if subset_cols:
-        before = len(df)
-        df.drop_duplicates(subset=subset_cols, keep="first", inplace=True)
-        print(f"Removed {before - len(df)} duplicates using {subset_cols}")
-    else:
-        print("No standard duplicate keys found; skipping.")
+    print("No standard duplicate keys found; skipping.")
 ```
 
 # Exploratory Data Analysis (EDA)
 
 ## Job Postings by Industry
 ```{python}
-if df is None:
-    print("⚠️ No data available for this plot.")
+import plotly.express as px
+
+industry_col = (
+    "NAICS_2022_6_NAME" if "NAICS_2022_6_NAME" in df.columns
+    else ("INDUSTRY" if "INDUSTRY" in df.columns else None)
+)
+if industry_col is None:
+    print("No industry column found.")
 else:
-    import plotly.express as px
-    industry_col = (
-        "NAICS_2022_6_NAME" if "NAICS_2022_6_NAME" in df.columns
-        else ("INDUSTRY" if "INDUSTRY" in df.columns else None)
+    counts = (
+        df[industry_col]
+        .value_counts()
+        .head(15)
+        .reset_index(name="Job Postings")
+        .rename(columns={industry_col: "Industry"})
+        .sort_values("Job Postings")
     )
-    if industry_col is None:
-        print("No industry column found.")
-    else:
-        counts = (df[industry_col].value_counts().head(15).reset_index()
-                  .rename(columns={"index":"Industry", industry_col:"Job Postings"})
-                  .sort_values("Job Postings"))
-        fig = px.bar(counts, x="Job Postings", y="Industry", orientation="h",
-                     title="Top 15 Industries by Number of Job Postings")
-        fig.show()
+    fig = px.bar(
+        counts,
+        x="Job Postings",
+        y="Industry",
+        orientation="h",
+        title="Top 15 Industries by Number of Job Postings"
+    )
+    fig.show()
 ```
 
 ## Salary Distribution by Industry
 ```{python}
-if df is None:
-    print("⚠️ No data available for this plot.")
-else:
-    import numpy as np, plotly.express as px
-    industry_col = (
-        "NAICS_2022_6_NAME" if "NAICS_2022_6_NAME" in df.columns
-        else ("INDUSTRY" if "INDUSTRY" in df.columns else None)
-    )
-    salary_candidates = ["SALARY","SALARY_MEDIAN","SALARY_MID","SALARY_ANNUAL","PAY_RATE"]
-    salary_col = next((c for c in salary_candidates if c in df.columns), None)
+import numpy as np, plotly.express as px
 
-    if industry_col is None or salary_col is None:
-        print("Missing salary or industry column for plot.")
-    else:
-        sdf = df[[industry_col, salary_col]].copy()
-        sdf[salary_col] = pd.to_numeric(sdf[salary_col], errors="coerce")
-        sdf = sdf.dropna(subset=[salary_col]).query(f"{salary_col} > 0")
-        fig2 = px.box(sdf, x=industry_col, y=salary_col,
-                      title="Salary Distribution by Industry", points=False)
-        fig2.update_layout(xaxis_tickangle=-45)
-        fig2.show()
+industry_col = (
+    "NAICS_2022_6_NAME" if "NAICS_2022_6_NAME" in df.columns
+    else ("INDUSTRY" if "INDUSTRY" in df.columns else None)
+)
+salary_candidates = ["SALARY","SALARY_MEDIAN","SALARY_MID","SALARY_ANNUAL","PAY_RATE"]
+salary_col = next((c for c in salary_candidates if c in df.columns), None)
+
+if industry_col is None or salary_col is None:
+    print("Missing salary or industry column for plot.")
+else:
+    sdf = df[[industry_col, salary_col]].copy()
+    sdf[salary_col] = pd.to_numeric(sdf[salary_col], errors="coerce")
+    sdf = sdf.dropna(subset=[salary_col]).query(f"{salary_col} > 0")
+    fig2 = px.box(
+        sdf,
+        x=industry_col,
+        y=salary_col,
+        title="Salary Distribution by Industry",
+        points=False
+    )
+    fig2.update_layout(xaxis_tickangle=-45)
+    fig2.show()
 ```
 
 ## Remote vs. On-Site Jobs
 ```{python}
-if df is None:
-    print("⚠️ No data available for this plot.")
+import plotly.express as px
+
+if "REMOTE_TYPE_NAME" in df.columns:
+    rc = df["REMOTE_TYPE_NAME"].value_counts().reset_index()
+    rc.columns = ["Remote Type","Count"]
+    fig3 = px.pie(
+        rc,
+        names="Remote Type",
+        values="Count",
+        title="Remote vs. On-Site Job Distribution"
+    )
+    fig3.show()
 else:
-    import plotly.express as px
-    if "REMOTE_TYPE_NAME" in df.columns:
-        rc = df["REMOTE_TYPE_NAME"].value_counts().reset_index()
-        rc.columns = ["Remote Type","Count"]
-        fig3 = px.pie(rc, names="Remote Type", values="Count",
-                      title="Remote vs. On-Site Job Distribution")
-        fig3.show()
-    else:
-        print("No REMOTE_TYPE_NAME column available.")
+    print("No REMOTE_TYPE_NAME column available.")
 ```
 
 ## EDA: Rationale & Insights
@@ -188,6 +188,3 @@ else:
 - **Salary patterns:** Wide dispersion in some industries implies upside for well-positioned candidates.
 - **Work arrangement mix:** Higher remote share expands options; lower share requires local strategy.
 - **Actionable takeaway:** Combine where **demand** is high, where **salary upside** exists, and where **work arrangement** fits your constraints to prioritize applications.
-
-## Build check
-This line proves the site rebuilt at Tue Sep 16 12:08:01 EDT 2025.
