@@ -1,0 +1,72 @@
+[
+  {
+    "objectID": "data_analysis.html",
+    "href": "data_analysis.html",
+    "title": "Data Analysis",
+    "section": "",
+    "text": "import os, pandas as pd\n\ncsv_candidates = [\"data/lightcast_job_postings.csv\", \"lightcast_job_postings.csv\"]\ncsv_path = next((p for p in csv_candidates if os.path.exists(p)), None)\n\nif csv_path:\n    df = pd.read_csv(csv_path, low_memory=False)\n    print(\"Loaded:\", csv_path, \"Rows, Cols:\", df.shape)\n    df.head(5)\nelse:\n    print(\"⚠️ lightcast_job_postings.csv not found — skipping data load.\")\n    df = None\n\n⚠️ lightcast_job_postings.csv not found — skipping data load."
+  },
+  {
+    "objectID": "data_analysis.html#dropping-unnecessary-columns",
+    "href": "data_analysis.html#dropping-unnecessary-columns",
+    "title": "Data Analysis",
+    "section": "2.1 Dropping Unnecessary Columns",
+    "text": "2.1 Dropping Unnecessary Columns\n\nif df is None:\n    print(\"⚠️ No data available — skipping column drops.\")\nelse:\n    columns_to_drop = [\n        \"ID\",\"LAST_UPDATED_TIMESTAMP\",\"DUPLICATES\",\"ACTIVE_URLS\",\"ACTIVE_SOURCES_INFO\",\n        \"TITLE_RAW\",\"BODY\",\"COMPANY_RAW\",\n        \"NAICS2\",\"NAICS2_NAME\",\"NAICS3\",\"NAICS3_NAME\",\"NAICS4\",\"NAICS4_NAME\",\n        \"NAICS5\",\"NAICS5_NAME\",\"NAICS6\",\"NAICS6_NAME\",\n        \"NAICS_2022_2\",\"NAICS_2022_2_NAME\",\"NAICS_2022_3\",\"NAICS_2022_3_NAME\",\n        \"NAICS_2022_4\",\"NAICS_2022_4_NAME\",\"NAICS_2022_5\",\"NAICS_2022_5_NAME\",\n        \"SOC_2\",\"SOC_2_NAME\",\"SOC_3\",\"SOC_3_NAME\",\"SOC_5\",\"SOC_5_NAME\",\n        \"CIP2\",\"CIP2_NAME\",\"CIP4\",\"CIP4_NAME\",\"CIP6\",\"CIP6_NAME\",\n        \"LOT_CAREER_AREA\",\"LOT_CAREER_AREA_NAME\",\"LOT_OCCUPATION\",\"LOT_OCCUPATION_NAME\",\n        \"LOT_SPECIALIZED_OCCUPATION\",\"LOT_SPECIALIZED_OCCUPATION_NAME\",\n        \"LOT_OCCUPATION_GROUP\",\"LOT_OCCUPATION_GROUP_NAME\",\n        \"LOT_V6_SPECIALIZED_OCCUPATION\",\"LOT_V6_SPECIALIZED_OCCUPATION_NAME\",\n        \"LOT_V6_OCCUPATION\",\"LOT_V6_OCCUPATION_NAME\",\"LOT_V6_OCCUPATION_GROUP\",\n        \"LOT_V6_OCCUPATION_GROUP_NAME\",\"LOT_V6_CAREER_AREA\",\"LOT_V6_CAREER_AREA_NAME\",\n        \"ONET\",\"ONET_NAME\",\"ONET_2019\",\"ONET_2019_NAME\"\n    ]\n    drop_existing = [c for c in columns_to_drop if c in df.columns]\n    df.drop(columns=drop_existing, inplace=True)\n    print(\"Remaining columns:\", df.columns.tolist()[:25], \"...\")\n\n⚠️ No data available — skipping column drops."
+  },
+  {
+    "objectID": "data_analysis.html#handling-missing-values",
+    "href": "data_analysis.html#handling-missing-values",
+    "title": "Data Analysis",
+    "section": "2.2 Handling Missing Values",
+    "text": "2.2 Handling Missing Values\n\nif df is None:\n    print(\"⚠️ No data available — skipping missing-value handling.\")\nelse:\n    try:\n        import missingno as msno, matplotlib.pyplot as plt\n        msno.heatmap(df)\n        plt.title(\"Missing Values Heatmap\")\n        plt.show()\n    except Exception as e:\n        print(\"missingno heatmap skipped:\", e)\n\n    df.dropna(thresh=len(df) * 0.5, axis=1, inplace=True)\n\n    if \"SALARY\" in df.columns:\n        df[\"SALARY\"] = pd.to_numeric(df[\"SALARY\"], errors=\"coerce\")\n        df[\"SALARY\"].fillna(df[\"SALARY\"].median(), inplace=True)\n\n    for col in df.select_dtypes(include=\"object\").columns:\n        df[col].fillna(\"Unknown\", inplace=True)\n\n⚠️ No data available — skipping missing-value handling."
+  },
+  {
+    "objectID": "data_analysis.html#removing-duplicates",
+    "href": "data_analysis.html#removing-duplicates",
+    "title": "Data Analysis",
+    "section": "2.3 Removing Duplicates",
+    "text": "2.3 Removing Duplicates\n\nif df is None:\n    print(\"⚠️ No data available — skipping duplicate removal.\")\nelse:\n    subset_cols = [c for c in [\"TITLE\",\"COMPANY_NAME\",\"LOCATION\",\"POSTED\"] if c in df.columns]\n    if subset_cols:\n        before = len(df)\n        df.drop_duplicates(subset=subset_cols, keep=\"first\", inplace=True)\n        print(f\"Removed {before - len(df)} duplicates using {subset_cols}\")\n    else:\n        print(\"No standard duplicate keys found; skipping.\")\n\n⚠️ No data available — skipping duplicate removal."
+  },
+  {
+    "objectID": "data_analysis.html#job-postings-by-industry",
+    "href": "data_analysis.html#job-postings-by-industry",
+    "title": "Data Analysis",
+    "section": "3.1 Job Postings by Industry",
+    "text": "3.1 Job Postings by Industry\n\nif df is None:\n    print(\"⚠️ No data available for this plot.\")\nelse:\n    import plotly.express as px\n    industry_col = (\n        \"NAICS_2022_6_NAME\" if \"NAICS_2022_6_NAME\" in df.columns\n        else (\"INDUSTRY\" if \"INDUSTRY\" in df.columns else None)\n    )\n    if industry_col is None:\n        print(\"No industry column found.\")\n    else:\n        counts = (df[industry_col].value_counts().head(15).reset_index()\n                  .rename(columns={\"index\":\"Industry\", industry_col:\"Job Postings\"})\n                  .sort_values(\"Job Postings\"))\n        fig = px.bar(counts, x=\"Job Postings\", y=\"Industry\", orientation=\"h\",\n                     title=\"Top 15 Industries by Number of Job Postings\")\n        fig.show()\n\n⚠️ No data available for this plot."
+  },
+  {
+    "objectID": "data_analysis.html#salary-distribution-by-industry",
+    "href": "data_analysis.html#salary-distribution-by-industry",
+    "title": "Data Analysis",
+    "section": "3.2 Salary Distribution by Industry",
+    "text": "3.2 Salary Distribution by Industry\n\nif df is None:\n    print(\"⚠️ No data available for this plot.\")\nelse:\n    import numpy as np, plotly.express as px\n    industry_col = (\n        \"NAICS_2022_6_NAME\" if \"NAICS_2022_6_NAME\" in df.columns\n        else (\"INDUSTRY\" if \"INDUSTRY\" in df.columns else None)\n    )\n    salary_candidates = [\"SALARY\",\"SALARY_MEDIAN\",\"SALARY_MID\",\"SALARY_ANNUAL\",\"PAY_RATE\"]\n    salary_col = next((c for c in salary_candidates if c in df.columns), None)\n\n    if industry_col is None or salary_col is None:\n        print(\"Missing salary or industry column for plot.\")\n    else:\n        sdf = df[[industry_col, salary_col]].copy()\n        sdf[salary_col] = pd.to_numeric(sdf[salary_col], errors=\"coerce\")\n        sdf = sdf.dropna(subset=[salary_col]).query(f\"{salary_col} &gt; 0\")\n        fig2 = px.box(sdf, x=industry_col, y=salary_col,\n                      title=\"Salary Distribution by Industry\", points=False)\n        fig2.update_layout(xaxis_tickangle=-45)\n        fig2.show()\n\n⚠️ No data available for this plot."
+  },
+  {
+    "objectID": "data_analysis.html#remote-vs.-on-site-jobs",
+    "href": "data_analysis.html#remote-vs.-on-site-jobs",
+    "title": "Data Analysis",
+    "section": "3.3 Remote vs. On-Site Jobs",
+    "text": "3.3 Remote vs. On-Site Jobs\n\nif df is None:\n    print(\"⚠️ No data available for this plot.\")\nelse:\n    import plotly.express as px\n    if \"REMOTE_TYPE_NAME\" in df.columns:\n        rc = df[\"REMOTE_TYPE_NAME\"].value_counts().reset_index()\n        rc.columns = [\"Remote Type\",\"Count\"]\n        fig3 = px.pie(rc, names=\"Remote Type\", values=\"Count\",\n                      title=\"Remote vs. On-Site Job Distribution\")\n        fig3.show()\n    else:\n        print(\"No REMOTE_TYPE_NAME column available.\")\n\n⚠️ No data available for this plot."
+  },
+  {
+    "objectID": "data_analysis.html#eda-rationale-insights",
+    "href": "data_analysis.html#eda-rationale-insights",
+    "title": "Data Analysis",
+    "section": "3.4 EDA: Rationale & Insights",
+    "text": "3.4 EDA: Rationale & Insights\n\n3.4.1 Why these visualizations\n\nJob Postings by Industry (bar chart) compares demand across industries to prioritize where to focus a job search.\nSalary Distribution by Industry (box plot) shows median and spread, robust to skew in salary data.\nRemote vs. On-Site (pie chart) summarizes work-arrangement mix to set expectations for location flexibility.\n\n\n\n3.4.2 Key insights from the graphs\n\nIndustry demand: A few industries dominate postings; target those first while keeping secondary sectors.\nSalary patterns: Wide dispersion in some industries implies upside for well-positioned candidates.\nWork arrangement mix: Higher remote share expands options; lower share requires local strategy.\nActionable takeaway: Combine where demand is high, where salary upside exists, and where work arrangement fits your constraints to prioritize applications."
+  },
+  {
+    "objectID": "index.html",
+    "href": "index.html",
+    "title": "AI vs. Non-AI Job Growth",
+    "section": "",
+    "text": "Introduction\nArtificial intelligence (AI) is changing the working world, affecting jobs and livelihood. This makes AI an important topic to study. Jobs that are related to AI, such as data science, robotics, and machine learning, are becoming more common, often paying well. Simultaneously, traditional jobs such as farming, retail, or office work are slowly being reduced and taken over due to automation and new advanced technology taking over. This does not imply that every job disappears; however, it does mean that the job market is shifting alongside AI, and people are starting to worry that their future careers might not be as secure as before.\nIn 2024, people are worried about job security as many industries are already adopting AI tools. Some see AI as a threat to their jobs, while others see it as a chance to move into new roles. Looking at AI versus non-AI careers will help us further understand how and where job opportunities are growing, which areas are shrinking, and what skills people may need to adapt in the future.\n\n\nResearch Rationale\nThis topic is not only important, but also interesting to understand because it highlights how the progress of AI can actually eliminate and create jobs at the same time. In 2024, many companies are integrating AI, accelerating changes in the job market. Automation is replacing repetitive tasks, while AI-driven roles are much higher in demand. However, this transition is not equal.\nAI affects people differently depending on their job, skill level, and where they live. For example, store cashiers are being replaced by self-checkout machines, but new jobs like AI engineers are being created to build and maintain those systems. The problem is that it might take five people to run a store, but an entire company may only need a few engineers to build the technology that replaces these cashiers. This means that some workers may lose jobs unless they learn new skills (see e.g., Tiwari ((2023))).\n\n\nPreliminary Discussion\nAI has already shown a large positive impact: it reduces the need for workers in routine tasks while simultaneously creating new job roles like AI ethics officers and prompt engineers. These jobs did not exist a decade ago, which shows that AI is not necessarily taking away jobs but also opening new career paths.\nThe real issue is that the shift is uneven. It is not always a fair trade when losing one job and gaining another because some countries with strong economies may be able to support workers with training programs, but poorer countries may not. It should also be noted that there will be workers who are not interested in technological roles. This shows that AI’s impact depends on economics, training opportunities, and even personal preference and interest. In some settings AI tools raise worker productivity—especially for newer workers—rather than replace them outright (Brynjolfsson, Li, and Raymond ((2023))); employers are also placing more value on complementary human skills (teamwork, adaptability, digital literacy) even as purely routine tasks decline (Mäkelä and Stephany ((2024))).\n\n\nLiterature Review\nResearchers have studied how AI is affecting jobs, and findings vary. Tiwari ((2023)) explains that while AI/ML can replace some roles—especially repetitive, routine work—they also create opportunities in areas like data analysis and AI system development. The key challenge is reskilling: workers’ ability to adapt to new roles determines whether they benefit.\nOther studies show that AI can help workers instead of only replacing them. Brynjolfsson, Li, and Raymond ((2023)) find that customer service workers, especially new ones, became more productive when using AI tools alongside normal tasks. Mäkelä and Stephany ((2024)) analyze job ads across countries and find demand rising for human, complementary skills (teamwork, adaptability, digital literacy), while demand falls for narrowly routine tasks. Together, these findings suggest AI’s effects are heterogeneous: outcomes vary by occupation, tasks, skills, and context.\n\n\n\n\n\n\n\n\nReferences\n\nBrynjolfsson, E., D. Li, and L. Raymond. (2023): “Generative AI at work,” arXiv preprint arXiv:2304.11771,.\n\n\nMäkelä, E., and F. Stephany. (2024): “Complement or substitute? How AI increases the demand for human skills,” arXiv preprint arXiv:2412.19754,.\n\n\nTiwari, R. (2023): “The impact of AI and machine learning on job displacement and employment opportunities,” International Journal of Engineering Technologies and Management Research, 7, 1–9."
+  },
+  {
+    "objectID": "about.html",
+    "href": "about.html",
+    "title": "About the Team",
+    "section": "",
+    "text": "Team: Connor Coulter, Wei Wang, Balqis Bevi Abdul Hannan Kanaga\nTopic: AI vs. Non-AI Job Growth — Is AI taking over or creating more jobs?\nCourse: AD 688 – Cloud Analytics for Business\nThis site hosts our research rationale, intro, and literature review for Project Selection I."
+  }
+]
