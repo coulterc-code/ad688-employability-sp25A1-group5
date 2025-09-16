@@ -1,6 +1,6 @@
 ---
 title: "Data Analysis"
-subtitle: "Comprehensive Data Cleaning & Exploratory Analysis of Job Market Trends"
+subtitle: "Comprehensive Data Cleaning & Exploratory Exploration of Job Market Trends"
 author:
   - name: Connor Coulter
     affiliations:
@@ -23,9 +23,9 @@ format:
     number-sections: true
     df-print: paged
 execute:
-  echo: true
+  echo: false        # HIDE CODE in the HTML
   eval: true
-  freeze: false
+  freeze: false      # always rebuild
 jupyter: python3
 ---
 
@@ -33,13 +33,11 @@ jupyter: python3
 
 ```{python}
 import pandas as pd
-
-# CSV must be saved at: data/lightcast_job_postings.csv
-df = pd.read_csv("data/lightcast_job_postings.csv", low_memory=False)
+csv_path = "data/lightcast_job_postings.csv"  # place your CSV here
+df = pd.read_csv(csv_path, low_memory=False)
 
 print("Loaded dataset:", df.shape)
-print("Columns (first 40):", list(df.columns)[:40])
-df.head(5)
+display(df.head(5))
 ```
 
 # Data Cleaning & Preprocessing
@@ -64,13 +62,14 @@ columns_to_drop = [
     "ONET","ONET_NAME","ONET_2019","ONET_2019_NAME"
 ]
 drop_existing = [c for c in columns_to_drop if c in df.columns]
-df.drop(columns=drop_existing, inplace=True, errors="ignore")
+df = df.drop(columns=drop_existing, errors="ignore")
+
 print("Remaining columns (first 30):", list(df.columns)[:30])
 ```
 
 ## Handling Missing Values
 ```{python}
-# Optional missingness heatmap (won't fail if libs aren't installed)
+# Optional missingness heatmap
 try:
     import missingno as msno, matplotlib.pyplot as plt
     msno.heatmap(df)
@@ -80,16 +79,16 @@ except Exception as e:
     print("missingno heatmap skipped:", e)
 
 # Drop columns with >50% missing
-df.dropna(thresh=len(df) * 0.5, axis=1, inplace=True)
+df = df.dropna(thresh=len(df) * 0.5, axis=1)
 
 # Numeric salary fill if present
 if "SALARY" in df.columns:
     df["SALARY"] = pd.to_numeric(df["SALARY"], errors="coerce")
-    df["SALARY"].fillna(df["SALARY"].median(), inplace=True)
+    df["SALARY"] = df["SALARY"].fillna(df["SALARY"].median())
 
-# Fill categorical NAs with "Unknown"
+# Fill categorical NAs with "Unknown" (no chained assignment)
 for col in df.select_dtypes(include="object").columns:
-    df[col].fillna("Unknown", inplace=True)
+    df.loc[:, col] = df[col].fillna("Unknown")
 ```
 
 ## Removing Duplicates
@@ -97,7 +96,7 @@ for col in df.select_dtypes(include="object").columns:
 subset_cols = [c for c in ["TITLE","COMPANY_NAME","LOCATION","POSTED"] if c in df.columns]
 if subset_cols:
     before = len(df)
-    df.drop_duplicates(subset=subset_cols, keep="first", inplace=True)
+    df = df.drop_duplicates(subset=subset_cols, keep="first")
     print(f"Removed {before - len(df)} duplicates using {subset_cols}")
 else:
     print("No standard duplicate keys found; skipping.")
@@ -105,30 +104,39 @@ else:
 
 # Exploratory Data Analysis (EDA)
 
+```{python}
+# Helpers: robust column selection
+INDUSTRY_CANDIDATES = [
+    "NAICS_2022_6_NAME","NAICS_2022_5_NAME","NAICS_2022_4_NAME","NAICS_2022_3_NAME","NAICS_2022_2_NAME",
+    "NAICS6_NAME","NAICS5_NAME","NAICS4_NAME","NAICS3_NAME","NAICS2_NAME",
+    "INDUSTRY","INDUSTRY_NAME"
+]
+SALARY_CANDIDATES = ["SALARY","SALARY_MEDIAN","SALARY_MID","SALARY_ANNUAL","PAY_RATE"]
+
+industry_col = next((c for c in INDUSTRY_CANDIDATES if c in df.columns), None)
+salary_col   = next((c for c in SALARY_CANDIDATES if c in df.columns), None)
+
+print("Chosen industry column:", industry_col)
+print("Chosen salary column:", salary_col)
+```
+
 ## Job Postings by Industry
 ```{python}
 import plotly.express as px
 
-industry_col = (
-    "NAICS_2022_6_NAME" if "NAICS_2022_6_NAME" in df.columns
-    else ("INDUSTRY" if "INDUSTRY" in df.columns else None)
-)
 if industry_col is None:
-    print("No industry column found.")
+    print("No industry-like column available for chart.")
 else:
     counts = (
         df[industry_col]
-        .value_counts()
+        .value_counts(dropna=False)
         .head(15)
         .reset_index(name="Job Postings")
-        .rename(columns={industry_col: "Industry"})
+        .rename(columns={"index": "Industry"})
         .sort_values("Job Postings")
     )
     fig = px.bar(
-        counts,
-        x="Job Postings",
-        y="Industry",
-        orientation="h",
+        counts, x="Job Postings", y="Industry", orientation="h",
         title="Top 15 Industries by Number of Job Postings"
     )
     fig.show()
@@ -138,46 +146,38 @@ else:
 ```{python}
 import numpy as np, plotly.express as px
 
-industry_col = (
-    "NAICS_2022_6_NAME" if "NAICS_2022_6_NAME" in df.columns
-    else ("INDUSTRY" if "INDUSTRY" in df.columns else None)
-)
-salary_candidates = ["SALARY","SALARY_MEDIAN","SALARY_MID","SALARY_ANNUAL","PAY_RATE"]
-salary_col = next((c for c in salary_candidates if c in df.columns), None)
-
-if industry_col is None or salary_col is None:
+if (industry_col is None) or (salary_col is None):
     print("Missing salary or industry column for plot.")
 else:
     sdf = df[[industry_col, salary_col]].copy()
     sdf[salary_col] = pd.to_numeric(sdf[salary_col], errors="coerce")
-    sdf = sdf.dropna(subset=[salary_col]).query(f"{salary_col} > 0")
-    fig2 = px.box(
-        sdf,
-        x=industry_col,
-        y=salary_col,
-        title="Salary Distribution by Industry",
-        points=False
-    )
-    fig2.update_layout(xaxis_tickangle=-45)
-    fig2.show()
+    sdf = sdf.dropna(subset=[salary_col])
+    sdf = sdf[sdf[salary_col] > 0]
+
+    if sdf.empty:
+        print("No salary data available for boxplot after cleaning.")
+    else:
+        fig2 = px.box(
+            sdf, x=industry_col, y=salary_col,
+            title="Salary Distribution by Industry", points=False
+        )
+        fig2.update_layout(xaxis_tickangle=-45)
+        fig2.show()
 ```
 
 ## Remote vs. On-Site Jobs
 ```{python}
 import plotly.express as px
 
-if "REMOTE_TYPE_NAME" in df.columns:
-    rc = df["REMOTE_TYPE_NAME"].value_counts().reset_index()
-    rc.columns = ["Remote Type","Count"]
-    fig3 = px.pie(
-        rc,
-        names="Remote Type",
-        values="Count",
-        title="Remote vs. On-Site Job Distribution"
-    )
-    fig3.show()
-else:
+col = "REMOTE_TYPE_NAME" if "REMOTE_TYPE_NAME" in df.columns else None
+if col is None:
     print("No REMOTE_TYPE_NAME column available.")
+else:
+    rc = df[col].fillna("Unknown").value_counts().reset_index()
+    rc.columns = ["Remote Type","Count"]
+    fig3 = px.pie(rc, names="Remote Type", values="Count",
+                  title="Remote vs. On-Site Job Distribution")
+    fig3.show()
 ```
 
 ## EDA: Rationale & Insights
