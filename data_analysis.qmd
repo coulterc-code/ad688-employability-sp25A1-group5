@@ -33,8 +33,9 @@ jupyter: python3
 
 ```{python}
 import pandas as pd
+import numpy as np
 
-CSV_PATH = "data/lightcast_job_postings.csv"   # ensure the CSV is here
+CSV_PATH = "data/lightcast_job_postings.csv"
 df = pd.read_csv(CSV_PATH, low_memory=False)
 
 print("Loaded dataset:", df.shape)
@@ -43,32 +44,79 @@ display(df.head(5))
 
 # Data Cleaning & Preprocessing
 
-## Dropping Unnecessary Columns
+## Create Robust Derived Columns (before any dropping)
 ```{python}
-# Keep the most current NAICS/SOC name columns; drop legacy & metadata
+# 1) INDUSTRY_DISPLAY: pick the first available industry/NAICS name column
+INDUSTRY_CANDIDATES = [
+    "NAICS_2022_6_NAME","NAICS_2022_5_NAME","NAICS_2022_4_NAME","NAICS_2022_3_NAME","NAICS_2022_2_NAME",
+    "NAICS6_NAME","NAICS5_NAME","NAICS4_NAME","NAICS3_NAME","NAICS2_NAME",
+    "LIGHTCAST_SECTORS_NAME","SECTOR_NAME","INDUSTRY","INDUSTRY_NAME"
+]
+existing_industry = [c for c in INDUSTRY_CANDIDATES if c in df.columns]
+if existing_industry:
+    df["INDUSTRY_DISPLAY"] = df[existing_industry].bfill(axis=1).iloc[:, 0]
+else:
+    df["INDUSTRY_DISPLAY"] = np.nan  # will show message later if all missing
+
+# 2) SALARY_DISPLAY (numeric, annualized where possible)
+# Priority A: SALARY
+salary_series = None
+if "SALARY" in df.columns:
+    salary_series = pd.to_numeric(df["SALARY"], errors="coerce")
+
+# Priority B: midpoint of SALARY_FROM / SALARY_TO
+if salary_series is None or salary_series.isna().all():
+    if {"SALARY_FROM","SALARY_TO"}.issubset(df.columns):
+        lo = pd.to_numeric(df["SALARY_FROM"], errors="coerce")
+        hi = pd.to_numeric(df["SALARY_TO"], errors="coerce")
+        mid = (lo + hi) / 2
+        if not mid.isna().all():
+            salary_series = mid
+
+# Priority C: annualize PAY_RATE using ORIGINAL_PAY_PERIOD (HOUR/WEEK/MONTH/YEAR)
+if (salary_series is None or salary_series.isna().all()) and "PAY_RATE" in df.columns:
+    pay = pd.to_numeric(df["PAY_RATE"], errors="coerce")
+    period = df["ORIGINAL_PAY_PERIOD"].astype(str).str.upper() if "ORIGINAL_PAY_PERIOD" in df.columns else "YEAR"
+    factor = np.where(period.str.contains("HOUR"), 2080,
+             np.where(period.str.contains("WEEK"), 52,
+             np.where(period.str.contains("MONTH"), 12, 1)))
+    annual = pay * factor
+    if not annual.isna().all():
+        salary_series = annual
+
+# Assign SALARY_DISPLAY if we found something
+if salary_series is not None:
+    df["SALARY_DISPLAY"] = pd.to_numeric(salary_series, errors="coerce")
+else:
+    df["SALARY_DISPLAY"] = np.nan
+
+print("Derived columns created. Non-null counts:",
+      {"INDUSTRY_DISPLAY": int(df["INDUSTRY_DISPLAY"].notna().sum()),
+       "SALARY_DISPLAY": int(df["SALARY_DISPLAY"].notna().sum())})
+```
+
+## Drop Unnecessary Columns
+```{python}
 columns_to_drop = [
-    "ID","LAST_UPDATED_TIMESTAMP","DUPLICATES","ACTIVE_URLS","ACTIVE_SOURCES_INFO",
-    "TITLE_RAW","BODY","COMPANY_RAW","URL","SOURCES","SOURCE_TYPES",
-    "NAICS2","NAICS2_NAME","NAICS3","NAICS3_NAME","NAICS4","NAICS4_NAME",
-    "NAICS5","NAICS5_NAME","NAICS6","NAICS6_NAME",
-    "NAICS_2022_2","NAICS_2022_2_NAME","NAICS_2022_3","NAICS_2022_3_NAME",
-    "NAICS_2022_4","NAICS_2022_4_NAME","NAICS_2022_5","NAICS_2022_5_NAME",
+    "ID","LAST_UPDATED_TIMESTAMP","DUPLICATES","ACTIVE_URLS","ACTIVE_SOURCES_INFO","URL","SOURCES","SOURCE_TYPES",
+    "TITLE_RAW","BODY","COMPANY_RAW",
+    "NAICS2","NAICS2_NAME","NAICS3","NAICS3_NAME","NAICS4","NAICS4_NAME","NAICS5","NAICS5_NAME","NAICS6","NAICS6_NAME",
+    "NAICS_2022_2","NAICS_2022_2_NAME","NAICS_2022_3","NAICS_2022_3_NAME","NAICS_2022_4","NAICS_2022_4_NAME","NAICS_2022_5","NAICS_2022_5_NAME",
     "SOC_2","SOC_2_NAME","SOC_3","SOC_3_NAME","SOC_5","SOC_5_NAME",
     "CIP2","CIP2_NAME","CIP4","CIP4_NAME","CIP6","CIP6_NAME",
     "LOT_CAREER_AREA","LOT_CAREER_AREA_NAME","LOT_OCCUPATION","LOT_OCCUPATION_NAME",
     "LOT_SPECIALIZED_OCCUPATION","LOT_SPECIALIZED_OCCUPATION_NAME",
     "LOT_OCCUPATION_GROUP","LOT_OCCUPATION_GROUP_NAME",
     "LOT_V6_SPECIALIZED_OCCUPATION","LOT_V6_SPECIALIZED_OCCUPATION_NAME",
-    "LOT_V6_OCCUPATION","LOT_V6_OCCUPATION_NAME","LOT_V6_OCCUPATION_GROUP",
-    "LOT_V6_OCCUPATION_GROUP_NAME","LOT_V6_CAREER_AREA","LOT_V6_CAREER_AREA_NAME",
-    "ONET","ONET_NAME","ONET_2019","ONET_2019_NAME"
+    "LOT_V6_OCCUPATION","LOT_V6_OCCUPATION_NAME","LOT_V6_OCCUPATION_GROUP","LOT_V6_OCCUPATION_GROUP_NAME",
+    "LOT_V6_CAREER_AREA","LOT_V6_CAREER_AREA_NAME","ONET","ONET_NAME","ONET_2019","ONET_2019_NAME"
 ]
 existing = [c for c in columns_to_drop if c in df.columns]
 df = df.drop(columns=existing, errors="ignore")
 print("Remaining columns (first 30):", list(df.columns)[:30])
 ```
 
-## Handling Missing Values
+## Handle Missing Values
 ```{python}
 # Optional missingness heatmap
 try:
@@ -79,20 +127,24 @@ try:
 except Exception as e:
     print("missingno heatmap skipped:", e)
 
-# Drop columns with >50% missing
-df = df.dropna(thresh=len(df) * 0.5, axis=1)
+# Don't drop our derived columns; temporarily set a high threshold but exclude derived fields
+cols_to_consider = [c for c in df.columns if c not in ["INDUSTRY_DISPLAY","SALARY_DISPLAY"]]
+df_non_derived = df[cols_to_consider]
+keep = df_non_derived.dropna(thresh=len(df) * 0.5, axis=1)
+df = pd.concat([keep, df[["INDUSTRY_DISPLAY","SALARY_DISPLAY"]]], axis=1)
 
-# Normalize salary-related fields
-if "SALARY" in df.columns:
-    df["SALARY"] = pd.to_numeric(df["SALARY"], errors="coerce")
-    df["SALARY"] = df["SALARY"].fillna(df["SALARY"].median())
+# Numeric cleanup on SALARY_DISPLAY
+df["SALARY_DISPLAY"] = pd.to_numeric(df["SALARY_DISPLAY"], errors="coerce")
+med = df["SALARY_DISPLAY"].median() if df["SALARY_DISPLAY"].notna().any() else np.nan
+if not np.isnan(med):
+    df["SALARY_DISPLAY"] = df["SALARY_DISPLAY"].fillna(med)
 
-# Fill categorical NAs with "Unknown" (no chained assignment)
+# Fill categorical NAs without chained assignment
 for col in df.select_dtypes(include="object").columns:
     df.loc[:, col] = df[col].fillna("Unknown")
 ```
 
-## Removing Duplicates
+## Remove Duplicates
 ```{python}
 subset_cols = [c for c in ["TITLE","COMPANY_NAME","LOCATION","POSTED"] if c in df.columns]
 if subset_cols:
@@ -106,33 +158,20 @@ else:
 # Exploratory Data Analysis (EDA)
 
 ```{python}
-# Robust column pickers (expanded)
-INDUSTRY_CANDIDATES = [
-    "NAICS_2022_6_NAME","NAICS_2022_5_NAME","NAICS_2022_4_NAME","NAICS_2022_3_NAME","NAICS_2022_2_NAME",
-    "NAICS6_NAME","NAICS5_NAME","NAICS4_NAME","NAICS3_NAME","NAICS2_NAME",
-    "LIGHTCAST_SECTORS_NAME","INDUSTRY","INDUSTRY_NAME","NAICS_2022_NAME","SECTOR_NAME"
-]
-SALARY_CANDIDATES = [
-    "SALARY","SALARY_MEDIAN","SALARY_MID","SALARY_ANNUAL","PAY_RATE",
-    "SALARY_FROM","SALARY_TO"
-]
-
-industry_col = next((c for c in INDUSTRY_CANDIDATES if c in df.columns), None)
-salary_col   = next((c for c in SALARY_CANDIDATES if c in df.columns), None)
-
-print("Chosen industry column:", industry_col)
-print("Chosen salary column:", salary_col)
+print("Final non-null counts:",
+      {"INDUSTRY_DISPLAY": int(df["INDUSTRY_DISPLAY"].notna().sum()),
+       "SALARY_DISPLAY": int(df["SALARY_DISPLAY"].notna().sum())})
 ```
 
 ## Job Postings by Industry
 ```{python}
 import plotly.express as px
 
-if industry_col is None:
-    print("No industry-like column available for chart.")
+if df["INDUSTRY_DISPLAY"].notna().sum() == 0:
+    print("No industry values available for chart.")
 else:
     counts = (
-        df[industry_col]
+        df["INDUSTRY_DISPLAY"]
         .value_counts(dropna=False)
         .head(15)
         .reset_index(name="Job Postings")
@@ -148,34 +187,20 @@ else:
 
 ## Salary Distribution by Industry
 ```{python}
-import numpy as np, plotly.express as px
+import plotly.express as px
 
-if (industry_col is None) or (salary_col is None):
-    print("Missing salary or industry column for plot.")
+valid = df.dropna(subset=["INDUSTRY_DISPLAY","SALARY_DISPLAY"])
+valid = valid[valid["SALARY_DISPLAY"] > 0]
+
+if valid.empty:
+    print("No salary data available for boxplot after cleaning.")
 else:
-    # if we have SALARY_FROM/TO but not a single salary, make a midpoint
-    if salary_col in ["SALARY_FROM","SALARY_TO"] and {"SALARY_FROM","SALARY_TO"}.issubset(df.columns):
-        df["_SALARY_MID"] = pd.to_numeric(df["SALARY_FROM"], errors="coerce")
-        hi = pd.to_numeric(df["SALARY_TO"], errors="coerce")
-        df.loc[:, "_SALARY_MID"] = (df["_SALARY_MID"] + hi) / 2
-        salary_col_use = "_SALARY_MID"
-    else:
-        salary_col_use = salary_col
-
-    sdf = df[[industry_col, salary_col_use]].copy()
-    sdf.loc[:, salary_col_use] = pd.to_numeric(sdf[salary_col_use], errors="coerce")
-    sdf = sdf.dropna(subset=[salary_col_use])
-    sdf = sdf[sdf[salary_col_use] > 0]
-
-    if sdf.empty:
-        print("No salary data available for boxplot after cleaning.")
-    else:
-        fig2 = px.box(
-            sdf, x=industry_col, y=salary_col_use,
-            title="Salary Distribution by Industry", points=False
-        )
-        fig2.update_layout(xaxis_tickangle=-45)
-        fig2.show()
+    fig2 = px.box(
+        valid, x="INDUSTRY_DISPLAY", y="SALARY_DISPLAY",
+        title="Salary Distribution by Industry", points=False
+    )
+    fig2.update_layout(xaxis_tickangle=-45)
+    fig2.show()
 ```
 
 ## Remote vs. On-Site Jobs
@@ -196,12 +221,11 @@ else:
 ## EDA: Rationale & Insights
 
 ### Why these visualizations
-- **Job Postings by Industry (bar chart)** compares demand across industries to prioritize where to focus a job search.
-- **Salary Distribution by Industry (box plot)** shows median and spread, robust to skew in salary data.
-- **Remote vs. On-Site (pie chart)** summarizes work-arrangement mix to set expectations for location flexibility.
+- **Job Postings by Industry** compares demand across industries to prioritize where to focus a job search.
+- **Salary Distribution by Industry** shows central tendency and spread, robust to skew/outliers.
+- **Remote vs. On-Site** summarizes work-arrangement mix to set expectations for location flexibility.
 
 ### Key insights from the graphs
-- **Industry demand:** A few industries dominate postings; target those first while keeping secondary sectors.
-- **Salary patterns:** Wide dispersion in some industries implies upside for well-positioned candidates.
-- **Work arrangement mix:** Higher remote share expands options; lower share requires local strategy.
-- **Actionable takeaway:** Combine where **demand** is high, where **salary upside** exists, and where **work arrangement** fits your constraints to prioritize applications.
+- **Industry demand:** A few industries typically dominate postings; target those first while keeping secondary sectors in play.
+- **Salary patterns:** Wide dispersion implies upside for well-positioned candidates and the need to negotiate.
+- **Work arrangement mix:** Higher remote share expands geographic options; lower share reinforces local strategy.
