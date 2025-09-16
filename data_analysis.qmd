@@ -23,9 +23,9 @@ format:
     number-sections: true
     df-print: paged
 execute:
-  echo: false
+  echo: false      # hide code in HTML
   eval: true
-  freeze: false
+  freeze: false    # always rebuild
 jupyter: python3
 ---
 
@@ -44,9 +44,9 @@ display(df.head(5))
 
 # Data Cleaning & Preprocessing
 
-## Create Robust Derived Columns (before any dropping)
+## Create Derived Columns
 ```{python}
-# 1) INDUSTRY_DISPLAY: pick the first available industry/NAICS name column
+# INDUSTRY_DISPLAY: choose the first available column
 INDUSTRY_CANDIDATES = [
     "NAICS_2022_6_NAME","NAICS_2022_5_NAME","NAICS_2022_4_NAME","NAICS_2022_3_NAME","NAICS_2022_2_NAME",
     "NAICS6_NAME","NAICS5_NAME","NAICS4_NAME","NAICS3_NAME","NAICS2_NAME",
@@ -56,25 +56,24 @@ existing_industry = [c for c in INDUSTRY_CANDIDATES if c in df.columns]
 if existing_industry:
     df["INDUSTRY_DISPLAY"] = df[existing_industry].bfill(axis=1).iloc[:, 0]
 else:
-    df["INDUSTRY_DISPLAY"] = np.nan  # will show message later if all missing
+    df["INDUSTRY_DISPLAY"] = np.nan
 
-# 2) SALARY_DISPLAY (numeric, annualized where possible)
-# Priority A: SALARY
+# SALARY_DISPLAY: use SALARY, or SALARY_FROM/TO midpoint, or PAY_RATE annualized
 salary_series = None
+
 if "SALARY" in df.columns:
-    salary_series = pd.to_numeric(df["SALARY"], errors="coerce")
+    s = pd.to_numeric(df["SALARY"], errors="coerce")
+    if not s.isna().all():
+        salary_series = s
 
-# Priority B: midpoint of SALARY_FROM / SALARY_TO
-if salary_series is None or salary_series.isna().all():
-    if {"SALARY_FROM","SALARY_TO"}.issubset(df.columns):
-        lo = pd.to_numeric(df["SALARY_FROM"], errors="coerce")
-        hi = pd.to_numeric(df["SALARY_TO"], errors="coerce")
-        mid = (lo + hi) / 2
-        if not mid.isna().all():
-            salary_series = mid
+if (salary_series is None) and {"SALARY_FROM","SALARY_TO"}.issubset(df.columns):
+    lo = pd.to_numeric(df["SALARY_FROM"], errors="coerce")
+    hi = pd.to_numeric(df["SALARY_TO"], errors="coerce")
+    mid = (lo + hi) / 2
+    if not mid.isna().all():
+        salary_series = mid
 
-# Priority C: annualize PAY_RATE using ORIGINAL_PAY_PERIOD (HOUR/WEEK/MONTH/YEAR)
-if (salary_series is None or salary_series.isna().all()) and "PAY_RATE" in df.columns:
+if (salary_series is None) and "PAY_RATE" in df.columns:
     pay = pd.to_numeric(df["PAY_RATE"], errors="coerce")
     period = df["ORIGINAL_PAY_PERIOD"].astype(str).str.upper() if "ORIGINAL_PAY_PERIOD" in df.columns else "YEAR"
     factor = np.where(period.str.contains("HOUR"), 2080,
@@ -84,13 +83,9 @@ if (salary_series is None or salary_series.isna().all()) and "PAY_RATE" in df.co
     if not annual.isna().all():
         salary_series = annual
 
-# Assign SALARY_DISPLAY if we found something
-if salary_series is not None:
-    df["SALARY_DISPLAY"] = pd.to_numeric(salary_series, errors="coerce")
-else:
-    df["SALARY_DISPLAY"] = np.nan
+df["SALARY_DISPLAY"] = pd.to_numeric(salary_series, errors="coerce") if salary_series is not None else np.nan
 
-print("Derived columns created. Non-null counts:",
+print("Non-null counts:",
       {"INDUSTRY_DISPLAY": int(df["INDUSTRY_DISPLAY"].notna().sum()),
        "SALARY_DISPLAY": int(df["SALARY_DISPLAY"].notna().sum())})
 ```
@@ -118,7 +113,6 @@ print("Remaining columns (first 30):", list(df.columns)[:30])
 
 ## Handle Missing Values
 ```{python}
-# Optional missingness heatmap
 try:
     import missingno as msno, matplotlib.pyplot as plt
     msno.heatmap(df)
@@ -127,19 +121,15 @@ try:
 except Exception as e:
     print("missingno heatmap skipped:", e)
 
-# Don't drop our derived columns; temporarily set a high threshold but exclude derived fields
-cols_to_consider = [c for c in df.columns if c not in ["INDUSTRY_DISPLAY","SALARY_DISPLAY"]]
-df_non_derived = df[cols_to_consider]
-keep = df_non_derived.dropna(thresh=len(df) * 0.5, axis=1)
-df = pd.concat([keep, df[["INDUSTRY_DISPLAY","SALARY_DISPLAY"]]], axis=1)
+protected = ["INDUSTRY_DISPLAY","SALARY_DISPLAY"]
+cols_to_consider = [c for c in df.columns if c not in protected]
+kept = df[cols_to_consider].dropna(thresh=len(df) * 0.5, axis=1)
+df = pd.concat([kept, df[protected]], axis=1)
 
-# Numeric cleanup on SALARY_DISPLAY
-df["SALARY_DISPLAY"] = pd.to_numeric(df["SALARY_DISPLAY"], errors="coerce")
-med = df["SALARY_DISPLAY"].median() if df["SALARY_DISPLAY"].notna().any() else np.nan
-if not np.isnan(med):
-    df["SALARY_DISPLAY"] = df["SALARY_DISPLAY"].fillna(med)
+if df["SALARY_DISPLAY"].notna().any():
+    median_salary = df["SALARY_DISPLAY"].median()
+    df["SALARY_DISPLAY"] = df["SALARY_DISPLAY"].fillna(median_salary)
 
-# Fill categorical NAs without chained assignment
 for col in df.select_dtypes(include="object").columns:
     df.loc[:, col] = df[col].fillna("Unknown")
 ```
@@ -157,12 +147,6 @@ else:
 
 # Exploratory Data Analysis (EDA)
 
-```{python}
-print("Final non-null counts:",
-      {"INDUSTRY_DISPLAY": int(df["INDUSTRY_DISPLAY"].notna().sum()),
-       "SALARY_DISPLAY": int(df["SALARY_DISPLAY"].notna().sum())})
-```
-
 ## Job Postings by Industry
 ```{python}
 import plotly.express as px
@@ -173,9 +157,8 @@ else:
     counts = (
         df["INDUSTRY_DISPLAY"]
         .value_counts(dropna=False)
-        .head(15)
+        .rename_axis("Industry")
         .reset_index(name="Job Postings")
-        .rename(columns={"index": "Industry"})
         .sort_values("Job Postings")
     )
     fig = px.bar(
@@ -187,8 +170,6 @@ else:
 
 ## Salary Distribution by Industry
 ```{python}
-import plotly.express as px
-
 valid = df.dropna(subset=["INDUSTRY_DISPLAY","SALARY_DISPLAY"])
 valid = valid[valid["SALARY_DISPLAY"] > 0]
 
@@ -205,27 +186,26 @@ else:
 
 ## Remote vs. On-Site Jobs
 ```{python}
-import plotly.express as px
-
-col = "REMOTE_TYPE_NAME" if "REMOTE_TYPE_NAME" in df.columns else None
-if col is None:
-    print("No REMOTE_TYPE_NAME column available.")
-else:
-    rc = df[col].fillna("Unknown").value_counts().reset_index()
+if "REMOTE_TYPE_NAME" in df.columns:
+    rc = df["REMOTE_TYPE_NAME"].fillna("Unknown").value_counts().reset_index()
     rc.columns = ["Remote Type","Count"]
-    fig3 = px.pie(rc, names="Remote Type", values="Count",
-                  title="Remote vs. On-Site Job Distribution")
+    fig3 = px.pie(
+        rc, names="Remote Type", values="Count",
+        title="Remote vs. On-Site Job Distribution"
+    )
     fig3.show()
+else:
+    print("No REMOTE_TYPE_NAME column available.")
 ```
 
 ## EDA: Rationale & Insights
 
 ### Why these visualizations
-- **Job Postings by Industry** compares demand across industries to prioritize where to focus a job search.
-- **Salary Distribution by Industry** shows central tendency and spread, robust to skew/outliers.
-- **Remote vs. On-Site** summarizes work-arrangement mix to set expectations for location flexibility.
+- **Job Postings by Industry**: highlights sectors with the most demand.  
+- **Salary Distribution by Industry**: compares pay levels and spreads across industries.  
+- **Remote vs. On-Site**: shows flexibility trends in job postings.  
 
-### Key insights from the graphs
-- **Industry demand:** A few industries typically dominate postings; target those first while keeping secondary sectors in play.
-- **Salary patterns:** Wide dispersion implies upside for well-positioned candidates and the need to negotiate.
-- **Work arrangement mix:** Higher remote share expands geographic options; lower share reinforces local strategy.
+### Key insights
+- A few industries dominate postings, guiding where job seekers should focus.  
+- Salary distributions vary widely by sector, indicating negotiation opportunities.  
+- Remote vs. on-site mix informs geographic/job flexibility strategy.  
