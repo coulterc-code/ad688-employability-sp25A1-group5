@@ -23,9 +23,9 @@ format:
     number-sections: true
     df-print: paged
 execute:
-  echo: false      # hide code in HTML
+  echo: false
   eval: true
-  freeze: false    # always rebuild
+  freeze: false
 jupyter: python3
 ---
 
@@ -34,8 +34,8 @@ jupyter: python3
 ```{python}
 import pandas as pd
 
-csv_path = "data/lightcast_job_postings.csv"   # ensure the CSV is here
-df = pd.read_csv(csv_path, low_memory=False)
+CSV_PATH = "data/lightcast_job_postings.csv"   # ensure the CSV is here
+df = pd.read_csv(CSV_PATH, low_memory=False)
 
 print("Loaded dataset:", df.shape)
 display(df.head(5))
@@ -45,9 +45,10 @@ display(df.head(5))
 
 ## Dropping Unnecessary Columns
 ```{python}
+# Keep the most current NAICS/SOC name columns; drop legacy & metadata
 columns_to_drop = [
     "ID","LAST_UPDATED_TIMESTAMP","DUPLICATES","ACTIVE_URLS","ACTIVE_SOURCES_INFO",
-    "TITLE_RAW","BODY","COMPANY_RAW",
+    "TITLE_RAW","BODY","COMPANY_RAW","URL","SOURCES","SOURCE_TYPES",
     "NAICS2","NAICS2_NAME","NAICS3","NAICS3_NAME","NAICS4","NAICS4_NAME",
     "NAICS5","NAICS5_NAME","NAICS6","NAICS6_NAME",
     "NAICS_2022_2","NAICS_2022_2_NAME","NAICS_2022_3","NAICS_2022_3_NAME",
@@ -63,14 +64,13 @@ columns_to_drop = [
     "ONET","ONET_NAME","ONET_2019","ONET_2019_NAME"
 ]
 existing = [c for c in columns_to_drop if c in df.columns]
-# no inplace
 df = df.drop(columns=existing, errors="ignore")
 print("Remaining columns (first 30):", list(df.columns)[:30])
 ```
 
 ## Handling Missing Values
 ```{python}
-# Optional missingness heatmap (won't crash if libs not installed)
+# Optional missingness heatmap
 try:
     import missingno as msno, matplotlib.pyplot as plt
     msno.heatmap(df)
@@ -79,10 +79,10 @@ try:
 except Exception as e:
     print("missingno heatmap skipped:", e)
 
-# Drop columns with >50% missing (no inplace)
+# Drop columns with >50% missing
 df = df.dropna(thresh=len(df) * 0.5, axis=1)
 
-# Numeric salary: convert & median-fill (no inplace)
+# Normalize salary-related fields
 if "SALARY" in df.columns:
     df["SALARY"] = pd.to_numeric(df["SALARY"], errors="coerce")
     df["SALARY"] = df["SALARY"].fillna(df["SALARY"].median())
@@ -106,13 +106,16 @@ else:
 # Exploratory Data Analysis (EDA)
 
 ```{python}
-# Robust column pickers
+# Robust column pickers (expanded)
 INDUSTRY_CANDIDATES = [
     "NAICS_2022_6_NAME","NAICS_2022_5_NAME","NAICS_2022_4_NAME","NAICS_2022_3_NAME","NAICS_2022_2_NAME",
     "NAICS6_NAME","NAICS5_NAME","NAICS4_NAME","NAICS3_NAME","NAICS2_NAME",
-    "LIGHTCAST_SECTORS_NAME","INDUSTRY","INDUSTRY_NAME"
+    "LIGHTCAST_SECTORS_NAME","INDUSTRY","INDUSTRY_NAME","NAICS_2022_NAME","SECTOR_NAME"
 ]
-SALARY_CANDIDATES = ["SALARY","SALARY_MEDIAN","SALARY_MID","SALARY_ANNUAL","PAY_RATE"]
+SALARY_CANDIDATES = [
+    "SALARY","SALARY_MEDIAN","SALARY_MID","SALARY_ANNUAL","PAY_RATE",
+    "SALARY_FROM","SALARY_TO"
+]
 
 industry_col = next((c for c in INDUSTRY_CANDIDATES if c in df.columns), None)
 salary_col   = next((c for c in SALARY_CANDIDATES if c in df.columns), None)
@@ -150,16 +153,25 @@ import numpy as np, plotly.express as px
 if (industry_col is None) or (salary_col is None):
     print("Missing salary or industry column for plot.")
 else:
-    sdf = df[[industry_col, salary_col]].copy()
-    sdf.loc[:, salary_col] = pd.to_numeric(sdf[salary_col], errors="coerce")
-    sdf = sdf.dropna(subset=[salary_col])
-    sdf = sdf[sdf[salary_col] > 0]
+    # if we have SALARY_FROM/TO but not a single salary, make a midpoint
+    if salary_col in ["SALARY_FROM","SALARY_TO"] and {"SALARY_FROM","SALARY_TO"}.issubset(df.columns):
+        df["_SALARY_MID"] = pd.to_numeric(df["SALARY_FROM"], errors="coerce")
+        hi = pd.to_numeric(df["SALARY_TO"], errors="coerce")
+        df.loc[:, "_SALARY_MID"] = (df["_SALARY_MID"] + hi) / 2
+        salary_col_use = "_SALARY_MID"
+    else:
+        salary_col_use = salary_col
+
+    sdf = df[[industry_col, salary_col_use]].copy()
+    sdf.loc[:, salary_col_use] = pd.to_numeric(sdf[salary_col_use], errors="coerce")
+    sdf = sdf.dropna(subset=[salary_col_use])
+    sdf = sdf[sdf[salary_col_use] > 0]
 
     if sdf.empty:
         print("No salary data available for boxplot after cleaning.")
     else:
         fig2 = px.box(
-            sdf, x=industry_col, y=salary_col,
+            sdf, x=industry_col, y=salary_col_use,
             title="Salary Distribution by Industry", points=False
         )
         fig2.update_layout(xaxis_tickangle=-45)
