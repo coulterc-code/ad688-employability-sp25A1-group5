@@ -25,20 +25,20 @@ format:
 execute:
   echo: true
   eval: true
-  freeze: auto
+  freeze: false
 jupyter: python3
 ---
 
 # Import Data
 
 ```{python}
-import pandas as pd, os
+import pandas as pd
 
-csv_path = "data/lightcast_job_postings.csv"
-df = pd.read_csv(csv_path, low_memory=False)
+# CSV must be saved at: data/lightcast_job_postings.csv
+df = pd.read_csv("data/lightcast_job_postings.csv", low_memory=False)
 
-print("Rows, Cols:", df.shape)
-print(list(df.columns)[:40])
+print("Loaded dataset:", df.shape)
+print("Columns (first 40):", list(df.columns)[:40])
 df.head(5)
 ```
 
@@ -64,12 +64,13 @@ columns_to_drop = [
     "ONET","ONET_NAME","ONET_2019","ONET_2019_NAME"
 ]
 drop_existing = [c for c in columns_to_drop if c in df.columns]
-df.drop(columns=drop_existing, inplace=True)
+df.drop(columns=drop_existing, inplace=True, errors="ignore")
 print("Remaining columns (first 30):", list(df.columns)[:30])
 ```
 
 ## Handling Missing Values
 ```{python}
+# Optional missingness heatmap (won't fail if libs aren't installed)
 try:
     import missingno as msno, matplotlib.pyplot as plt
     msno.heatmap(df)
@@ -78,12 +79,15 @@ try:
 except Exception as e:
     print("missingno heatmap skipped:", e)
 
+# Drop columns with >50% missing
 df.dropna(thresh=len(df) * 0.5, axis=1, inplace=True)
 
+# Numeric salary fill if present
 if "SALARY" in df.columns:
     df["SALARY"] = pd.to_numeric(df["SALARY"], errors="coerce")
     df["SALARY"].fillna(df["SALARY"].median(), inplace=True)
 
+# Fill categorical NAs with "Unknown"
 for col in df.select_dtypes(include="object").columns:
     df[col].fillna("Unknown", inplace=True)
 ```
