@@ -1,6 +1,6 @@
 ---
 title: "Data Analysis"
-subtitle: "Comprehensive Data Cleaning & Exploratory Exploration of Job Market Trends"
+subtitle: "Comprehensive Data Cleaning & Exploratory Data Analysis of Job Market Trends"
 author:
   - name: Connor Coulter
     affiliations:
@@ -23,9 +23,9 @@ format:
     number-sections: true
     df-print: paged
 execute:
-  echo: false        # HIDE CODE in the HTML
+  echo: false      # hide code in HTML
   eval: true
-  freeze: false      # always rebuild
+  freeze: false    # always rebuild
 jupyter: python3
 ---
 
@@ -33,7 +33,8 @@ jupyter: python3
 
 ```{python}
 import pandas as pd
-csv_path = "data/lightcast_job_postings.csv"  # place your CSV here
+
+csv_path = "data/lightcast_job_postings.csv"   # ensure the CSV is here
 df = pd.read_csv(csv_path, low_memory=False)
 
 print("Loaded dataset:", df.shape)
@@ -61,15 +62,15 @@ columns_to_drop = [
     "LOT_V6_OCCUPATION_GROUP_NAME","LOT_V6_CAREER_AREA","LOT_V6_CAREER_AREA_NAME",
     "ONET","ONET_NAME","ONET_2019","ONET_2019_NAME"
 ]
-drop_existing = [c for c in columns_to_drop if c in df.columns]
-df = df.drop(columns=drop_existing, errors="ignore")
-
+existing = [c for c in columns_to_drop if c in df.columns]
+# no inplace
+df = df.drop(columns=existing, errors="ignore")
 print("Remaining columns (first 30):", list(df.columns)[:30])
 ```
 
 ## Handling Missing Values
 ```{python}
-# Optional missingness heatmap
+# Optional missingness heatmap (won't crash if libs not installed)
 try:
     import missingno as msno, matplotlib.pyplot as plt
     msno.heatmap(df)
@@ -78,10 +79,10 @@ try:
 except Exception as e:
     print("missingno heatmap skipped:", e)
 
-# Drop columns with >50% missing
+# Drop columns with >50% missing (no inplace)
 df = df.dropna(thresh=len(df) * 0.5, axis=1)
 
-# Numeric salary fill if present
+# Numeric salary: convert & median-fill (no inplace)
 if "SALARY" in df.columns:
     df["SALARY"] = pd.to_numeric(df["SALARY"], errors="coerce")
     df["SALARY"] = df["SALARY"].fillna(df["SALARY"].median())
@@ -105,11 +106,11 @@ else:
 # Exploratory Data Analysis (EDA)
 
 ```{python}
-# Helpers: robust column selection
+# Robust column pickers
 INDUSTRY_CANDIDATES = [
     "NAICS_2022_6_NAME","NAICS_2022_5_NAME","NAICS_2022_4_NAME","NAICS_2022_3_NAME","NAICS_2022_2_NAME",
     "NAICS6_NAME","NAICS5_NAME","NAICS4_NAME","NAICS3_NAME","NAICS2_NAME",
-    "INDUSTRY","INDUSTRY_NAME"
+    "LIGHTCAST_SECTORS_NAME","INDUSTRY","INDUSTRY_NAME"
 ]
 SALARY_CANDIDATES = ["SALARY","SALARY_MEDIAN","SALARY_MID","SALARY_ANNUAL","PAY_RATE"]
 
@@ -150,7 +151,7 @@ if (industry_col is None) or (salary_col is None):
     print("Missing salary or industry column for plot.")
 else:
     sdf = df[[industry_col, salary_col]].copy()
-    sdf[salary_col] = pd.to_numeric(sdf[salary_col], errors="coerce")
+    sdf.loc[:, salary_col] = pd.to_numeric(sdf[salary_col], errors="coerce")
     sdf = sdf.dropna(subset=[salary_col])
     sdf = sdf[sdf[salary_col] > 0]
 
