@@ -3,19 +3,16 @@ project:
   output-dir: docs
 
 website:
-  title: "AI vs. Non-AI Job Growth"
+  title: "Job Market Analysis 2024"
   navbar:
     left:
       - href: index.qmd
-        text: Home
+        text: "Home"
       - href: about.qmd
-        text: About
+        text: "About"
       - href: data_analysis.qmd
         text: "Data Analysis"
 
 format:
   html:
     toc: true
-
-bibliography: references.bib
-csl: csl/econometrica.csl
