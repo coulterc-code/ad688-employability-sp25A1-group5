@@ -28,47 +28,34 @@ execute:
   freeze: auto
 jupyter: python3
 ---
+
 # Import Data
 
-We load the job postings dataset using pandas and preview the first few rows for initial inspection.
+We load the job postings dataset using pandas and preview the first few rows.
 
 ```{python}
 import pandas as pd
 
-# Load the CSV file into a pandas DataFrame
-df = pd.read_csv("lightcast_job_postings.csv")
+df = pd.read_csv("lightcast_job_postings.csv", low_memory=False)
 
-# Show DataFrame structure
-df.info()
-```
-
-```{python}
-#| echo: True
+print("Rows, Cols:", df.shape)
+print(df.dtypes.head(20))
 df.head(5)
 ```
 
 # Data Cleaning & Preprocessing
+
 ## Dropping Unnecessary Columns
-The raw dataset contains numerous fields, many of which are either redundant, outdated, or not useful for the scope of our analysis.
-
-We dropped the following types of columns:
-
-- **Tracking fields**: Metadata such as `ID`, `URL`, `ACTIVE_URLS`, `DUPLICATES`, and `LAST_UPDATED_TIMESTAMP` are not analytically meaningful.
-- **Redundant classification codes**: To avoid duplication, we retained only the most recent and detailed classification levels `NAICS_2022_6 ` for industries and `SOC_2021_4 ` for occupations while dropping older or less granular versions.
-- **Unstructured text fields**: Fields like `BODY` contain long, unstructured descriptions not used in this stage of analysis.
-- **Internal mapping columns**: Columns such as `CIP2`, `CIP4`, and `LOT_*` relate to alternate classification systems that were not relevant to our focus.
-
+The dataset includes redundant or irrelevant fields. We remove tracking IDs, outdated codes, unstructured text, and alternate classification systems.
 
 ```{python}
-# List of columns we want to drop
 columns_to_drop = [
     "ID", "LAST_UPDATED_TIMESTAMP", "DUPLICATES", "ACTIVE_URLS", "ACTIVE_SOURCES_INFO",
     "TITLE_RAW", "BODY", "COMPANY_RAW",
     "NAICS2", "NAICS2_NAME", "NAICS3", "NAICS3_NAME", "NAICS4", "NAICS4_NAME",
-    "NAICS5", "NAICS5_NAME", "NAICS6", "NAICS6_NAME","NAICS_2022_2", "NAICS_2022_2_NAME",
-    "NAICS_2022_3", "NAICS_2022_3_NAME",
-    "NAICS_2022_4", "NAICS_2022_4_NAME",
-    "NAICS_2022_5", "NAICS_2022_5_NAME",
+    "NAICS5", "NAICS5_NAME", "NAICS6", "NAICS6_NAME",
+    "NAICS_2022_2", "NAICS_2022_2_NAME", "NAICS_2022_3", "NAICS_2022_3_NAME",
+    "NAICS_2022_4", "NAICS_2022_4_NAME", "NAICS_2022_5", "NAICS_2022_5_NAME",
     "SOC_2", "SOC_2_NAME", "SOC_3", "SOC_3_NAME", "SOC_5", "SOC_5_NAME",
     "CIP2", "CIP2_NAME", "CIP4", "CIP4_NAME", "CIP6", "CIP6_NAME",
     "LOT_CAREER_AREA", "LOT_CAREER_AREA_NAME", "LOT_OCCUPATION", "LOT_OCCUPATION_NAME",
@@ -80,49 +67,36 @@ columns_to_drop = [
     "ONET", "ONET_NAME", "ONET_2019", "ONET_2019_NAME"
 ]
 
-# Only drop columns that exist in the DataFrame to prevent errors
-existing_cols_to_drop = [col for col in columns_to_drop if col in df.columns]
-df.drop(columns=existing_cols_to_drop, inplace=True)
+existing_cols = [c for c in columns_to_drop if c in df.columns]
+df.drop(columns=existing_cols, inplace=True)
 
-# Preview remaining columns
 print("Remaining columns:", df.columns.tolist())
-
 ```
 
-By dropping these columns, we streamline the dataset for cleaner visualizations, reduce noise in statistical summaries, and maintain a focus on relevant dimensions like title, salary, industry, remote status, and location.
-
 ## Handling Missing Values
-To address incomplete records, we applied a **column-wise and row-wise strategy**:
-- Columns with more than 50% missing values were removed entirely.
-- For numerical fields (e.g., Salary), we imputed missing values using the median, which is robust to outliers.
-- For categorical fields (e.g., Industry or Remote Type), we used "Unknown" as a placeholder.
-We also visualized the missing value distribution using missingno.
 
 ```{python}
-
 import missingno as msno
 import matplotlib.pyplot as plt
 
-# Visualize missing data
+# visualize missingness
 msno.heatmap(df)
 plt.title("Missing Values Heatmap")
 plt.show()
 
-# Drop columns with >50% missing values
+# drop columns with >50% missing
 df.dropna(thresh=len(df) * 0.5, axis=1, inplace=True)
 
-# Fill missing numeric column 'SALARY' if it exists
+# fill salary if present
 if "SALARY" in df.columns:
     df["SALARY"].fillna(df["SALARY"].median(), inplace=True)
 
-# Fill missing values in all string (object) columns with "Unknown"
+# fill categorical with "Unknown"
 for col in df.select_dtypes(include="object").columns:
     df[col].fillna("Unknown", inplace=True)
-
 ```
 
 ## Removing Duplicates
-To avoid inflated job counts, we identified and removed exact duplicates using the combination of TITLE, COMPANY_NAME, LOCATION, and POSTED.
 
 ```{python}
 df.drop_duplicates(
@@ -137,66 +111,83 @@ df.drop_duplicates(
 ## Job Postings by Industry
 
 ```{python}
-#| echo: true
-
 import plotly.express as px
 
-# Count top 15 industries
-industry_counts = df['NAICS_2022_6_NAME'].value_counts().head(15).reset_index()
-industry_counts.columns = ['Industry', 'Job Postings']
-
-industry_counts = industry_counts.sort_values('Job Postings')
-
-# Plot: 
-fig = px.bar(
-    industry_counts,
-    x='Job Postings',
-    y='Industry',
-    orientation='h',
-    title='Top 15 Industries by Number of Job Postings',
-    labels={'Job Postings': 'Number of Postings', 'Industry': 'Industry'}
+industry_col = (
+    "NAICS_2022_6_NAME" if "NAICS_2022_6_NAME" in df.columns
+    else ("INDUSTRY" if "INDUSTRY" in df.columns else None)
 )
 
-fig.update_layout(
-    width=900,
-    height=600,
-    margin=dict(l=260, r=40, t=80, b=40),
-    title_x=0.5,
-    xaxis=dict(
-        title='Number of Postings',
-        tickformat=',',
-        tickmode='linear',
-        dtick=2000,
-        tickangle=0,
-    ),
-    yaxis=dict(
-        title='Industry',
-        automargin=True
+if industry_col:
+    industry_counts = (
+        df[industry_col].value_counts().head(15).reset_index()
+        .rename(columns={"index": "Industry", industry_col: "Job Postings"})
+        .sort_values("Job Postings")
     )
-)
-
-fig.show()
+    fig = px.bar(
+        industry_counts,
+        x="Job Postings",
+        y="Industry",
+        orientation="h",
+        title="Top 15 Industries by Number of Job Postings"
+    )
+    fig.show()
+else:
+    print("No industry column available.")
 ```
 
 ## Salary Distribution by Industry
 
 ```{python}
+import numpy as np
 
+salary_candidates = ["SALARY", "SALARY_MEDIAN", "SALARY_MID", "SALARY_ANNUAL", "PAY_RATE"]
+salary_col = next((c for c in salary_candidates if c in df.columns), None)
+
+if salary_col and industry_col:
+    sdf = df[[industry_col, salary_col]].copy()
+    sdf[salary_col] = pd.to_numeric(sdf[salary_col], errors="coerce")
+    sdf = sdf.dropna(subset=[salary_col]).query(f"{salary_col} > 0")
+
+    fig2 = px.box(
+        sdf,
+        x=industry_col,
+        y=salary_col,
+        title="Salary Distribution by Industry",
+        points=False
+    )
+    fig2.update_layout(xaxis_tickangle=-45)
+    fig2.show()
+else:
+    print("Missing salary or industry column for plot.")
 ```
 
 ## Remote vs. On-Site Jobs
 
 ```{python}
-#| echo: true
-
-remote_counts = df['REMOTE_TYPE_NAME'].value_counts().reset_index()
-remote_counts.columns = ['Remote Type', 'Count']
-
-fig3 = px.pie(
-    remote_counts,
-    names='Remote Type',
-    values='Count',
-    title='Remote vs. On-Site Job Distribution'
-)
-fig3.show()
+if "REMOTE_TYPE_NAME" in df.columns:
+    remote_counts = df["REMOTE_TYPE_NAME"].value_counts().reset_index()
+    remote_counts.columns = ["Remote Type", "Count"]
+    fig3 = px.pie(
+        remote_counts,
+        names="Remote Type",
+        values="Count",
+        title="Remote vs. On-Site Job Distribution"
+    )
+    fig3.show()
+else:
+    print("No remote type column available.")
 ```
+
+## Exploratory Data Analysis (EDA): Rationale & Insights
+
+### Why these visualizations
+- **Job Postings by Industry (bar chart)** compares demand across industries to prioritize where to focus a job search.
+- **Salary Distribution by Industry (box plot)** shows median and spread, robust to skew in salary data.
+- **Remote vs. On-Site (pie chart)** summarizes work-arrangement mix to set expectations for location flexibility.
+
+### Key insights from the graphs
+- **Industry demand:** A few industries dominate postings; target those first while keeping secondary sectors.
+- **Salary patterns:** Wide dispersion in some industries implies upside for well-positioned candidates.
+- **Work arrangement mix:** Higher remote share expands options; lower share requires local strategy.
+- **Actionable takeaway:** Combine where **demand** is high, where **salary upside** exists, and where **work arrangement** fits your constraints to prioritize applications.
