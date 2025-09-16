@@ -18,31 +18,33 @@ bibliography: references.bib
 csl: csl/econometrica.csl
 format: 
   html:
+    embed-resources: true
     toc: true
     number-sections: true
     df-print: paged
+execute:
+  echo: true
+  eval: true
+  freeze: auto
+jupyter: python3
 ---
 # Import Data
 
-Importing dataset using PySpark. The code shows the schema and first few rows of the dataset. Schema is shown below but partial dataframe is muted.
+We load the job postings dataset using pandas and preview the first few rows for initial inspection.
 
 ```{python}
+import pandas as pd
 
-from pyspark.sql import SparkSession
+# Load the CSV file into a pandas DataFrame
+df = pd.read_csv("lightcast_job_postings.csv")
 
-# Start a Spark session
-spark = SparkSession.builder.appName("JobPostingsAnalysis").getOrCreate()
-
-# Load the CSV file into a Spark DataFrame
-df = spark.read.option("header", "true").option("inferSchema", "true").option("multiLine","true").option("escape", "\"").csv("lightcast_job_postings.csv")
-
-# Show schema
-df.printSchema()
+# Show DataFrame structure
+df.info()
 ```
 
 ```{python}
-#| echo: false
-df.show(5, truncate=False)
+#| echo: True
+df.head(5)
 ```
 
 # Data Cleaning & Preprocessing
@@ -52,17 +54,21 @@ The raw dataset contains numerous fields, many of which are either redundant, ou
 We dropped the following types of columns:
 
 - **Tracking fields**: Metadata such as `ID`, `URL`, `ACTIVE_URLS`, `DUPLICATES`, and `LAST_UPDATED_TIMESTAMP` are not analytically meaningful.
-- **Multiple versions of NAICS and SOC codes**: To avoid redundancy, we retained only the **most current versions** (`NAICS_2022_6` and `SOC_2021_4`), which reflect the latest industry and occupational classifications.
+- **Redundant classification codes**: To avoid duplication, we retained only the most recent and detailed classification levels `NAICS_2022_6 ` for industries and `SOC_2021_4 ` for occupations while dropping older or less granular versions.
 - **Unstructured text fields**: Fields like `BODY` contain long, unstructured descriptions not used in this stage of analysis.
 - **Internal mapping columns**: Columns such as `CIP2`, `CIP4`, and `LOT_*` relate to alternate classification systems that were not relevant to our focus.
 
 
 ```{python}
+# List of columns we want to drop
 columns_to_drop = [
-    "ID", "URL", "ACTIVE_URLS", "DUPLICATES", "LAST_UPDATED_TIMESTAMP",
-    "TITLE_RAW", "COMPANY_RAW", "BODY", "ACTIVE_SOURCES_INFO",
+    "ID", "LAST_UPDATED_TIMESTAMP", "DUPLICATES", "ACTIVE_URLS", "ACTIVE_SOURCES_INFO",
+    "TITLE_RAW", "BODY", "COMPANY_RAW",
     "NAICS2", "NAICS2_NAME", "NAICS3", "NAICS3_NAME", "NAICS4", "NAICS4_NAME",
-    "NAICS5", "NAICS5_NAME", "NAICS6", "NAICS6_NAME",
+    "NAICS5", "NAICS5_NAME", "NAICS6", "NAICS6_NAME","NAICS_2022_2", "NAICS_2022_2_NAME",
+    "NAICS_2022_3", "NAICS_2022_3_NAME",
+    "NAICS_2022_4", "NAICS_2022_4_NAME",
+    "NAICS_2022_5", "NAICS_2022_5_NAME",
     "SOC_2", "SOC_2_NAME", "SOC_3", "SOC_3_NAME", "SOC_5", "SOC_5_NAME",
     "CIP2", "CIP2_NAME", "CIP4", "CIP4_NAME", "CIP6", "CIP6_NAME",
     "LOT_CAREER_AREA", "LOT_CAREER_AREA_NAME", "LOT_OCCUPATION", "LOT_OCCUPATION_NAME",
@@ -73,7 +79,14 @@ columns_to_drop = [
     "LOT_V6_OCCUPATION_GROUP_NAME", "LOT_V6_CAREER_AREA", "LOT_V6_CAREER_AREA_NAME",
     "ONET", "ONET_NAME", "ONET_2019", "ONET_2019_NAME"
 ]
-df.drop(columns=columns_to_drop, inplace=True)
+
+# Only drop columns that exist in the DataFrame to prevent errors
+existing_cols_to_drop = [col for col in columns_to_drop if col in df.columns]
+df.drop(columns=existing_cols_to_drop, inplace=True)
+
+# Preview remaining columns
+print("Remaining columns:", df.columns.tolist())
+
 ```
 
 By dropping these columns, we streamline the dataset for cleaner visualizations, reduce noise in statistical summaries, and maintain a focus on relevant dimensions like title, salary, industry, remote status, and location.
@@ -84,7 +97,9 @@ To address incomplete records, we applied a **column-wise and row-wise strategy*
 - For numerical fields (e.g., Salary), we imputed missing values using the median, which is robust to outliers.
 - For categorical fields (e.g., Industry or Remote Type), we used "Unknown" as a placeholder.
 We also visualized the missing value distribution using missingno.
+
 ```{python}
+
 import missingno as msno
 import matplotlib.pyplot as plt
 
@@ -96,22 +111,92 @@ plt.show()
 # Drop columns with >50% missing values
 df.dropna(thresh=len(df) * 0.5, axis=1, inplace=True)
 
-# Fill missing numerical values
-df["Salary"].fillna(df["Salary"].median(), inplace=True)
+# Fill missing numeric column 'SALARY' if it exists
+if "SALARY" in df.columns:
+    df["SALARY"].fillna(df["SALARY"].median(), inplace=True)
 
-# Fill missing categorical values
-df["INDUSTRY"] = df.get("INDUSTRY", df.get("INDUSTRY_NAME", "Unknown"))
-df["INDUSTRY"].fillna("Unknown", inplace=True)
+# Fill missing values in all string (object) columns with "Unknown"
+for col in df.select_dtypes(include="object").columns:
+    df[col].fillna("Unknown", inplace=True)
 
-df["REMOTE_TYPE_NAME"].fillna("Unknown", inplace=True)
 ```
 
-## Remove Duplicates
+## Removing Duplicates
 To avoid inflated job counts, we identified and removed exact duplicates using the combination of TITLE, COMPANY_NAME, LOCATION, and POSTED.
+
 ```{python}
 df.drop_duplicates(
     subset=["TITLE", "COMPANY_NAME", "LOCATION", "POSTED"],
     keep="first",
     inplace=True
 )
+```
+
+# Exploratory Data Analysis (EDA)
+
+## Job Postings by Industry
+
+```{python}
+#| echo: true
+
+import plotly.express as px
+
+# Count top 15 industries
+industry_counts = df['NAICS_2022_6_NAME'].value_counts().head(15).reset_index()
+industry_counts.columns = ['Industry', 'Job Postings']
+
+industry_counts = industry_counts.sort_values('Job Postings')
+
+# Plot: 
+fig = px.bar(
+    industry_counts,
+    x='Job Postings',
+    y='Industry',
+    orientation='h',
+    title='Top 15 Industries by Number of Job Postings',
+    labels={'Job Postings': 'Number of Postings', 'Industry': 'Industry'}
+)
+
+fig.update_layout(
+    width=900,
+    height=600,
+    margin=dict(l=260, r=40, t=80, b=40),
+    title_x=0.5,
+    xaxis=dict(
+        title='Number of Postings',
+        tickformat=',',
+        tickmode='linear',
+        dtick=2000,
+        tickangle=0,
+    ),
+    yaxis=dict(
+        title='Industry',
+        automargin=True
+    )
+)
+
+fig.show()
+```
+
+## Salary Distribution by Industry
+
+```{python}
+
+```
+
+## Remote vs. On-Site Jobs
+
+```{python}
+#| echo: true
+
+remote_counts = df['REMOTE_TYPE_NAME'].value_counts().reset_index()
+remote_counts.columns = ['Remote Type', 'Count']
+
+fig3 = px.pie(
+    remote_counts,
+    names='Remote Type',
+    values='Count',
+    title='Remote vs. On-Site Job Distribution'
+)
+fig3.show()
 ```
