@@ -3932,6 +3932,7 @@ vertical-align: -.125em;
   <li><a href="#why-these-visualizations" id="toc-why-these-visualizations" class="nav-link" data-scroll-target="#why-these-visualizations"><span class="header-section-number">3.4.1</span> Why these visualizations</a></li>
   <li><a href="#key-insights-from-the-graphs" id="toc-key-insights-from-the-graphs" class="nav-link" data-scroll-target="#key-insights-from-the-graphs"><span class="header-section-number">3.4.2</span> Key insights from the graphs</a></li>
   </ul></li>
+  <li><a href="#build-check" id="toc-build-check" class="nav-link" data-scroll-target="#build-check"><span class="header-section-number">3.5</span> Build check</a></li>
   </ul></li>
   </ul>
 </nav>
@@ -3990,7 +3991,7 @@ vertical-align: -.125em;
 
 <section id="import-data" class="level1" data-number="1">
 <h1 data-number="1"><span class="header-section-number">1</span> Import Data</h1>
-<div id="68118281" class="cell" data-execution_count="1">
+<div id="e26ac81c" class="cell" data-execution_count="1">
 <div class="code-copy-outer-scaffold"><div class="sourceCode cell-code" id="cb1"><pre class="sourceCode python code-with-copy"><code class="sourceCode python"><span id="cb1-1"><a href="#cb1-1" aria-hidden="true" tabindex="-1"></a><span class="im">import</span> os, pandas <span class="im">as</span> pd</span>
 <span id="cb1-2"><a href="#cb1-2" aria-hidden="true" tabindex="-1"></a></span>
 <span id="cb1-3"><a href="#cb1-3" aria-hidden="true" tabindex="-1"></a>csv_candidates <span class="op">=</span> [<span class="st">&quot;data/lightcast_job_postings.csv&quot;</span>, <span class="st">&quot;lightcast_job_postings.csv&quot;</span>]</span>
@@ -4012,7 +4013,7 @@ vertical-align: -.125em;
 <h1 data-number="2"><span class="header-section-number">2</span> Data Cleaning &amp; Preprocessing</h1>
 <section id="dropping-unnecessary-columns" class="level2" data-number="2.1">
 <h2 data-number="2.1" class="anchored" data-anchor-id="dropping-unnecessary-columns"><span class="header-section-number">2.1</span> Dropping Unnecessary Columns</h2>
-<div id="ba3507e9" class="cell" data-execution_count="2">
+<div id="14ab504f" class="cell" data-execution_count="2">
 <div class="code-copy-outer-scaffold"><div class="sourceCode cell-code" id="cb3"><pre class="sourceCode python code-with-copy"><code class="sourceCode python"><span id="cb3-1"><a href="#cb3-1" aria-hidden="true" tabindex="-1"></a><span class="cf">if</span> df <span class="kw">is</span> <span class="va">None</span>:</span>
 <span id="cb3-2"><a href="#cb3-2" aria-hidden="true" tabindex="-1"></a>    <span class="bu">print</span>(<span class="st">&quot;⚠️ No data available — skipping column drops.&quot;</span>)</span>
 <span id="cb3-3"><a href="#cb3-3" aria-hidden="true" tabindex="-1"></a><span class="cf">else</span>:</span>
@@ -4043,7 +4044,7 @@ vertical-align: -.125em;
 </section>
 <section id="handling-missing-values" class="level2" data-number="2.2">
 <h2 data-number="2.2" class="anchored" data-anchor-id="handling-missing-values"><span class="header-section-number">2.2</span> Handling Missing Values</h2>
-<div id="6ef345de" class="cell" data-execution_count="3">
+<div id="f78c58c3" class="cell" data-execution_count="3">
 <div class="code-copy-outer-scaffold"><div class="sourceCode cell-code" id="cb5"><pre class="sourceCode python code-with-copy"><code class="sourceCode python"><span id="cb5-1"><a href="#cb5-1" aria-hidden="true" tabindex="-1"></a><span class="cf">if</span> df <span class="kw">is</span> <span class="va">None</span>:</span>
 <span id="cb5-2"><a href="#cb5-2" aria-hidden="true" tabindex="-1"></a>    <span class="bu">print</span>(<span class="st">&quot;⚠️ No data available — skipping missing-value handling.&quot;</span>)</span>
 <span id="cb5-3"><a href="#cb5-3" aria-hidden="true" tabindex="-1"></a><span class="cf">else</span>:</span>
@@ -4070,7 +4071,7 @@ vertical-align: -.125em;
 </section>
 <section id="removing-duplicates" class="level2" data-number="2.3">
 <h2 data-number="2.3" class="anchored" data-anchor-id="removing-duplicates"><span class="header-section-number">2.3</span> Removing Duplicates</h2>
-<div id="69490ad9" class="cell" data-execution_count="4">
+<div id="e04ae72c" class="cell" data-execution_count="4">
 <div class="code-copy-outer-scaffold"><div class="sourceCode cell-code" id="cb7"><pre class="sourceCode python code-with-copy"><code class="sourceCode python"><span id="cb7-1"><a href="#cb7-1" aria-hidden="true" tabindex="-1"></a><span class="cf">if</span> df <span class="kw">is</span> <span class="va">None</span>:</span>
 <span id="cb7-2"><a href="#cb7-2" aria-hidden="true" tabindex="-1"></a>    <span class="bu">print</span>(<span class="st">&quot;⚠️ No data available — skipping duplicate removal.&quot;</span>)</span>
 <span id="cb7-3"><a href="#cb7-3" aria-hidden="true" tabindex="-1"></a><span class="cf">else</span>:</span>
@@ -4091,7 +4092,7 @@ vertical-align: -.125em;
 <h1 data-number="3"><span class="header-section-number">3</span> Exploratory Data Analysis (EDA)</h1>
 <section id="job-postings-by-industry" class="level2" data-number="3.1">
 <h2 data-number="3.1" class="anchored" data-anchor-id="job-postings-by-industry"><span class="header-section-number">3.1</span> Job Postings by Industry</h2>
-<div id="b17b1735" class="cell" data-execution_count="5">
+<div id="845bb2e5" class="cell" data-execution_count="5">
 <div class="code-copy-outer-scaffold"><div class="sourceCode cell-code" id="cb9"><pre class="sourceCode python code-with-copy"><code class="sourceCode python"><span id="cb9-1"><a href="#cb9-1" aria-hidden="true" tabindex="-1"></a><span class="cf">if</span> df <span class="kw">is</span> <span class="va">None</span>:</span>
 <span id="cb9-2"><a href="#cb9-2" aria-hidden="true" tabindex="-1"></a>    <span class="bu">print</span>(<span class="st">&quot;⚠️ No data available for this plot.&quot;</span>)</span>
 <span id="cb9-3"><a href="#cb9-3" aria-hidden="true" tabindex="-1"></a><span class="cf">else</span>:</span>
@@ -4116,7 +4117,7 @@ vertical-align: -.125em;
 </section>
 <section id="salary-distribution-by-industry" class="level2" data-number="3.2">
 <h2 data-number="3.2" class="anchored" data-anchor-id="salary-distribution-by-industry"><span class="header-section-number">3.2</span> Salary Distribution by Industry</h2>
-<div id="8deba1ad" class="cell" data-execution_count="6">
+<div id="b8d579c5" class="cell" data-execution_count="6">
 <div class="code-copy-outer-scaffold"><div class="sourceCode cell-code" id="cb11"><pre class="sourceCode python code-with-copy"><code class="sourceCode python"><span id="cb11-1"><a href="#cb11-1" aria-hidden="true" tabindex="-1"></a><span class="cf">if</span> df <span class="kw">is</span> <span class="va">None</span>:</span>
 <span id="cb11-2"><a href="#cb11-2" aria-hidden="true" tabindex="-1"></a>    <span class="bu">print</span>(<span class="st">&quot;⚠️ No data available for this plot.&quot;</span>)</span>
 <span id="cb11-3"><a href="#cb11-3" aria-hidden="true" tabindex="-1"></a><span class="cf">else</span>:</span>
@@ -4145,7 +4146,7 @@ vertical-align: -.125em;
 </section>
 <section id="remote-vs.-on-site-jobs" class="level2" data-number="3.3">
 <h2 data-number="3.3" class="anchored" data-anchor-id="remote-vs.-on-site-jobs"><span class="header-section-number">3.3</span> Remote vs. On-Site Jobs</h2>
-<div id="f22f37b4" class="cell" data-execution_count="7">
+<div id="2e6ae515" class="cell" data-execution_count="7">
 <div class="code-copy-outer-scaffold"><div class="sourceCode cell-code" id="cb13"><pre class="sourceCode python code-with-copy"><code class="sourceCode python"><span id="cb13-1"><a href="#cb13-1" aria-hidden="true" tabindex="-1"></a><span class="cf">if</span> df <span class="kw">is</span> <span class="va">None</span>:</span>
 <span id="cb13-2"><a href="#cb13-2" aria-hidden="true" tabindex="-1"></a>    <span class="bu">print</span>(<span class="st">&quot;⚠️ No data available for this plot.&quot;</span>)</span>
 <span id="cb13-3"><a href="#cb13-3" aria-hidden="true" tabindex="-1"></a><span class="cf">else</span>:</span>
@@ -4181,9 +4182,13 @@ vertical-align: -.125em;
 <li><strong>Work arrangement mix:</strong> Higher remote share expands options; lower share requires local strategy.</li>
 <li><strong>Actionable takeaway:</strong> Combine where <strong>demand</strong> is high, where <strong>salary upside</strong> exists, and where <strong>work arrangement</strong> fits your constraints to prioritize applications.</li>
 </ul>
-
-
 </section>
+</section>
+<section id="build-check" class="level2" data-number="3.5">
+<h2 data-number="3.5" class="anchored" data-anchor-id="build-check"><span class="header-section-number">3.5</span> Build check</h2>
+<p>This line proves the site rebuilt at Tue Sep 16 12:08:01 EDT 2025.</p>
+
+
 </section>
 </section>
 
