@@ -1,6 +1,6 @@
 ---
 title: "Data Analysis"
-subtitle: "Comprehensive Data Cleaning & Exploratory Data Analysis of Job Market Trends"
+subtitle: "Comprehensive Data Cleaning & Exploratory Analysis of Job Market Trends"
 author:
   - name: Connor Coulter
     affiliations:
@@ -22,215 +22,150 @@ format:
     toc: true
     number-sections: true
     df-print: paged
+  docx: default
 execute:
-  echo: false
+  echo: true
   eval: true
-  freeze: false
+  freeze: auto
 jupyter: python3
 ---
 
 # Import Data
 
 ```{python}
-import pandas as pd
-import numpy as np
+import pandas as pd, numpy as np, os
 
-CSV_PATH = "data/lightcast_job_postings.csv"
-df = pd.read_csv(CSV_PATH, low_memory=False)
+CSV_PATHS = ["data/lightcast_job_postings.csv", "lightcast_job_postings.csv"]
+csv_path = next((p for p in CSV_PATHS if os.path.exists(p)), None)
+if not csv_path:
+    raise FileNotFoundError("⚠️ lightcast_job_postings.csv not found")
 
+df = pd.read_csv(csv_path, low_memory=False)
 print("Loaded dataset:", df.shape)
-display(df.head(5))
-```
+df.head(5)
 
-# Data Cleaning & Preprocessing
+# Derive helper columns
+df["INDUSTRY_DISPLAY"] = (
+    df["NAICS_2022_6_NAME"]
+    if "NAICS_2022_6_NAME" in df.columns
+    else df.get("INDUSTRY", pd.Series(["Unknown"]*len(df)))
+)
 
-## Create Derived Columns (before any dropping)
-```{python}
-# INDUSTRY_DISPLAY: pick the first non-null across many possible industry/NAICS name fields
-INDUSTRY_CANDIDATES = [
-    "NAICS_2022_6_NAME","NAICS_2022_5_NAME","NAICS_2022_4_NAME","NAICS_2022_3_NAME","NAICS_2022_2_NAME",
-    "NAICS6_NAME","NAICS5_NAME","NAICS4_NAME","NAICS3_NAME","NAICS2_NAME",
-    "LIGHTCAST_SECTORS_NAME","SECTOR_NAME","INDUSTRY","INDUSTRY_NAME"
-]
-existing_industry = [c for c in INDUSTRY_CANDIDATES if c in df.columns]
-if existing_industry:
-    df["INDUSTRY_DISPLAY"] = df[existing_industry].bfill(axis=1).iloc[:, 0]
-else:
-    df["INDUSTRY_DISPLAY"] = np.nan
+salary_candidates = ["SALARY","SALARY_MEDIAN","SALARY_MID","SALARY_ANNUAL","PAY_RATE"]
+for c in salary_candidates:
+    if c in df.columns:
+        df[c] = pd.to_numeric(df[c], errors="coerce")
 
-# SALARY_DISPLAY: try SALARY → midpoint(SALARY_FROM/TO) → PAY_RATE annualized
-salary_series = None
-
-if "SALARY" in df.columns:
-    s = pd.to_numeric(df["SALARY"], errors="coerce")
-    if not s.isna().all():
-        salary_series = s
-
-if (salary_series is None) and {"SALARY_FROM","SALARY_TO"}.issubset(df.columns):
-    lo = pd.to_numeric(df["SALARY_FROM"], errors="coerce")
-    hi = pd.to_numeric(df["SALARY_TO"], errors="coerce")
-    mid = (lo + hi) / 2
-    if not mid.isna().all():
-        salary_series = mid
-
-if (salary_series is None) and "PAY_RATE" in df.columns:
-    pay = pd.to_numeric(df["PAY_RATE"], errors="coerce")
-    period = df["ORIGINAL_PAY_PERIOD"].astype(str).str.upper() if "ORIGINAL_PAY_PERIOD" in df.columns else "YEAR"
-    factor = np.where(period.str.contains("HOUR"), 2080,
-             np.where(period.str.contains("WEEK"), 52,
-             np.where(period.str.contains("MONTH"), 12, 1)))
-    annual = pay * factor
-    if not annual.isna().all():
-        salary_series = annual
-
-df["SALARY_DISPLAY"] = pd.to_numeric(salary_series, errors="coerce") if salary_series is not None else np.nan
+df["SALARY_DISPLAY"] = next(
+    (df[c] for c in salary_candidates if c in df.columns),
+    pd.Series([np.nan]*len(df))
+)
 
 print("Derived non-null:", {
-    "INDUSTRY_DISPLAY": int(df["INDUSTRY_DISPLAY"].notna().sum()),
-    "SALARY_DISPLAY": int(df["SALARY_DISPLAY"].notna().sum())
+    "INDUSTRY_DISPLAY": df["INDUSTRY_DISPLAY"].notna().sum(),
+    "SALARY_DISPLAY": df["SALARY_DISPLAY"].notna().sum()
 })
-```
-
-## Drop Unnecessary Columns
-```{python}
+Data Cleaning & Preprocessing
+Drop Unnecessary Columns
 columns_to_drop = [
-    "ID","LAST_UPDATED_TIMESTAMP","DUPLICATES","ACTIVE_URLS","ACTIVE_SOURCES_INFO","URL","SOURCES","SOURCE_TYPES",
+    "ID","LAST_UPDATED_TIMESTAMP","DUPLICATES","ACTIVE_URLS","ACTIVE_SOURCES_INFO",
     "TITLE_RAW","BODY","COMPANY_RAW",
-    "NAICS2","NAICS2_NAME","NAICS3","NAICS3_NAME","NAICS4","NAICS4_NAME","NAICS5","NAICS5_NAME","NAICS6","NAICS6_NAME",
-    "NAICS_2022_2","NAICS_2022_2_NAME","NAICS_2022_3","NAICS_2022_3_NAME","NAICS_2022_4","NAICS_2022_4_NAME","NAICS_2022_5","NAICS_2022_5_NAME",
+    "NAICS2","NAICS2_NAME","NAICS3","NAICS3_NAME","NAICS4","NAICS4_NAME",
+    "NAICS5","NAICS5_NAME","NAICS6","NAICS6_NAME",
+    "NAICS_2022_2","NAICS_2022_2_NAME","NAICS_2022_3","NAICS_2022_3_NAME",
+    "NAICS_2022_4","NAICS_2022_4_NAME","NAICS_2022_5","NAICS_2022_5_NAME",
     "SOC_2","SOC_2_NAME","SOC_3","SOC_3_NAME","SOC_5","SOC_5_NAME",
     "CIP2","CIP2_NAME","CIP4","CIP4_NAME","CIP6","CIP6_NAME",
     "LOT_CAREER_AREA","LOT_CAREER_AREA_NAME","LOT_OCCUPATION","LOT_OCCUPATION_NAME",
     "LOT_SPECIALIZED_OCCUPATION","LOT_SPECIALIZED_OCCUPATION_NAME",
     "LOT_OCCUPATION_GROUP","LOT_OCCUPATION_GROUP_NAME",
     "LOT_V6_SPECIALIZED_OCCUPATION","LOT_V6_SPECIALIZED_OCCUPATION_NAME",
-    "LOT_V6_OCCUPATION","LOT_V6_OCCUPATION_NAME","LOT_V6_OCCUPATION_GROUP","LOT_V6_OCCUPATION_GROUP_NAME",
-    "LOT_V6_CAREER_AREA","LOT_V6_CAREER_AREA_NAME","ONET","ONET_NAME","ONET_2019","ONET_2019_NAME"
+    "LOT_V6_OCCUPATION","LOT_V6_OCCUPATION_NAME","LOT_V6_OCCUPATION_GROUP",
+    "LOT_V6_OCCUPATION_GROUP_NAME","LOT_V6_CAREER_AREA","LOT_V6_CAREER_AREA_NAME",
+    "ONET","ONET_NAME","ONET_2019","ONET_2019_NAME"
 ]
-df = df.drop(columns=[c for c in columns_to_drop if c in df.columns], errors="ignore")
+drop_existing = [c for c in columns_to_drop if c in df.columns]
+df.drop(columns=drop_existing, inplace=True)
 print("Remaining columns (first 30):", list(df.columns)[:30])
-```
 
-## Handle Missing Values
-```{python}
-try:
-    import missingno as msno, matplotlib.pyplot as plt
-    msno.heatmap(df)
-    plt.title("Missing Values Heatmap")
-    plt.show()
-except Exception as e:
-    print("missingno heatmap skipped:", e)
+Handle Missing Values
+import missingno as msno, matplotlib.pyplot as plt
 
-protected = ["INDUSTRY_DISPLAY","SALARY_DISPLAY"]
-cols_to_consider = [c for c in df.columns if c not in protected]
-kept = df[cols_to_consider].dropna(thresh=len(df) * 0.5, axis=1)
-df = pd.concat([kept, df[protected]], axis=1)
+msno.heatmap(df)
+plt.title("Missing Values Heatmap")
+plt.show()
 
-if df["SALARY_DISPLAY"].notna().any():
-    df["SALARY_DISPLAY"] = df["SALARY_DISPLAY"].fillna(df["SALARY_DISPLAY"].median())
+df.dropna(thresh=len(df) * 0.5, axis=1, inplace=True)
+
+if "SALARY_DISPLAY" in df.columns:
+    df["SALARY_DISPLAY"].fillna(df["SALARY_DISPLAY"].median(), inplace=True)
 
 for col in df.select_dtypes(include="object").columns:
-    df.loc[:, col] = df[col].fillna("Unknown")
-```
+    df[col].fillna("Unknown", inplace=True)
 
-## Remove Duplicates
-```{python}
+Remove Duplicates
 subset_cols = [c for c in ["TITLE","COMPANY_NAME","LOCATION","POSTED"] if c in df.columns]
 if subset_cols:
     before = len(df)
-    df = df.drop_duplicates(subset=subset_cols, keep="first")
+    df.drop_duplicates(subset=subset_cols, keep="first", inplace=True)
     print(f"Removed {before - len(df)} duplicates using {subset_cols}")
-```
 
-# Exploratory Data Analysis (EDA)
+Exploratory Data Analysis (EDA)
+Job Postings by Industry (Top 15)
+import plotly.express as px
 
-```{python}
-# Compute top 15 industries once so both charts align
-top15 = (
+counts = (
     df["INDUSTRY_DISPLAY"]
     .value_counts(dropna=False)
     .head(15)
-    .rename_axis("Industry")
-    .reset_index(name="Job Postings")
-    .sort_values("Job Postings")
+    .reset_index(name="Count")
+    .rename(columns={"index": "Industry"})
+    .sort_values("Count")
 )
-top15_list = top15["Industry"].tolist()
-print("Top 15 industries selected:", top15_list[:5], "...")  # brief peek
-```
+fig1 = px.bar(
+    counts, x="Count", y="Industry", orientation="h",
+    title="Top 15 Industries by Number of Job Postings"
+)
+fig1.show()
 
-## Job Postings by Industry (Top 15)
-```{python}
-import plotly.express as px
+Salary Distribution by Industry (Top 15)
+sdf = df[["INDUSTRY_DISPLAY","SALARY_DISPLAY"]].copy()
+sdf = sdf.dropna()
+sdf = sdf[sdf["SALARY_DISPLAY"] > 0]
 
-if df["INDUSTRY_DISPLAY"].notna().sum() == 0:
-    print("No industry values available for chart.")
-else:
-    # Top 15 industries by postings ONLY
-    counts = (
-        df["INDUSTRY_DISPLAY"]
-        .value_counts(dropna=False)
-        .head(15)
-        .rename_axis("Industry")
-        .reset_index(name="Count")
-        .sort_values("Count")
-    )
+top_industries = sdf["INDUSTRY_DISPLAY"].value_counts().head(15).index
+sdf = sdf[sdf["INDUSTRY_DISPLAY"].isin(top_industries)]
 
-    fig = px.bar(
-        counts,
-        x="Count",          # ✅ x-axis is just the numeric count
-        y="Industry",
-        orientation="h",
-        title="Top 15 Industries by Job Postings",
-        labels={"Count": "Count", "Industry": "Industry"}
-    )
-    fig.update_layout(
-        xaxis=dict(title="Count", tickformat=","),
-        yaxis=dict(title="Industry")
-    )
-    fig.show()
-```
-## Salary Distribution by Industry (Top 15 only)
-```{python}
-valid = df.dropna(subset=["INDUSTRY_DISPLAY","SALARY_DISPLAY"])
-valid = valid[(valid["SALARY_DISPLAY"] > 0) & (valid["INDUSTRY_DISPLAY"].isin(top15_list))]
+fig2 = px.box(
+    sdf, x="INDUSTRY_DISPLAY", y="SALARY_DISPLAY",
+    title="Salary Distribution by Industry (Top 15)",
+    points=False
+)
+fig2.update_layout(xaxis_tickangle=-45)
+fig2.show()
 
-if valid.empty:
-    print("No salary data available for boxplot after cleaning.")
-else:
-    import plotly.express as px
-    fig2 = px.box(
-        valid, x="INDUSTRY_DISPLAY", y="SALARY_DISPLAY",
-        title="Salary Distribution by Industry (Top 15 by Postings)", points=False
-    )
-    fig2.update_layout(xaxis_tickangle=-45)
-    fig2.show()
-```
-
-## Remote vs. On-Site Jobs
-```{python}
+Remote vs. On-Site Jobs
 if "REMOTE_TYPE_NAME" in df.columns:
-    rc = df["REMOTE_TYPE_NAME"].fillna("Unknown").value_counts().reset_index()
+    rc = df["REMOTE_TYPE_NAME"].value_counts().reset_index()
     rc.columns = ["Remote Type","Count"]
-    import plotly.express as px
     fig3 = px.pie(
         rc, names="Remote Type", values="Count",
         title="Remote vs. On-Site Job Distribution"
     )
     fig3.show()
-else:
-    print("No REMOTE_TYPE_NAME column available.")
-```
 
-## EDA: Rationale & Insights
+EDA: Rationale & Insights
+Job Postings by Industry
 
-### Job Postings by Industry
-**Why:** Job Postings by Industry highlights sectors where demand is concentrated, giving visibility into the job market and showing which industries are actively hiring.  
-**Key Insights:** The top three industries by job postings are *Temporary Help Services*, *Miscellaneous Ambulatory Health Care Services*, and *Semiconductor and Related Device Manufacturing*. This shows where demand is highest and where job seekers can focus if they are looking for opportunities.
+Why: Highlights sectors where demand is concentrated, showing which industries are actively hiring.
+Key Insights: The top three industries by job postings are Temporary Help Services, Miscellaneous Ambulatory Health Care Services, and Semiconductor and Related Device Manufacturing.
 
-### Salary Distribution by Industry
-**Why:** Salary distribution by industry helps people see where there are opportunities for negotiation and ensures they don’t get underpaid. It also helps job seekers focus on industries that pay well based on current market trends.  
-**Key Insights:** *Automotive Parts and Accessories Retailers* show a wide salary range, meaning there are jobs at different pay levels and more room for negotiation. On the other hand, *Barber Shops* have a very narrow salary range, suggesting little to no negotiation power.
+Salary Distribution by Industry
 
-### Remote vs. On-Site Jobs
-**Why:** Remote vs. On-Site Jobs is important because workplace flexibility is a major factor in today’s job market. It shows job seekers which roles match their lifestyle preferences and helps employers see how their flexibility compares to the market.  
-**Key Insights:** Most postings (**78.3%**) don’t state if they are remote or on-site, making it unclear for job seekers. About **17%** of postings are remote, showing that remote work is fairly common. Only **3.1%** are hybrid, while very few (**1.6%**) are under “Not Remote.”
+Why: Shows where negotiation power exists and highlights industries paying well.
+Key Insights: Automotive Parts and Accessories Retailers show a wide range (negotiation potential), while Barber Shops show a narrow range (little negotiation).
+
+Remote vs. On-Site Jobs
+
+Why: Workplace flexibility is a major factor in today’s job market.
+Key Insights: Most postings (78.3%) don’t specify remote status. About 17% are remote, 3.1% hybrid, and 1.6% explicitly not remote.
