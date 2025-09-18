@@ -23,9 +23,9 @@ format:
     number-sections: true
     df-print: paged
 execute:
-  echo: false      # hide code in HTML
+  echo: false
   eval: true
-  freeze: false    # always rebuild
+  freeze: false
 jupyter: python3
 ---
 
@@ -44,9 +44,9 @@ display(df.head(5))
 
 # Data Cleaning & Preprocessing
 
-## Create Derived Columns
+## Create Derived Columns (before any dropping)
 ```{python}
-# INDUSTRY_DISPLAY: choose the first available column
+# INDUSTRY_DISPLAY: pick the first non-null across many possible industry/NAICS name fields
 INDUSTRY_CANDIDATES = [
     "NAICS_2022_6_NAME","NAICS_2022_5_NAME","NAICS_2022_4_NAME","NAICS_2022_3_NAME","NAICS_2022_2_NAME",
     "NAICS6_NAME","NAICS5_NAME","NAICS4_NAME","NAICS3_NAME","NAICS2_NAME",
@@ -58,7 +58,7 @@ if existing_industry:
 else:
     df["INDUSTRY_DISPLAY"] = np.nan
 
-# SALARY_DISPLAY: use SALARY, or SALARY_FROM/TO midpoint, or PAY_RATE annualized
+# SALARY_DISPLAY: try SALARY → midpoint(SALARY_FROM/TO) → PAY_RATE annualized
 salary_series = None
 
 if "SALARY" in df.columns:
@@ -85,9 +85,10 @@ if (salary_series is None) and "PAY_RATE" in df.columns:
 
 df["SALARY_DISPLAY"] = pd.to_numeric(salary_series, errors="coerce") if salary_series is not None else np.nan
 
-print("Non-null counts:",
-      {"INDUSTRY_DISPLAY": int(df["INDUSTRY_DISPLAY"].notna().sum()),
-       "SALARY_DISPLAY": int(df["SALARY_DISPLAY"].notna().sum())})
+print("Derived non-null:", {
+    "INDUSTRY_DISPLAY": int(df["INDUSTRY_DISPLAY"].notna().sum()),
+    "SALARY_DISPLAY": int(df["SALARY_DISPLAY"].notna().sum())
+})
 ```
 
 ## Drop Unnecessary Columns
@@ -106,8 +107,7 @@ columns_to_drop = [
     "LOT_V6_OCCUPATION","LOT_V6_OCCUPATION_NAME","LOT_V6_OCCUPATION_GROUP","LOT_V6_OCCUPATION_GROUP_NAME",
     "LOT_V6_CAREER_AREA","LOT_V6_CAREER_AREA_NAME","ONET","ONET_NAME","ONET_2019","ONET_2019_NAME"
 ]
-existing = [c for c in columns_to_drop if c in df.columns]
-df = df.drop(columns=existing, errors="ignore")
+df = df.drop(columns=[c for c in columns_to_drop if c in df.columns], errors="ignore")
 print("Remaining columns (first 30):", list(df.columns)[:30])
 ```
 
@@ -127,8 +127,7 @@ kept = df[cols_to_consider].dropna(thresh=len(df) * 0.5, axis=1)
 df = pd.concat([kept, df[protected]], axis=1)
 
 if df["SALARY_DISPLAY"].notna().any():
-    median_salary = df["SALARY_DISPLAY"].median()
-    df["SALARY_DISPLAY"] = df["SALARY_DISPLAY"].fillna(median_salary)
+    df["SALARY_DISPLAY"] = df["SALARY_DISPLAY"].fillna(df["SALARY_DISPLAY"].median())
 
 for col in df.select_dtypes(include="object").columns:
     df.loc[:, col] = df[col].fillna("Unknown")
@@ -141,44 +140,50 @@ if subset_cols:
     before = len(df)
     df = df.drop_duplicates(subset=subset_cols, keep="first")
     print(f"Removed {before - len(df)} duplicates using {subset_cols}")
-else:
-    print("No standard duplicate keys found; skipping.")
 ```
 
 # Exploratory Data Analysis (EDA)
 
-## Job Postings by Industry
+```{python}
+# Compute top 15 industries once so both charts align
+top15 = (
+    df["INDUSTRY_DISPLAY"]
+    .value_counts(dropna=False)
+    .head(15)
+    .rename_axis("Industry")
+    .reset_index(name="Job Postings")
+    .sort_values("Job Postings")
+)
+top15_list = top15["Industry"].tolist()
+print("Top 15 industries selected:", top15_list[:5], "...")  # brief peek
+```
+
+## Job Postings by Industry (Top 15)
 ```{python}
 import plotly.express as px
 
 if df["INDUSTRY_DISPLAY"].notna().sum() == 0:
     print("No industry values available for chart.")
 else:
-    counts = (
-        df["INDUSTRY_DISPLAY"]
-        .value_counts(dropna=False)
-        .rename_axis("Industry")
-        .reset_index(name="Job Postings")
-        .sort_values("Job Postings")
-    )
     fig = px.bar(
-        counts, x="Job Postings", y="Industry", orientation="h",
+        top15, x="Job Postings", y="Industry", orientation="h",
         title="Top 15 Industries by Number of Job Postings"
     )
     fig.show()
 ```
 
-## Salary Distribution by Industry
+## Salary Distribution by Industry (Top 15 only)
 ```{python}
 valid = df.dropna(subset=["INDUSTRY_DISPLAY","SALARY_DISPLAY"])
-valid = valid[valid["SALARY_DISPLAY"] > 0]
+valid = valid[(valid["SALARY_DISPLAY"] > 0) & (valid["INDUSTRY_DISPLAY"].isin(top15_list))]
 
 if valid.empty:
     print("No salary data available for boxplot after cleaning.")
 else:
+    import plotly.express as px
     fig2 = px.box(
         valid, x="INDUSTRY_DISPLAY", y="SALARY_DISPLAY",
-        title="Salary Distribution by Industry", points=False
+        title="Salary Distribution by Industry (Top 15 by Postings)", points=False
     )
     fig2.update_layout(xaxis_tickangle=-45)
     fig2.show()
@@ -189,6 +194,7 @@ else:
 if "REMOTE_TYPE_NAME" in df.columns:
     rc = df["REMOTE_TYPE_NAME"].fillna("Unknown").value_counts().reset_index()
     rc.columns = ["Remote Type","Count"]
+    import plotly.express as px
     fig3 = px.pie(
         rc, names="Remote Type", values="Count",
         title="Remote vs. On-Site Job Distribution"
@@ -197,7 +203,6 @@ if "REMOTE_TYPE_NAME" in df.columns:
 else:
     print("No REMOTE_TYPE_NAME column available.")
 ```
-
 
 ## EDA: Rationale & Insights
 
