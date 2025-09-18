@@ -198,14 +198,17 @@ else:
     print("No REMOTE_TYPE_NAME column available.")
 ```
 
+
 ## EDA: Rationale & Insights
 
-### Why these visualizations
-- **Job Postings by Industry**: highlights sectors with the most demand.  
-- **Salary Distribution by Industry**: compares pay levels and spreads across industries.  
-- **Remote vs. On-Site**: shows flexibility trends in job postings.  
+### Job Postings by Industry
+**Why:** Job Postings by Industry highlights sectors where demand is concentrated, giving visibility into the job market and showing which industries are actively hiring.  
+**Key Insights:** The top three industries by job postings are *Temporary Help Services*, *Miscellaneous Ambulatory Health Care Services*, and *Semiconductor and Related Device Manufacturing*. This shows where demand is highest and where job seekers can focus if they are looking for opportunities.
 
-### Key insights
-- A few industries dominate postings, guiding where job seekers should focus.  
-- Salary distributions vary widely by sector, indicating negotiation opportunities.  
-- Remote vs. on-site mix informs geographic/job flexibility strategy.  
+### Salary Distribution by Industry
+**Why:** Salary distribution by industry helps people see where there are opportunities for negotiation and ensures they don’t get underpaid. It also helps job seekers focus on industries that pay well based on current market trends.  
+**Key Insights:** *Automotive Parts and Accessories Retailers* show a wide salary range, meaning there are jobs at different pay levels and more room for negotiation. On the other hand, *Barber Shops* have a very narrow salary range, suggesting little to no negotiation power.
+
+### Remote vs. On-Site Jobs
+**Why:** Remote vs. On-Site Jobs is important because workplace flexibility is a major factor in today’s job market. It shows job seekers which roles match their lifestyle preferences and helps employers see how their flexibility compares to the market.  
+**Key Insights:** Most postings (**78.3%**) don’t state if they are remote or on-site, making it unclear for job seekers. About **17%** of postings are remote, showing that remote work is fairly common. Only **3.1%** are hybrid, while very few (**1.6%**) are under “Not Remote.”
