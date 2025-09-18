@@ -165,13 +165,30 @@ import plotly.express as px
 if df["INDUSTRY_DISPLAY"].notna().sum() == 0:
     print("No industry values available for chart.")
 else:
+    # Top 15 industries by postings ONLY
+    counts = (
+        df["INDUSTRY_DISPLAY"]
+        .value_counts(dropna=False)
+        .head(15)
+        .rename_axis("Industry")
+        .reset_index(name="Count")
+        .sort_values("Count")
+    )
+
     fig = px.bar(
-        top15, x="Job Postings", y="Industry", orientation="h",
-        title="Top 15 Industries by Number of Job Postings"
+        counts,
+        x="Count",          # ✅ x-axis is just the numeric count
+        y="Industry",
+        orientation="h",
+        title="Top 15 Industries by Job Postings",
+        labels={"Count": "Count", "Industry": "Industry"}
+    )
+    fig.update_layout(
+        xaxis=dict(title="Count", tickformat=","),
+        yaxis=dict(title="Industry")
     )
     fig.show()
 ```
-
 ## Salary Distribution by Industry (Top 15 only)
 ```{python}
 valid = df.dropna(subset=["INDUSTRY_DISPLAY","SALARY_DISPLAY"])
