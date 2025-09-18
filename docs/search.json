@@ -1,0 +1,79 @@
+[
+  {
+    "objectID": "data_analysis.html",
+    "href": "data_analysis.html",
+    "title": "Data Analysis",
+    "section": "",
+    "text": "Loaded dataset: (72498, 131)\n\n\n\n\n\n\n\n\n\nID\nLAST_UPDATED_DATE\nLAST_UPDATED_TIMESTAMP\nDUPLICATES\nPOSTED\nEXPIRED\nDURATION\nSOURCE_TYPES\nSOURCES\nURL\n...\nNAICS_2022_2\nNAICS_2022_2_NAME\nNAICS_2022_3\nNAICS_2022_3_NAME\nNAICS_2022_4\nNAICS_2022_4_NAME\nNAICS_2022_5\nNAICS_2022_5_NAME\nNAICS_2022_6\nNAICS_2022_6_NAME\n\n\n\n\n0\n1f57d95acf4dc67ed2819eb12f049f6a5c11782c\n9/6/2024\n2024-09-06 20:32:57.352 Z\n0.0\n6/2/2024\n6/8/2024\n6.0\n[\\n \"Company\"\\n]\n[\\n \"brassring.com\"\\n]\n[\\n \"https://sjobs.brassring.com/TGnewUI/Sear...\n...\n44.0\nRetail Trade\n441.0\nMotor Vehicle and Parts Dealers\n4413.0\nAutomotive Parts, Accessories, and Tire Retailers\n44133.0\nAutomotive Parts and Accessories Retailers\n441330.0\nAutomotive Parts and Accessories Retailers\n\n\n1\n0cb072af26757b6c4ea9464472a50a443af681ac\n8/2/2024\n2024-08-02 17:08:58.838 Z\n0.0\n6/2/2024\n8/1/2024\nNaN\n[\\n \"Job Board\"\\n]\n[\\n \"maine.gov\"\\n]\n[\\n \"https://joblink.maine.gov/jobs/1085740\"\\n]\n...\n56.0\nAdministrative and Support and Waste Managemen...\n561.0\nAdministrative and Support Services\n5613.0\nEmployment Services\n56132.0\nTemporary Help Services\n561320.0\nTemporary Help Services\n\n\n2\n85318b12b3331fa490d32ad014379df01855c557\n9/6/2024\n2024-09-06 20:32:57.352 Z\n1.0\n6/2/2024\n7/7/2024\n35.0\n[\\n \"Job Board\"\\n]\n[\\n \"dejobs.org\"\\n]\n[\\n \"https://dejobs.org/dallas-tx/data-analys...\n...\n52.0\nFinance and Insurance\n524.0\nInsurance Carriers and Related Activities\n5242.0\nAgencies, Brokerages, and Other Insurance Rela...\n52429.0\nOther Insurance Related Activities\n524291.0\nClaims Adjusting\n\n\n3\n1b5c3941e54a1889ef4f8ae55b401a550708a310\n9/6/2024\n2024-09-06 20:32:57.352 Z\n1.0\n6/2/2024\n7/20/2024\n48.0\n[\\n \"Job Board\"\\n]\n[\\n \"disabledperson.com\",\\n \"dejobs.org\"\\n]\n[\\n \"https://www.disabledperson.com/jobs/5948...\n...\n52.0\nFinance and Insurance\n522.0\nCredit Intermediation and Related Activities\n5221.0\nDepository Credit Intermediation\n52211.0\nCommercial Banking\n522110.0\nCommercial Banking\n\n\n4\ncb5ca25f02bdf25c13edfede7931508bfd9e858f\n6/19/2024\n2024-06-19 07:00:00.000 Z\n0.0\n6/2/2024\n6/17/2024\n15.0\n[\\n \"FreeJobBoard\"\\n]\n[\\n \"craigslist.org\"\\n]\n[\\n \"https://modesto.craigslist.org/sls/77475...\n...\n99.0\nUnclassified Industry\n999.0\nUnclassified Industry\n9999.0\nUnclassified Industry\n99999.0\nUnclassified Industry\n999999.0\nUnclassified Industry\n\n\n\n\n5 rows × 131 columns"
+  },
+  {
+    "objectID": "data_analysis.html#create-derived-columns-before-any-dropping",
+    "href": "data_analysis.html#create-derived-columns-before-any-dropping",
+    "title": "Data Analysis",
+    "section": "2.1 Create Derived Columns (before any dropping)",
+    "text": "2.1 Create Derived Columns (before any dropping)\n\n\nDerived non-null: {'INDUSTRY_DISPLAY': 72454, 'SALARY_DISPLAY': 30808}"
+  },
+  {
+    "objectID": "data_analysis.html#drop-unnecessary-columns",
+    "href": "data_analysis.html#drop-unnecessary-columns",
+    "title": "Data Analysis",
+    "section": "2.2 Drop Unnecessary Columns",
+    "text": "2.2 Drop Unnecessary Columns\n\n\nRemaining columns (first 30): ['LAST_UPDATED_DATE', 'POSTED', 'EXPIRED', 'DURATION', 'MODELED_EXPIRED', 'MODELED_DURATION', 'COMPANY', 'COMPANY_NAME', 'COMPANY_IS_STAFFING', 'EDUCATION_LEVELS', 'EDUCATION_LEVELS_NAME', 'MIN_EDULEVELS', 'MIN_EDULEVELS_NAME', 'MAX_EDULEVELS', 'MAX_EDULEVELS_NAME', 'EMPLOYMENT_TYPE', 'EMPLOYMENT_TYPE_NAME', 'MIN_YEARS_EXPERIENCE', 'MAX_YEARS_EXPERIENCE', 'IS_INTERNSHIP', 'SALARY', 'REMOTE_TYPE', 'REMOTE_TYPE_NAME', 'ORIGINAL_PAY_PERIOD', 'SALARY_TO', 'SALARY_FROM', 'LOCATION', 'CITY', 'CITY_NAME', 'COUNTY']"
+  },
+  {
+    "objectID": "data_analysis.html#handle-missing-values",
+    "href": "data_analysis.html#handle-missing-values",
+    "title": "Data Analysis",
+    "section": "2.3 Handle Missing Values",
+    "text": "2.3 Handle Missing Values"
+  },
+  {
+    "objectID": "data_analysis.html#remove-duplicates",
+    "href": "data_analysis.html#remove-duplicates",
+    "title": "Data Analysis",
+    "section": "2.4 Remove Duplicates",
+    "text": "2.4 Remove Duplicates\n\n\nRemoved 3300 duplicates using ['TITLE', 'COMPANY_NAME', 'LOCATION', 'POSTED']"
+  },
+  {
+    "objectID": "data_analysis.html#job-postings-by-industry-top-15",
+    "href": "data_analysis.html#job-postings-by-industry-top-15",
+    "title": "Data Analysis",
+    "section": "3.1 Job Postings by Industry (Top 15)",
+    "text": "3.1 Job Postings by Industry (Top 15)"
+  },
+  {
+    "objectID": "data_analysis.html#salary-distribution-by-industry-top-15-only",
+    "href": "data_analysis.html#salary-distribution-by-industry-top-15-only",
+    "title": "Data Analysis",
+    "section": "3.2 Salary Distribution by Industry (Top 15 only)",
+    "text": "3.2 Salary Distribution by Industry (Top 15 only)"
+  },
+  {
+    "objectID": "data_analysis.html#remote-vs.-on-site-jobs",
+    "href": "data_analysis.html#remote-vs.-on-site-jobs",
+    "title": "Data Analysis",
+    "section": "3.3 Remote vs. On-Site Jobs",
+    "text": "3.3 Remote vs. On-Site Jobs"
+  },
+  {
+    "objectID": "data_analysis.html#eda-rationale-insights",
+    "href": "data_analysis.html#eda-rationale-insights",
+    "title": "Data Analysis",
+    "section": "3.4 EDA: Rationale & Insights",
+    "text": "3.4 EDA: Rationale & Insights\n\n3.4.1 Job Postings by Industry\nWhy: Job Postings by Industry highlights sectors where demand is concentrated, giving visibility into the job market and showing which industries are actively hiring.\nKey Insights: The top three industries by job postings are Temporary Help Services, Miscellaneous Ambulatory Health Care Services, and Semiconductor and Related Device Manufacturing. This shows where demand is highest and where job seekers can focus if they are looking for opportunities.\n\n\n3.4.2 Salary Distribution by Industry\nWhy: Salary distribution by industry helps people see where there are opportunities for negotiation and ensures they don’t get underpaid. It also helps job seekers focus on industries that pay well based on current market trends.\nKey Insights: Automotive Parts and Accessories Retailers show a wide salary range, meaning there are jobs at different pay levels and more room for negotiation. On the other hand, Barber Shops have a very narrow salary range, suggesting little to no negotiation power.\n\n\n3.4.3 Remote vs. On-Site Jobs\nWhy: Remote vs. On-Site Jobs is important because workplace flexibility is a major factor in today’s job market. It shows job seekers which roles match their lifestyle preferences and helps employers see how their flexibility compares to the market.\nKey Insights: Most postings (78.3%) don’t state if they are remote or on-site, making it unclear for job seekers. About 17% of postings are remote, showing that remote work is fairly common. Only 3.1% are hybrid, while very few (1.6%) are under “Not Remote.”"
+  },
+  {
+    "objectID": "index.html",
+    "href": "index.html",
+    "title": "AI vs. Non-AI Job Growth",
+    "section": "",
+    "text": "Introduction\nArtificial intelligence (AI) is changing the working world, affecting jobs and livelihood. This makes AI an important topic to study. Jobs that are related to AI, such as data science, robotics, and machine learning, are becoming more common, often paying well. Simultaneously, traditional jobs such as farming, retail, or office work are slowly being reduced and taken over due to automation and new advanced technology taking over. This does not imply that every job disappears; however, it does mean that the job market is shifting alongside AI, and people are starting to worry that their future careers might not be as secure as before.\nIn 2024, people are worried about job security as many industries are already adopting AI tools. Some see AI as a threat to their jobs, while others see it as a chance to move into new roles. Looking at AI versus non-AI careers will help us further understand how and where job opportunities are growing, which areas are shrinking, and what skills people may need to adapt in the future.\n\n\nResearch Rationale\nThis topic is not only important, but also interesting to understand because it highlights how the progress of AI can actually eliminate and create jobs at the same time. In 2024, many companies are integrating AI, accelerating changes in the job market. Automation is replacing repetitive tasks, while AI-driven roles are much higher in demand. However, this transition is not equal.\nAI affects people differently depending on their job, skill level, and where they live. For example, store cashiers are being replaced by self-checkout machines, but new jobs like AI engineers are being created to build and maintain those systems. The problem is that it might take five people to run a store, but an entire company may only need a few engineers to build the technology that replaces these cashiers. This means that some workers may lose jobs unless they learn new skills (see e.g., Tiwari ((2023))).\n\n\nPreliminary Discussion\nAI has already shown a large positive impact: it reduces the need for workers in routine tasks while simultaneously creating new job roles like AI ethics officers and prompt engineers. These jobs did not exist a decade ago, which shows that AI is not necessarily taking away jobs but also opening new career paths.\nThe real issue is that the shift is uneven. It is not always a fair trade when losing one job and gaining another because some countries with strong economies may be able to support workers with training programs, but poorer countries may not. It should also be noted that there will be workers who are not interested in technological roles. This shows that AI’s impact depends on economics, training opportunities, and even personal preference and interest. In some settings AI tools raise worker productivity—especially for newer workers—rather than replace them outright (Brynjolfsson, Li, and Raymond ((2023))); employers are also placing more value on complementary human skills (teamwork, adaptability, digital literacy) even as purely routine tasks decline (Mäkelä and Stephany ((2024))).\n\n\nLiterature Review\nResearchers have studied how AI is affecting jobs, and findings vary. Tiwari ((2023)) explains that while AI/ML can replace some roles—especially repetitive, routine work—they also create opportunities in areas like data analysis and AI system development. The key challenge is reskilling: workers’ ability to adapt to new roles determines whether they benefit.\nOther studies show that AI can help workers instead of only replacing them. Brynjolfsson, Li, and Raymond ((2023)) find that customer service workers, especially new ones, became more productive when using AI tools alongside normal tasks. Mäkelä and Stephany ((2024)) analyze job ads across countries and find demand rising for human, complementary skills (teamwork, adaptability, digital literacy), while demand falls for narrowly routine tasks. Together, these findings suggest AI’s effects are heterogeneous: outcomes vary by occupation, tasks, skills, and context.\n\n\n\n\n\n\n\n\nReferences\n\nBrynjolfsson, E., D. Li, and L. Raymond. (2023): “Generative AI at work,” arXiv preprint arXiv:2304.11771,.\n\n\nMäkelä, E., and F. Stephany. (2024): “Complement or substitute? How AI increases the demand for human skills,” arXiv preprint arXiv:2412.19754,.\n\n\nTiwari, R. (2023): “The impact of AI and machine learning on job displacement and employment opportunities,” International Journal of Engineering Technologies and Management Research, 7, 1–9."
+  },
+  {
+    "objectID": "about.html",
+    "href": "about.html",
+    "title": "About the Team",
+    "section": "",
+    "text": "Team: Connor Coulter, Wei Wang, Balqis Bevi Abdul Hannan Kanaga\nTopic: AI vs. Non-AI Job Growth — Is AI taking over or creating more jobs?\nCourse: AD 688 – Cloud Analytics for Business\nThis site hosts our research rationale, intro, and literature review for Project Selection I."
+  }
+]
