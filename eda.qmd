@@ -50,7 +50,7 @@ fig1 = px.bar(
 )
 fig1.show()
 
-Salary Distribution by Industry (Top 15)
+# Salary Distribution by Industry (Top 15)
 sdf = df[["INDUSTRY_DISPLAY","SALARY_DISPLAY"]].copy()
 sdf = sdf.dropna()
 sdf = sdf[sdf["SALARY_DISPLAY"] > 0]
@@ -66,7 +66,7 @@ fig2 = px.box(
 fig2.update_layout(xaxis_tickangle=-45)
 fig2.show()
 
-Remote vs. On-Site Jobs
+# Remote vs. On-Site Jobs
 if "REMOTE_TYPE_NAME" in df.columns:
     rc = df["REMOTE_TYPE_NAME"].value_counts().reset_index()
     rc.columns = ["Remote Type","Count"]
