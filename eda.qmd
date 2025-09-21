@@ -1,0 +1,94 @@
+---
+title: "Exploratory Data Analysis (EDA)"
+subtitle: "Visualizing and Interpreting Job Market Trends"
+author:
+  - name: Connor Coulter
+    affiliations:
+      - id: bu
+        name: Boston University
+        city: Boston
+        state: MA
+  - name: Wei Wang
+    affiliations:
+      - ref: bu
+  - name: Balqis Bevi Abdul Hannan Kanaga
+    affiliations:
+      - ref: bu
+bibliography: references.bib
+csl: csl/econometrica.csl
+format: 
+  html:
+    embed-resources: true
+    toc: true
+    number-sections: true
+    df-print: paged
+  docx: default
+execute:
+  echo: true
+  eval: true
+  freeze: auto
+jupyter: python3
+---
+
+### Exploratory Data Analysis (EDA)
+
+```{python}
+Job Postings by Industry (Top 15)
+import plotly.express as px
+
+counts = (
+    df["INDUSTRY_DISPLAY"]
+    .value_counts(dropna=False)
+    .head(15)
+    .reset_index(name="Count")
+    .rename(columns={"index": "Industry"})
+    .sort_values("Count")
+)
+fig1 = px.bar(
+    counts, x="Count", y="Industry", orientation="h",
+    title="Top 15 Industries by Number of Job Postings"
+)
+fig1.show()
+
+Salary Distribution by Industry (Top 15)
+sdf = df[["INDUSTRY_DISPLAY","SALARY_DISPLAY"]].copy()
+sdf = sdf.dropna()
+sdf = sdf[sdf["SALARY_DISPLAY"] > 0]
+
+top_industries = sdf["INDUSTRY_DISPLAY"].value_counts().head(15).index
+sdf = sdf[sdf["INDUSTRY_DISPLAY"].isin(top_industries)]
+
+fig2 = px.box(
+    sdf, x="INDUSTRY_DISPLAY", y="SALARY_DISPLAY",
+    title="Salary Distribution by Industry (Top 15)",
+    points=False
+)
+fig2.update_layout(xaxis_tickangle=-45)
+fig2.show()
+
+Remote vs. On-Site Jobs
+if "REMOTE_TYPE_NAME" in df.columns:
+    rc = df["REMOTE_TYPE_NAME"].value_counts().reset_index()
+    rc.columns = ["Remote Type","Count"]
+    fig3 = px.pie(
+        rc, names="Remote Type", values="Count",
+        title="Remote vs. On-Site Job Distribution"
+    )
+    fig3.show()
+```
+
+EDA: Rationale & Insights
+Job Postings by Industry
+
+Why: Highlights sectors where demand is concentrated, showing which industries are actively hiring.
+Key Insights: The top three industries by job postings are Temporary Help Services, Miscellaneous Ambulatory Health Care Services, and Semiconductor and Related Device Manufacturing.
+
+Salary Distribution by Industry
+
+Why: Shows where negotiation power exists and highlights industries paying well.
+Key Insights: Automotive Parts and Accessories Retailers show a wide range (negotiation potential), while Barber Shops show a narrow range (little negotiation).
+
+Remote vs. On-Site Jobs
+
+Why: Workplace flexibility is a major factor in today’s job market.
+Key Insights: Most postings (78.3%) don’t specify remote status. About 17% are remote, 3.1% hybrid, and 1.6% explicitly not remote.
