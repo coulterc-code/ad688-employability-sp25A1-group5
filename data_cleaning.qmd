@@ -33,8 +33,9 @@ jupyter: python3
 # Import Data
 
 ```{python}
-import pandas as pd, numpy as np, os
+import pandas as pd, numpy as np, os, missingno as msno, matplotlib.pyplot as plt
 
+# load data
 CSV_PATHS = ["data/lightcast_job_postings.csv", "lightcast_job_postings.csv"]
 csv_path = next((p for p in CSV_PATHS if os.path.exists(p)), None)
 if not csv_path:
@@ -42,9 +43,7 @@ if not csv_path:
 
 df = pd.read_csv(csv_path, low_memory=False)
 print("Loaded dataset:", df.shape)
-df.head(5)
 
-# Derive helper columns
 df["INDUSTRY_DISPLAY"] = (
     df["NAICS_2022_6_NAME"]
     if "NAICS_2022_6_NAME" in df.columns
@@ -61,12 +60,7 @@ df["SALARY_DISPLAY"] = next(
     pd.Series([np.nan]*len(df))
 )
 
-print("Derived non-null:", {
-    "INDUSTRY_DISPLAY": df["INDUSTRY_DISPLAY"].notna().sum(),
-    "SALARY_DISPLAY": df["SALARY_DISPLAY"].notna().sum()
-})
-Data Cleaning & Preprocessing
-Drop Unnecessary Columns
+# drops unused cols
 columns_to_drop = [
     "ID","LAST_UPDATED_TIMESTAMP","DUPLICATES","ACTIVE_URLS","ACTIVE_SOURCES_INFO",
     "TITLE_RAW","BODY","COMPANY_RAW",
@@ -88,9 +82,7 @@ drop_existing = [c for c in columns_to_drop if c in df.columns]
 df.drop(columns=drop_existing, inplace=True)
 print("Remaining columns (first 30):", list(df.columns)[:30])
 
-Handle Missing Values
-import missingno as msno, matplotlib.pyplot as plt
-
+# handle missing vals
 msno.heatmap(df)
 plt.title("Missing Values Heatmap")
 plt.show()
@@ -103,9 +95,11 @@ if "SALARY_DISPLAY" in df.columns:
 for col in df.select_dtypes(include="object").columns:
     df[col].fillna("Unknown", inplace=True)
 
-Remove Duplicates
+# remove all duplicates
 subset_cols = [c for c in ["TITLE","COMPANY_NAME","LOCATION","POSTED"] if c in df.columns]
 if subset_cols:
     before = len(df)
     df.drop_duplicates(subset=subset_cols, keep="first", inplace=True)
     print(f"Removed {before - len(df)} duplicates using {subset_cols}")
+
+```

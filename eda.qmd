@@ -33,6 +33,77 @@ jupyter: python3
 ### Exploratory Data Analysis (EDA)
 
 ```{python}
+#purely to reload data
+
+import pandas as pd, numpy as np, os, missingno as msno, matplotlib.pyplot as plt
+
+# load data
+CSV_PATHS = ["data/lightcast_job_postings.csv", "lightcast_job_postings.csv"]
+csv_path = next((p for p in CSV_PATHS if os.path.exists(p)), None)
+if not csv_path:
+    raise FileNotFoundError("⚠️ lightcast_job_postings.csv not found")
+
+df = pd.read_csv(csv_path, low_memory=False)
+print("Loaded dataset:", df.shape)
+
+df["INDUSTRY_DISPLAY"] = (
+    df["NAICS_2022_6_NAME"]
+    if "NAICS_2022_6_NAME" in df.columns
+    else df.get("INDUSTRY", pd.Series(["Unknown"]*len(df)))
+)
+
+salary_candidates = ["SALARY","SALARY_MEDIAN","SALARY_MID","SALARY_ANNUAL","PAY_RATE"]
+for c in salary_candidates:
+    if c in df.columns:
+        df[c] = pd.to_numeric(df[c], errors="coerce")
+
+df["SALARY_DISPLAY"] = next(
+    (df[c] for c in salary_candidates if c in df.columns),
+    pd.Series([np.nan]*len(df))
+)
+
+# drops unused cols
+columns_to_drop = [
+    "ID","LAST_UPDATED_TIMESTAMP","DUPLICATES","ACTIVE_URLS","ACTIVE_SOURCES_INFO",
+    "TITLE_RAW","BODY","COMPANY_RAW",
+    "NAICS2","NAICS2_NAME","NAICS3","NAICS3_NAME","NAICS4","NAICS4_NAME",
+    "NAICS5","NAICS5_NAME","NAICS6","NAICS6_NAME",
+    "NAICS_2022_2","NAICS_2022_2_NAME","NAICS_2022_3","NAICS_2022_3_NAME",
+    "NAICS_2022_4","NAICS_2022_4_NAME","NAICS_2022_5","NAICS_2022_5_NAME",
+    "SOC_2","SOC_2_NAME","SOC_3","SOC_3_NAME","SOC_5","SOC_5_NAME",
+    "CIP2","CIP2_NAME","CIP4","CIP4_NAME","CIP6","CIP6_NAME",
+    "LOT_CAREER_AREA","LOT_CAREER_AREA_NAME","LOT_OCCUPATION","LOT_OCCUPATION_NAME",
+    "LOT_SPECIALIZED_OCCUPATION","LOT_SPECIALIZED_OCCUPATION_NAME",
+    "LOT_OCCUPATION_GROUP","LOT_OCCUPATION_GROUP_NAME",
+    "LOT_V6_SPECIALIZED_OCCUPATION","LOT_V6_SPECIALIZED_OCCUPATION_NAME",
+    "LOT_V6_OCCUPATION","LOT_V6_OCCUPATION_NAME","LOT_V6_OCCUPATION_GROUP",
+    "LOT_V6_OCCUPATION_GROUP_NAME","LOT_V6_CAREER_AREA","LOT_V6_CAREER_AREA_NAME",
+    "ONET","ONET_NAME","ONET_2019","ONET_2019_NAME"
+]
+drop_existing = [c for c in columns_to_drop if c in df.columns]
+df.drop(columns=drop_existing, inplace=True)
+print("Remaining columns (first 30):", list(df.columns)[:30])
+
+# handle missing vals
+msno.heatmap(df)
+plt.title("Missing Values Heatmap")
+plt.show()
+
+df.dropna(thresh=len(df) * 0.5, axis=1, inplace=True)
+
+if "SALARY_DISPLAY" in df.columns:
+    df["SALARY_DISPLAY"].fillna(df["SALARY_DISPLAY"].median(), inplace=True)
+
+for col in df.select_dtypes(include="object").columns:
+    df[col].fillna("Unknown", inplace=True)
+
+# remove all duplicates
+subset_cols = [c for c in ["TITLE","COMPANY_NAME","LOCATION","POSTED"] if c in df.columns]
+if subset_cols:
+    before = len(df)
+    df.drop_duplicates(subset=subset_cols, keep="first", inplace=True)
+    print(f"Removed {before - len(df)} duplicates using {subset_cols}")
+
 # Job Postings by Industry (Top 15)
 import plotly.express as px
 
@@ -41,9 +112,9 @@ counts = (
     .value_counts(dropna=False)
     .head(15)
     .reset_index(name="Count")
-    .rename(columns={"index": "Industry"})
-    .sort_values("Count")
+    .rename(columns={"INDUSTRY_DISPLAY": "Industry"})
 )
+
 fig1 = px.bar(
     counts, x="Count", y="Industry", orientation="h",
     title="Top 15 Industries by Number of Job Postings"
@@ -92,3 +163,7 @@ Remote vs. On-Site Jobs
 
 Why: Workplace flexibility is a major factor in today’s job market.
 Key Insights: Most postings (78.3%) don’t specify remote status. About 17% are remote, 3.1% hybrid, and 1.6% explicitly not remote.
+
+```{python}
+print(df.columns)
+```
