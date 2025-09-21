@@ -33,7 +33,7 @@ jupyter: python3
 ### Exploratory Data Analysis (EDA)
 
 ```{python}
-Job Postings by Industry (Top 15)
+# Job Postings by Industry (Top 15)
 import plotly.express as px
 
 counts = (
