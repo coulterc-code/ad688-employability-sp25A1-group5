@@ -1,0 +1,14 @@
+---
+title: "Introduction: Group 5"
+subtitle: "About The Team"
+---
+
+**Team:** Connor Coulter, Wei Wang, Balqis Bevi Abdul Hannan Kanaga
+
+**Topic:** AI vs. Non-AI Job Growth — Is AI taking over or creating more jobs?
+
+
+**Course:** AD 688 – Cloud Analytics for Business
+
+
+This site hosts our research rationale, intro, and literature review for Project Selection I, II and III.
