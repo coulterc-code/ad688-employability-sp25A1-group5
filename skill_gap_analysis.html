@@ -199,7 +199,7 @@ pre > code.sourceCode > span > a:first-child::before { text-decoration: underlin
 </header>
 
 
-<div id="efb3b1cd" class="cell" data-execution_count="1">
+<div id="438b263d" class="cell" data-execution_count="1">
 <div class="code-copy-outer-scaffold"><div class="sourceCode cell-code" id="cb1"><pre class="sourceCode python code-with-copy"><code class="sourceCode python"><span id="cb1-1"><a href="#cb1-1" aria-hidden="true" tabindex="-1"></a><span class="im">import</span> pandas <span class="im">as</span> pd</span>
 <span id="cb1-2"><a href="#cb1-2" aria-hidden="true" tabindex="-1"></a><span class="im">import</span> seaborn <span class="im">as</span> sns</span>
 <span id="cb1-3"><a href="#cb1-3" aria-hidden="true" tabindex="-1"></a><span class="im">import</span> matplotlib.pyplot <span class="im">as</span> plt</span>
@@ -208,11 +208,11 @@ pre > code.sourceCode > span > a:first-child::before { text-decoration: underlin
 <span id="cb1-6"><a href="#cb1-6" aria-hidden="true" tabindex="-1"></a><span class="co"># 3.1.1 Group 5 skill level</span></span>
 <span id="cb1-7"><a href="#cb1-7" aria-hidden="true" tabindex="-1"></a>skills_data <span class="op">=</span> {</span>
 <span id="cb1-8"><a href="#cb1-8" aria-hidden="true" tabindex="-1"></a>    <span class="st">"Name"</span>: [<span class="st">"Connor"</span>, <span class="st">"Wei"</span>, <span class="st">"Balqis"</span>],</span>
-<span id="cb1-9"><a href="#cb1-9" aria-hidden="true" tabindex="-1"></a>    <span class="st">"Python"</span>: [<span class="dv">5</span>, <span class="dv">5</span>, <span class="dv">3</span>],</span>
-<span id="cb1-10"><a href="#cb1-10" aria-hidden="true" tabindex="-1"></a>    <span class="st">"SQL"</span>: [<span class="dv">5</span>, <span class="dv">5</span>, <span class="dv">4</span>],</span>
-<span id="cb1-11"><a href="#cb1-11" aria-hidden="true" tabindex="-1"></a>    <span class="st">"Machine Learning"</span>: [<span class="dv">5</span>, <span class="dv">5</span>, <span class="dv">2</span>],</span>
-<span id="cb1-12"><a href="#cb1-12" aria-hidden="true" tabindex="-1"></a>    <span class="st">"Cloud Computing"</span>: [<span class="dv">5</span>, <span class="dv">5</span>, <span class="dv">2</span>]</span>
-<span id="cb1-13"><a href="#cb1-13" aria-hidden="true" tabindex="-1"></a>}</span>
+<span id="cb1-9"><a href="#cb1-9" aria-hidden="true" tabindex="-1"></a>    <span class="st">"Python"</span>: [<span class="dv">2</span>, <span class="dv">1</span>, <span class="dv">3</span>],</span>
+<span id="cb1-10"><a href="#cb1-10" aria-hidden="true" tabindex="-1"></a>    <span class="st">"SQL"</span>: [<span class="dv">2</span>, <span class="dv">2</span>, <span class="dv">4</span>],</span>
+<span id="cb1-11"><a href="#cb1-11" aria-hidden="true" tabindex="-1"></a>    <span class="st">"Machine Learning"</span>: [<span class="dv">2</span>, <span class="dv">1</span>, <span class="dv">2</span>],</span>
+<span id="cb1-12"><a href="#cb1-12" aria-hidden="true" tabindex="-1"></a>    <span class="st">"Cloud Computing"</span>: [<span class="dv">2</span>, <span class="dv">1</span>, <span class="dv">2</span>]}</span>
+<span id="cb1-13"><a href="#cb1-13" aria-hidden="true" tabindex="-1"></a></span>
 <span id="cb1-14"><a href="#cb1-14" aria-hidden="true" tabindex="-1"></a>df_skills <span class="op">=</span> pd.DataFrame(skills_data).set_index(<span class="st">"Name"</span>)</span>
 <span id="cb1-15"><a href="#cb1-15" aria-hidden="true" tabindex="-1"></a></span>
 <span id="cb1-16"><a href="#cb1-16" aria-hidden="true" tabindex="-1"></a>plt.figure(figsize<span class="op">=</span>(<span class="dv">6</span>,<span class="dv">4</span>))</span>
@@ -227,7 +227,7 @@ pre > code.sourceCode > span > a:first-child::before { text-decoration: underlin
 </div>
 </div>
 </div>
-<div id="a9fe9645" class="cell" data-execution_count="2">
+<div id="43a21ec7" class="cell" data-execution_count="2">
 <div class="code-copy-outer-scaffold"><div class="sourceCode cell-code" id="cb2"><pre class="sourceCode python code-with-copy"><code class="sourceCode python"><span id="cb2-1"><a href="#cb2-1" aria-hidden="true" tabindex="-1"></a><span class="co"># 3.1.2 Compare our group's skills against job market demand</span></span>
 <span id="cb2-2"><a href="#cb2-2" aria-hidden="true" tabindex="-1"></a>top_skills <span class="op">=</span> [<span class="st">"Python"</span>, <span class="st">"SQL"</span>, <span class="st">"Machine Learning"</span>, <span class="st">"Cloud Computing"</span>, <span class="st">"Docker"</span>, <span class="st">"AWS"</span>]</span>
 <span id="cb2-3"><a href="#cb2-3" aria-hidden="true" tabindex="-1"></a>job_skill_counts <span class="op">=</span> Counter(top_skills)</span>
@@ -265,19 +265,19 @@ pre > code.sourceCode > span > a:first-child::before { text-decoration: underlin
 <tbody>
 <tr class="odd">
 <th data-quarto-table-cell-role="th">Connor</th>
-<td>5</td>
-<td>5</td>
-<td>5</td>
-<td>5</td>
+<td>2</td>
+<td>2</td>
+<td>2</td>
+<td>2</td>
 <td>0</td>
 <td>0</td>
 </tr>
 <tr class="even">
 <th data-quarto-table-cell-role="th">Wei</th>
-<td>5</td>
-<td>5</td>
-<td>5</td>
-<td>5</td>
+<td>1</td>
+<td>2</td>
+<td>1</td>
+<td>1</td>
 <td>0</td>
 <td>0</td>
 </tr>
@@ -298,9 +298,9 @@ pre > code.sourceCode > span > a:first-child::before { text-decoration: underlin
 </div>
 <section id="improvement-plan" class="level1">
 <h1>3.1.3 Improvement Plan</h1>
-<p>Balqis: Her Machine Learning and Cloud Computing are at a basic level, so there’s room to grow. Since her career path is in data analysis with a focus on visualization, Machine Learning isn’t her top priority, but Cloud Computing is worth developing further. She should also raise her Python to an advanced level, as it’s essential for data analysts. A good approach is to start with small personal projects, apply what she learns at work, and then pursue certifications once she’s confident with the basics.</p>
-<p>Connor:</p>
-<p>Wei:</p>
+<p>Balqis: Her Machine Learning and Cloud Computing are at a basic level, leaving room to grow. With a career in data analysis and visualization, Machine Learning isn’t her top priority, but Cloud Computing is worth developing further. Strengthening Python would also be valuable, as it’s essential for data analysts. A good approach is to sharpen her skills through small personal projects and apply what she learns at work. If her fundamentals feel solid, she can move towards certifications.</p>
+<p>Wei: Her Python and Machine Learning are at a basic level, so she has the option to develop them further depending on how relevant they are to her career path. Since her SQL is already stronger, focusing on Python would be the most practical next step if she chooses to continue building technical skills. A good approach is to take it gradually through small projects and applied practice, and then expand into more advanced areas only if it fits her goals.</p>
+<p>Connor: His skills are fairly even across all areas, at a basic stage, which gives him room to build depth. Bumping Python up to a stronger level would give him the most flexibility, while also continuing to grow in Cloud Computing to keep pace with current tools and workflows. A steady way forward is to practice Python through hands-on work and then bring in cloud tools as he becomes more confident.</p>
 
 
 </section>
