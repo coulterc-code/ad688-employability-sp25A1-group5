@@ -22,9 +22,10 @@ format:
     toc: true
     number-sections: true
     df-print: paged
+    math: false
   docx: default
 execute:
-  echo: true
+  echo: false
   eval: true
   freeze: auto
 jupyter: python3
@@ -33,9 +34,11 @@ jupyter: python3
 ### Exploratory Data Analysis (EDA)
 
 ```{python}
-#purely to reload data
-
+#| echo: false
+#| results: "hide"
 import pandas as pd, numpy as np, os, missingno as msno, matplotlib.pyplot as plt
+import plotly.io as pio
+pio.renderers.default = "notebook"
 
 # load data
 CSV_PATHS = ["data/lightcast_job_postings.csv", "lightcast_job_postings.csv"]
@@ -45,6 +48,7 @@ if not csv_path:
 
 df = pd.read_csv(csv_path, low_memory=False)
 print("Loaded dataset:", df.shape)
+df.head(5)
 
 df["INDUSTRY_DISPLAY"] = (
     df["NAICS_2022_6_NAME"]
@@ -57,10 +61,20 @@ for c in salary_candidates:
     if c in df.columns:
         df[c] = pd.to_numeric(df[c], errors="coerce")
 
-df["SALARY_DISPLAY"] = next(
-    (df[c] for c in salary_candidates if c in df.columns),
-    pd.Series([np.nan]*len(df))
-)
+for col in salary_candidates:
+    if col in df.columns:
+        df["SALARY_DISPLAY"] = df[col]
+        break
+else:
+    df["SALARY_DISPLAY"] = np.nan
+
+if "SALARY_DISPLAY" in df.columns:
+    df["SALARY_DISPLAY"].fillna(df["SALARY_DISPLAY"].median(), inplace=True)
+
+print("Derived non-null:", {
+    "INDUSTRY_DISPLAY": df["INDUSTRY_DISPLAY"].notna().sum(),
+    "SALARY_DISPLAY": df["SALARY_DISPLAY"].notna().sum()
+})
 
 # drops unused cols
 columns_to_drop = [
@@ -84,7 +98,8 @@ drop_existing = [c for c in columns_to_drop if c in df.columns]
 df.drop(columns=drop_existing, inplace=True)
 print("Remaining columns (first 30):", list(df.columns)[:30])
 
-# handle missing vals
+import missingno as msno, matplotlib.pyplot as plt
+
 msno.heatmap(df)
 plt.title("Missing Values Heatmap")
 plt.show()
@@ -97,14 +112,18 @@ if "SALARY_DISPLAY" in df.columns:
 for col in df.select_dtypes(include="object").columns:
     df[col].fillna("Unknown", inplace=True)
 
-# remove all duplicates
 subset_cols = [c for c in ["TITLE","COMPANY_NAME","LOCATION","POSTED"] if c in df.columns]
 if subset_cols:
     before = len(df)
     df.drop_duplicates(subset=subset_cols, keep="first", inplace=True)
     print(f"Removed {before - len(df)} duplicates using {subset_cols}")
 
+print("Final SALARY_DISPLAY Non-Null Count:", df["SALARY_DISPLAY"].notna().sum())
+```
+
+
 # Job Postings by Industry (Top 15)
+```{python}
 import plotly.express as px
 
 counts = (
@@ -120,8 +139,14 @@ fig1 = px.bar(
     title="Top 15 Industries by Number of Job Postings"
 )
 fig1.show()
+```
+
+**Rationale & Insights**
+- **Why**: Highlights sectors where demand is concentrated, showing which industries are actively hiring.
+- **Key Insights**: The top three industries by job postings are Temporary Help Services, Miscellaneous Ambulatory Health Care Services, and Semiconductor and Related Device Manufacturing.
 
 # Salary Distribution by Industry (Top 15)
+```{python}
 sdf = df[["INDUSTRY_DISPLAY","SALARY_DISPLAY"]].copy()
 sdf = sdf.dropna()
 sdf = sdf[sdf["SALARY_DISPLAY"] > 0]
@@ -136,8 +161,14 @@ fig2 = px.box(
 )
 fig2.update_layout(xaxis_tickangle=-45)
 fig2.show()
+```
+
+**Rationale & Insights**
+- **Why**: Shows where negotiation power exists and highlights industries paying well.
+- **Key Insights**: Automotive Parts and Accessories Retailers show a wide range (negotiation potential), while Barber Shops show a narrow range (little negotiation).
 
 # Remote vs. On-Site Jobs
+```{python}
 if "REMOTE_TYPE_NAME" in df.columns:
     rc = df["REMOTE_TYPE_NAME"].value_counts().reset_index()
     rc.columns = ["Remote Type","Count"]
@@ -148,22 +179,6 @@ if "REMOTE_TYPE_NAME" in df.columns:
     fig3.show()
 ```
 
-EDA: Rationale & Insights
-Job Postings by Industry
-
-Why: Highlights sectors where demand is concentrated, showing which industries are actively hiring.
-Key Insights: The top three industries by job postings are Temporary Help Services, Miscellaneous Ambulatory Health Care Services, and Semiconductor and Related Device Manufacturing.
-
-Salary Distribution by Industry
-
-Why: Shows where negotiation power exists and highlights industries paying well.
-Key Insights: Automotive Parts and Accessories Retailers show a wide range (negotiation potential), while Barber Shops show a narrow range (little negotiation).
-
-Remote vs. On-Site Jobs
-
-Why: Workplace flexibility is a major factor in today’s job market.
-Key Insights: Most postings (78.3%) don’t specify remote status. About 17% are remote, 3.1% hybrid, and 1.6% explicitly not remote.
-
-```{python}
-print(df.columns)
-```
+**Rationale & Insights**
+- **Why**: Workplace flexibility is a major factor in today’s job market.
+- **Key Insights**: Most postings (78.3%) don’t specify remote status. About 17% are remote, 3.1% hybrid, and 1.6% explicitly not remote.
