@@ -31,9 +31,8 @@ execute:
 jupyter: python3
 ---
 
-### Exploratory Data Analysis (EDA)
-
 ```{python}
+# Exploratory Data Analysis (EDA)
 #| echo: false
 #| results: "hide"
 import pandas as pd, numpy as np, os, missingno as msno, matplotlib.pyplot as plt
@@ -124,11 +123,16 @@ print("Final SALARY_DISPLAY Non-Null Count:", df["SALARY_DISPLAY"].notna().sum()
 
 # Job Postings by Industry (Top 15)
 ```{python}
+import plotly.io as pio
 import plotly.express as px
 
+pio.renderers.default = "vscode+notebook+png"
+
+# Filter out "Unclassified Industry" before getting top 15
 counts = (
-    df["INDUSTRY_DISPLAY"]
-    .value_counts(dropna=False)
+    df[df["INDUSTRY_DISPLAY"] != "Unclassified Industry"]
+    ["INDUSTRY_DISPLAY"]
+    .value_counts()
     .head(15)
     .reset_index(name="Count")
     .rename(columns={"INDUSTRY_DISPLAY": "Industry"})
@@ -136,14 +140,22 @@ counts = (
 
 fig1 = px.bar(
     counts, x="Count", y="Industry", orientation="h",
-    title="Top 15 Industries by Number of Job Postings"
+    title="Top 15 Industries by Number of Job Postings (Excluding Unclassified)"
 )
 fig1.show()
+fig1.write_image("output/plot 1.svg", width=3500, height=600, scale=1)
 ```
 
-**Rationale & Insights**
-- **Why**: Highlights sectors where demand is concentrated, showing which industries are actively hiring.
-- **Key Insights**: The top three industries by job postings are Temporary Help Services, Miscellaneous Ambulatory Health Care Services, and Semiconductor and Related Device Manufacturing.
+## Rationale
+Highlights sectors where demand is concentrated, showing which industries are actively hiring.
+
+## Key Insights
+- Top Hiring Industries:
+Custom Computer Programming, Management Consulting, and Employment Agencies dominate job postings.
+- Skewed Distribution:
+The top 4 industries account for a significantly larger share of job postings than the rest.
+- Professional Services Focus:
+Many high-posting sectors are centered around tech, consulting, healthcare and education — reflecting demand for knowledge-based roles.
 
 # Salary Distribution by Industry (Top 15)
 ```{python}
@@ -157,28 +169,51 @@ sdf = sdf[sdf["INDUSTRY_DISPLAY"].isin(top_industries)]
 fig2 = px.box(
     sdf, x="INDUSTRY_DISPLAY", y="SALARY_DISPLAY",
     title="Salary Distribution by Industry (Top 15)",
-    points=False
+    points=False,
+    labels={
+        "INDUSTRY_DISPLAY": "Industry",
+        "SALARY_DISPLAY": "Salary"
+    }
 )
 fig2.update_layout(xaxis_tickangle=-45)
 fig2.show()
+fig2.write_image("output/plot 2.svg", width=3500, height=600, scale=1)
 ```
 
-**Rationale & Insights**
-- **Why**: Shows where negotiation power exists and highlights industries paying well.
-- **Key Insights**: Automotive Parts and Accessories Retailers show a wide range (negotiation potential), while Barber Shops show a narrow range (little negotiation).
+## Rationale
+Shows where negotiation power exists and highlights industries paying well.
+
+## Key Insights
+- Wide Salary Ranges in Staffing & Tech Services:
+Industries like Temporary Help Services and Employment Placement Agencies exhibit large salary spreads with high outliers, though their median pay remains modest.
+- Stable Pay in Professional Sectors:
+Most industries maintain a consistent median salary around $100K–$150K, reflecting standardized compensation and less variation in negotiation power.
 
 # Remote vs. On-Site Jobs
 ```{python}
 if "REMOTE_TYPE_NAME" in df.columns:
     rc = df["REMOTE_TYPE_NAME"].value_counts().reset_index()
-    rc.columns = ["Remote Type","Count"]
+    rc.columns = ["Remote Type", "Count"]
+    
+    # Updated custom color palette with cohesive blues
+    color_sequence = ["#636EFA", "#4A90E2", "#00CC96", "#AB63FA", "#274BDB"] 
+
     fig3 = px.pie(
-        rc, names="Remote Type", values="Count",
-        title="Remote vs. On-Site Job Distribution"
+        rc,
+        names="Remote Type",
+        values="Count",
+        title="Remote vs. On-Site Job Distribution",
+        color_discrete_sequence=color_sequence
     )
     fig3.show()
+    fig3.write_image("output/plot 3.svg", width=3500, height=600, scale=1)
 ```
 
-**Rationale & Insights**
-- **Why**: Workplace flexibility is a major factor in today’s job market.
-- **Key Insights**: Most postings (78.3%) don’t specify remote status. About 17% are remote, 3.1% hybrid, and 1.6% explicitly not remote.
+## Rationale
+Workplace flexibility is a major factor in today’s job market.
+
+## Key Insights
+- Limited Remote Availability:
+Only about 17% of job postings are labeled as Remote, with Hybrid Remote and Not Remote making up even smaller portions.
+- Data Gaps in Job Listings:
+A significant 78.3% of postings lack remote classification, indicating either incomplete employer data or inconsistent labeling, which may affect job seekers’ filtering and selection.
