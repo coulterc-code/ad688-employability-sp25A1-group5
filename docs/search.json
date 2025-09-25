@@ -39,7 +39,7 @@
     "href": "eda.html",
     "title": "Exploratory Data Analysis (EDA)",
     "section": "",
-    "text": "Loaded dataset: (72498, 131)\nDerived non-null: {'INDUSTRY_DISPLAY': np.int64(72454), 'SALARY_DISPLAY': np.int64(72498)}\nRemaining columns (first 30): ['LAST_UPDATED_DATE', 'POSTED', 'EXPIRED', 'DURATION', 'SOURCE_TYPES', 'SOURCES', 'URL', 'MODELED_EXPIRED', 'MODELED_DURATION', 'COMPANY', 'COMPANY_NAME', 'COMPANY_IS_STAFFING', 'EDUCATION_LEVELS', 'EDUCATION_LEVELS_NAME', 'MIN_EDULEVELS', 'MIN_EDULEVELS_NAME', 'MAX_EDULEVELS', 'MAX_EDULEVELS_NAME', 'EMPLOYMENT_TYPE', 'EMPLOYMENT_TYPE_NAME', 'MIN_YEARS_EXPERIENCE', 'MAX_YEARS_EXPERIENCE', 'IS_INTERNSHIP', 'SALARY', 'REMOTE_TYPE', 'REMOTE_TYPE_NAME', 'ORIGINAL_PAY_PERIOD', 'SALARY_TO', 'SALARY_FROM', 'LOCATION']\n\n\n/tmp/ipykernel_5942/3965281858.py:37: FutureWarning:\n\nA value is trying to be set on a copy of a DataFrame or Series through chained assignment using an inplace method.\nThe behavior will change in pandas 3.0. This inplace method will never work because the intermediate object on which we are setting values always behaves as a copy.\n\nFor example, when doing 'df[col].method(value, inplace=True)', try using 'df.method({col: value}, inplace=True)' or df[col] = df[col].method(value) instead, to perform the operation inplace on the original object.\n\n\n\n\n\n\n\n\n\n\n\n\n/tmp/ipykernel_5942/3965281858.py:75: FutureWarning:\n\nA value is trying to be set on a copy of a DataFrame or Series through chained assignment using an inplace method.\nThe behavior will change in pandas 3.0. This inplace method will never work because the intermediate object on which we are setting values always behaves as a copy.\n\nFor example, when doing 'df[col].method(value, inplace=True)', try using 'df.method({col: value}, inplace=True)' or df[col] = df[col].method(value) instead, to perform the operation inplace on the original object.\n\n\n\n/tmp/ipykernel_5942/3965281858.py:78: FutureWarning:\n\nA value is trying to be set on a copy of a DataFrame or Series through chained assignment using an inplace method.\nThe behavior will change in pandas 3.0. This inplace method will never work because the intermediate object on which we are setting values always behaves as a copy.\n\nFor example, when doing 'df[col].method(value, inplace=True)', try using 'df.method({col: value}, inplace=True)' or df[col] = df[col].method(value) instead, to perform the operation inplace on the original object.\n\n\n\n\n\nRemoved 3300 duplicates using ['TITLE', 'COMPANY_NAME', 'LOCATION', 'POSTED']\nFinal SALARY_DISPLAY Non-Null Count: 69198"
+    "text": "Highlights sectors where demand is concentrated, showing which industries are actively hiring.\n\n\n\n\nTop Hiring Industries: Custom Computer Programming, Management Consulting, and Employment Agencies dominate job postings.\nSkewed Distribution: The top 4 industries account for a significantly larger share of job postings than the rest.\nProfessional Services Focus: Many high-posting sectors are centered around tech, consulting, healthcare and education — reflecting demand for knowledge-based roles."
   },
   {
     "objectID": "data_analysis.html",
@@ -67,27 +67,48 @@
     "href": "skill_gap_analysis.html",
     "title": "Skill Gap Analysis",
     "section": "",
-    "text": "import pandas as pd\nimport seaborn as sns\nimport matplotlib.pyplot as plt\nfrom collections import Counter\n\n# 3.1.1 Group 5 skill level\nskills_data = {\n    \"Name\": [\"Connor\", \"Wei\", \"Balqis\"],\n    \"Python\": [2, 1, 3],\n    \"SQL\": [2, 2, 4],\n    \"Machine Learning\": [2, 1, 2],\n    \"Cloud Computing\": [2, 1, 2]}\n\ndf_skills = pd.DataFrame(skills_data).set_index(\"Name\")\n\nplt.figure(figsize=(6,4))\nsns.heatmap(df_skills, annot=True, cmap=\"PuBuGn\", linewidths=0.5)\nplt.title(\"Group 5 Skill Level\")\nplt.show()\n\n\n\n\n\n\n\n\n\n# 3.1.2 Compare our group's skills against job market demand\ntop_skills = [\"Python\", \"SQL\", \"Machine Learning\", \"Cloud Computing\", \"Docker\", \"AWS\"]\njob_skill_counts = Counter(top_skills)\n\nfor skill in top_skills:\n    if skill not in df_skills.columns:\n        df_skills[skill] = 0\n\ndf_skills\n\n\n\n\n\n\n\n\nPython\nSQL\nMachine Learning\nCloud Computing\nDocker\nAWS\n\n\nName\n\n\n\n\n\n\n\n\n\n\nConnor\n2\n2\n2\n2\n0\n0\n\n\nWei\n1\n2\n1\n1\n0\n0\n\n\nBalqis\n3\n4\n2\n2\n0\n0\n\n\n\n\n\n\n\n\n3.1.3 Improvement Plan\nBalqis: Her Machine Learning and Cloud Computing are at a basic level, leaving room to grow. With a career in data analysis and visualization, Machine Learning isn’t her top priority, but Cloud Computing is worth developing further. Strengthening Python would also be valuable, as it’s essential for data analysts. A good approach is to sharpen her skills through small personal projects and apply what she learns at work. If her fundamentals feel solid, she can move towards certifications.\nWei: Her Python and Machine Learning are at a basic level, so she has the option to develop them further depending on how relevant they are to her career path. Since her SQL is already stronger, focusing on Python would be the most practical next step if she chooses to continue building technical skills. A good approach is to take it gradually through small projects and applied practice, and then expand into more advanced areas only if it fits her goals.\nConnor: His skills are fairly even across all areas, at a basic stage, which gives him room to build depth. Bumping Python up to a stronger level would give him the most flexibility, while also continuing to grow in Cloud Computing to keep pace with current tools and workflows. A steady way forward is to practice Python through hands-on work and then bring in cloud tools as he becomes more confident."
+    "text": "1 Group 5 skill level\n\n\n\n\n\n\n\n\n\n\n\n2 Compare our group’s skills against job market demand\n\n\n\n\n\n\n\n\n\nPython\nSQL\nMachine Learning\nCloud Computing\nDocker\nAWS\n\n\nName\n\n\n\n\n\n\n\n\n\n\nConnor\n2\n2\n2\n2\n0\n0\n\n\nWei\n1\n2\n1\n1\n0\n0\n\n\nBalqis\n3\n4\n2\n2\n0\n0\n\n\n\n\n\n\n\n\n\n3 Improvement Plan\n\nBalqis: Her Machine Learning and Cloud Computing are at a basic level, leaving room to grow. With a career in data analysis and visualization, Machine Learning isn’t her top priority, but Cloud Computing is worth developing further. Strengthening Python would also be valuable, as it’s essential for data analysts. A good approach is to sharpen her skills through small personal projects and apply what she learns at work. If her fundamentals feel solid, she can move towards certifications.\nWei: Her Python and Machine Learning are at a basic level, so she has the option to develop them further depending on how relevant they are to her career path. Since her SQL is already stronger, focusing on Python would be the most practical next step if she chooses to continue building technical skills. A good approach is to take it gradually through small projects and applied practice, and then expand into more advanced areas only if it fits her goals.\nConnor: His skills are fairly even across all areas, at a basic stage, which gives him room to build depth. Bumping Python up to a stronger level would give him the most flexibility, while also continuing to grow in Cloud Computing to keep pace with current tools and workflows. A steady way forward is to practice Python through hands-on work and then bring in cloud tools as he becomes more confident."
   },
   {
     "objectID": "eda.html#rationale",
     "href": "eda.html#rationale",
     "title": "Exploratory Data Analysis (EDA)",
-    "section": "1.1 Rationale",
-    "text": "1.1 Rationale\nHighlights sectors where demand is concentrated, showing which industries are actively hiring. ## Key Insights - Top Hiring Industries: Custom Computer Programming, Management Consulting, and Employment Agencies dominate job postings. - Skewed Distribution: The top 4 industries account for a significantly larger share of job postings than the rest. - Professional Services Focus: Many high-posting sectors are centered around tech, consulting, healthcare and education — reflecting demand for knowledge-based roles."
+    "section": "",
+    "text": "Highlights sectors where demand is concentrated, showing which industries are actively hiring."
   },
   {
     "objectID": "eda.html#rationale-1",
     "href": "eda.html#rationale-1",
     "title": "Exploratory Data Analysis (EDA)",
     "section": "2.1 Rationale",
-    "text": "2.1 Rationale\nShows where negotiation power exists and highlights industries paying well. ## Key Insights - Wide Salary Ranges in Staffing & Tech Services: Industries like Temporary Help Services and Employment Placement Agencies exhibit large salary spreads with high outliers, though their median pay remains modest. - Stable Pay in Professional Sectors: Most industries maintain a consistent median salary around $100K–$150K, reflecting standardized compensation and less variation in negotiation power."
+    "text": "2.1 Rationale\nShows where negotiation power exists and highlights industries paying well."
   },
   {
     "objectID": "eda.html#rationale-2",
     "href": "eda.html#rationale-2",
     "title": "Exploratory Data Analysis (EDA)",
     "section": "3.1 Rationale",
-    "text": "3.1 Rationale\nWorkplace flexibility is a major factor in today’s job market. ## Key Insights - Limited Remote Availability: Only about 17% of job postings are labeled as Remote, with Hybrid Remote and Not Remote making up even smaller portions. - Data Gaps in Job Listings: A significant 78.3% of postings lack remote classification, indicating either incomplete employer data or inconsistent labeling, which may affect job seekers’ filtering and selection."
+    "text": "3.1 Rationale\nWorkplace flexibility is a major factor in today’s job market."
+  },
+  {
+    "objectID": "eda.html#key-insights",
+    "href": "eda.html#key-insights",
+    "title": "Exploratory Data Analysis (EDA)",
+    "section": "",
+    "text": "Top Hiring Industries: Custom Computer Programming, Management Consulting, and Employment Agencies dominate job postings.\nSkewed Distribution: The top 4 industries account for a significantly larger share of job postings than the rest.\nProfessional Services Focus: Many high-posting sectors are centered around tech, consulting, healthcare and education — reflecting demand for knowledge-based roles."
+  },
+  {
+    "objectID": "eda.html#key-insights-1",
+    "href": "eda.html#key-insights-1",
+    "title": "Exploratory Data Analysis (EDA)",
+    "section": "2.2 Key Insights",
+    "text": "2.2 Key Insights\n\nWide Salary Ranges in Staffing & Tech Services: Industries like Temporary Help Services and Employment Placement Agencies exhibit large salary spreads with high outliers, though their median pay remains modest.\nStable Pay in Professional Sectors: Most industries maintain a consistent median salary around $100K–$150K, reflecting standardized compensation and less variation in negotiation power."
+  },
+  {
+    "objectID": "eda.html#key-insights-2",
+    "href": "eda.html#key-insights-2",
+    "title": "Exploratory Data Analysis (EDA)",
+    "section": "3.2 Key Insights",
+    "text": "3.2 Key Insights\n\nLimited Remote Availability: Only about 17% of job postings are labeled as Remote, with Hybrid Remote and Not Remote making up even smaller portions.\nData Gaps in Job Listings: A significant 78.3% of postings lack remote classification, indicating either incomplete employer data or inconsistent labeling, which may affect job seekers’ filtering and selection."
   }
 ]
