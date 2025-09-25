@@ -32,9 +32,9 @@ jupyter: python3
 ---
 
 ```{python}
-# Exploratory Data Analysis (EDA)
-#| echo: false
-#| results: "hide"
+
+#| include: false
+
 import pandas as pd, numpy as np, os, missingno as msno, matplotlib.pyplot as plt
 import plotly.io as pio
 pio.renderers.default = "notebook"
