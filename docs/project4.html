@@ -7,7 +7,7 @@
 <meta name="viewport" content="width=device-width, initial-scale=1.0, user-scalable=yes">
 
 
-<title>Project 4: AI vs Non-AI Careers – Job Market Analysis 2024</title>
+<title>project4 – Job Market Analysis 2024</title>
 <style>
 code{white-space: pre-wrap;}
 span.smallcaps{font-variant: small-caps;}
@@ -23,7 +23,7 @@ ul.task-list li input[type="checkbox"] {
 </style>
 
 
-<script src="site_libs/quarto-nav/quarto-nav.js"></script>
+<script src="https://cdn.jsdelivr.net/npm/jquery@3.5.1/dist/jquery.min.js" integrity="sha384-ZvpUoO/+PpLXR1lu4jmpXWu80pZlYUAfxl5NsBMWOEPSjUn/6Z/hRTt8+pR6L4N2" crossorigin="anonymous"></script><script src="site_libs/quarto-nav/quarto-nav.js"></script>
 <script src="site_libs/quarto-nav/headroom.min.js"></script>
 <script src="site_libs/clipboard/clipboard.min.js"></script>
 <script src="site_libs/quarto-search/autocomplete.umd.js"></script>
@@ -68,6 +68,9 @@ ul.task-list li input[type="checkbox"] {
     "search-label": "Search"
   }
 }</script>
+<script src="https://cdn.jsdelivr.net/npm/requirejs@2.3.6/require.min.js" integrity="sha384-c9c+LnTbwQ3aujuU7ULEPVvgLs+Fn6fJUvIGTsuu1ZcCf11fiEubah0ttpca4ntM sha384-6V1/AdqZRWk1KAlWbKBlGhN7VG4iE/yAZcO6NZPMF8od0vukrvr0tg4qY6NSrItx" crossorigin="anonymous"></script>
+
+<script type="application/javascript">define('jquery', [],function() {return window.jQuery;})</script>
 
 
 </head>
@@ -139,15 +142,7 @@ ul.task-list li input[type="checkbox"] {
     <h2 id="toc-title">On this page</h2>
    
   <ul>
-  <li><a href="#introduction" id="toc-introduction" class="nav-link active" data-scroll-target="#introduction">Introduction</a></li>
-  <li><a href="#modeling" id="toc-modeling" class="nav-link" data-scroll-target="#modeling">Modeling</a>
-  <ul class="collapse">
-  <li><a href="#regression" id="toc-regression" class="nav-link" data-scroll-target="#regression">Regression</a></li>
-  </ul></li>
-  <li><a href="#load-dataset" id="toc-load-dataset" class="nav-link" data-scroll-target="#load-dataset">Load dataset</a></li>
-  <li><a href="#example-placeholders-replace-with-your-datasets-real-columns" id="toc-example-placeholders-replace-with-your-datasets-real-columns" class="nav-link" data-scroll-target="#example-placeholders-replace-with-your-datasets-real-columns">Example placeholders (replace with your dataset’s real columns)</a></li>
-  <li><a href="#example-classify-ai-vs-non-ai-jobs" id="toc-example-classify-ai-vs-non-ai-jobs" class="nav-link" data-scroll-target="#example-classify-ai-vs-non-ai-jobs">Example: classify AI vs Non-AI jobs</a></li>
-  <li><a href="#example-cluster-jobs-by-salary-years-of-experience" id="toc-example-cluster-jobs-by-salary-years-of-experience" class="nav-link" data-scroll-target="#example-cluster-jobs-by-salary-years-of-experience">Example: cluster jobs by salary + years of experience</a></li>
+  <li><a href="#dataset-prep" id="toc-dataset-prep" class="nav-link active" data-scroll-target="#dataset-prep">Dataset Prep</a></li>
   </ul>
 </nav>
     </div>
@@ -156,7 +151,7 @@ ul.task-list li input[type="checkbox"] {
 
 <header id="title-block-header" class="quarto-title-block default">
 <div class="quarto-title">
-<h1 class="title">Project 4: AI vs Non-AI Careers</h1>
+<h1 class="title">Modeling</h1>
 </div>
 
 
@@ -173,52 +168,100 @@ ul.task-list li input[type="checkbox"] {
 </header>
 
 
-<section id="introduction" class="level1">
-<h1>Introduction</h1>
-<p>This project explores <strong>AI vs Non-AI careers</strong> using the <code>lightcast_job_postings.csv</code> dataset.<br>
-We apply clustering, regression, and classification to evaluate trends in job markets, with a focus on salary and employability.</p>
-<hr>
-</section>
-<section id="modeling" class="level1 tabset">
-<h1 class="tabset">Modeling</h1>
-<section id="regression" class="level2">
-<h2 class="anchored" data-anchor-id="regression">Regression</h2>
-<p>import pandas as pd from sklearn.model_selection import train_test_split from sklearn.linear_model import LinearRegression from sklearn.metrics import mean_squared_error, r2_score</p>
-</section>
-</section>
-<section id="load-dataset" class="level1">
-<h1>Load dataset</h1>
-<p>df = pd.read_csv(“data/lightcast_job_postings.csv”)</p>
-</section>
-<section id="example-placeholders-replace-with-your-datasets-real-columns" class="level1">
-<h1>Example placeholders (replace with your dataset’s real columns)</h1>
-<p>X = df[[“years_experience”, “education_level_encoded”]] y = df[“salary”]</p>
-<p>X_train, X_test, y_train, y_test = train_test_split(X, y, test_size=0.3, random_state=42)</p>
-<p>model = LinearRegression() model.fit(X_train, y_train) y_pred = model.predict(X_test)</p>
-<p>print(“RMSE:”, mean_squared_error(y_test, y_pred, squared=False)) print(“R²:”, r2_score(y_test, y_pred))</p>
-<p>Classification from sklearn.linear_model import LogisticRegression from sklearn.metrics import accuracy_score, f1_score, confusion_matrix</p>
-</section>
-<section id="example-classify-ai-vs-non-ai-jobs" class="level1">
-<h1>Example: classify AI vs Non-AI jobs</h1>
-<p>df[‘is_ai’] = df[‘job_title’].str.contains(“AI|Artificial Intelligence|Machine Learning|Deep Learning”, case=False, na=False).astype(int)</p>
-<p>X = df[[“years_experience”, “education_level_encoded”]] # replace with your dataset’s features y = df[“is_ai”]</p>
-<p>X_train, X_test, y_train, y_test = train_test_split(X, y, test_size=0.3, random_state=42)</p>
-<p>clf = LogisticRegression(max_iter=1000) clf.fit(X_train, y_train) y_pred = clf.predict(X_test)</p>
-<p>print(“Accuracy:”, accuracy_score(y_test, y_pred)) print(“F1 Score:”, f1_score(y_test, y_pred)) print(“Confusion Matrix:”, confusion_matrix(y_test, y_pred))</p>
-<p>Clustering from sklearn.cluster import KMeans</p>
-</section>
-<section id="example-cluster-jobs-by-salary-years-of-experience" class="level1">
-<h1>Example: cluster jobs by salary + years of experience</h1>
-<p>features = df[[“salary”, “years_experience”]] # replace with real columns kmeans = KMeans(n_clusters=3, random_state=42) df[“cluster”] = kmeans.fit_predict(features)</p>
-<p>df[[“job_title”, “cluster”]].head()</p>
-<p>Interpretation</p>
-<p>Regression: What drives salary?</p>
-<p>Classification: Which features distinguish AI vs Non-AI jobs?</p>
-<p>Clustering: How do jobs segment naturally (by salary, skills, etc.)?</p>
-<p>Implications for job seekers.</p>
-<p>Visualization Example import plotly.express as px import plotly.io as pio</p>
-<p>pio.templates.default = “plotly_white”</p>
-<p>fig = px.histogram(df, x=“salary”, color=“is_ai”, barmode=“overlay”) fig.update_layout(template=“plotly_white”, font=dict(family=“Roboto”, size=14)) fig.show()</p>
+<section id="dataset-prep" class="level3">
+<h3 class="anchored" data-anchor-id="dataset-prep">Dataset Prep</h3>
+<div id="1eec74ab" class="cell" data-execution_count="1">
+<div class="cell-output cell-output-display" data-execution_count="1">
+<div>
+
+
+<table class="dataframe caption-top table table-sm table-striped small" data-border="1">
+<thead>
+<tr class="header">
+<th data-quarto-table-cell-role="th"></th>
+<th data-quarto-table-cell-role="th">TITLE</th>
+<th data-quarto-table-cell-role="th">industry</th>
+<th data-quarto-table-cell-role="th">salary</th>
+<th data-quarto-table-cell-role="th">is_ai</th>
+</tr>
+</thead>
+<tbody>
+<tr class="odd">
+<th data-quarto-table-cell-role="th">4</th>
+<td>ET0000000000000000</td>
+<td>Unclassified Industry</td>
+<td>92500.0</td>
+<td>0</td>
+</tr>
+<tr class="even">
+<th data-quarto-table-cell-role="th">5</th>
+<td>ET95DB859B53CCACA7</td>
+<td>All Other Telecommunications</td>
+<td>110155.0</td>
+<td>0</td>
+</tr>
+<tr class="odd">
+<th data-quarto-table-cell-role="th">9</th>
+<td>ET1CE3CFA5447376E9</td>
+<td>Custom Computer Programming Services</td>
+<td>92962.0</td>
+<td>0</td>
+</tr>
+<tr class="even">
+<th data-quarto-table-cell-role="th">10</th>
+<td>ET3037E0C947A02404</td>
+<td>Industrial Machinery and Equipment Merchant Wh...</td>
+<td>107645.0</td>
+<td>0</td>
+</tr>
+<tr class="odd">
+<th data-quarto-table-cell-role="th">13</th>
+<td>ET8AEDEB1F4C3091D3</td>
+<td>Administrative Management and General Manageme...</td>
+<td>192800.0</td>
+<td>0</td>
+</tr>
+<tr class="even">
+<th data-quarto-table-cell-role="th">14</th>
+<td>ET0000000000000000</td>
+<td>Portfolio Management and Investment Advice</td>
+<td>81286.0</td>
+<td>0</td>
+</tr>
+<tr class="odd">
+<th data-quarto-table-cell-role="th">16</th>
+<td>ETF594A2C05D212506</td>
+<td>Computer Systems Design Services</td>
+<td>125900.0</td>
+<td>0</td>
+</tr>
+<tr class="even">
+<th data-quarto-table-cell-role="th">19</th>
+<td>ET54F46C4290228B21</td>
+<td>Unclassified Industry</td>
+<td>170000.0</td>
+<td>0</td>
+</tr>
+<tr class="odd">
+<th data-quarto-table-cell-role="th">20</th>
+<td>ET95DB859B53CCACA7</td>
+<td>All Other Telecommunications</td>
+<td>110155.0</td>
+<td>0</td>
+</tr>
+<tr class="even">
+<th data-quarto-table-cell-role="th">21</th>
+<td>ET5AA72D0E18D0EFE5</td>
+<td>Direct Health and Medical Insurance Carriers</td>
+<td>136950.0</td>
+<td>0</td>
+</tr>
+</tbody>
+</table>
+
+</div>
+</div>
+</div>
 
 
 </section>
