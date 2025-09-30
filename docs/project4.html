@@ -7,7 +7,7 @@
 <meta name="viewport" content="width=device-width, initial-scale=1.0, user-scalable=yes">
 
 
-<title>project4 – Job Market Analysis 2024</title>
+<title>Project 4: AI vs Non-AI Careers – Job Market Analysis 2024</title>
 <style>
 code{white-space: pre-wrap;}
 span.smallcaps{font-variant: small-caps;}
@@ -139,11 +139,8 @@ ul.task-list li input[type="checkbox"] {
     <h2 id="toc-title">On this page</h2>
    
   <ul>
-  <li><a href="#project-4-ai-vs-non-ai-careers" id="toc-project-4-ai-vs-non-ai-careers" class="nav-link active" data-scroll-target="#project-4-ai-vs-non-ai-careers">Project 4: AI vs Non-AI Careers</a>
-  <ul class="collapse">
-  <li><a href="#introduction" id="toc-introduction" class="nav-link" data-scroll-target="#introduction">Introduction</a></li>
+  <li><a href="#introduction" id="toc-introduction" class="nav-link active" data-scroll-target="#introduction">Introduction</a></li>
   <li><a href="#data-preparation" id="toc-data-preparation" class="nav-link" data-scroll-target="#data-preparation">Data Preparation</a></li>
-  </ul></li>
   <li><a href="#load-dataset" id="toc-load-dataset" class="nav-link" data-scroll-target="#load-dataset">Load dataset</a></li>
   <li><a href="#salary--" id="toc-salary--" class="nav-link" data-scroll-target="#salary--">—- Salary —-</a></li>
   <li><a href="#industry--" id="toc-industry--" class="nav-link" data-scroll-target="#industry--">—- Industry —-</a></li>
@@ -159,16 +156,30 @@ ul.task-list li input[type="checkbox"] {
 </nav>
     </div>
 <!-- main -->
-<main class="content" id="quarto-document-content"><header id="title-block-header" class="quarto-title-block"></header>
+<main class="content" id="quarto-document-content">
+
+<header id="title-block-header" class="quarto-title-block default">
+<div class="quarto-title">
+<h1 class="title">Project 4: AI vs Non-AI Careers</h1>
+</div>
 
 
 
+<div class="quarto-title-meta">
 
-<section id="project-4-ai-vs-non-ai-careers" class="level1">
-<h1>Project 4: AI vs Non-AI Careers</h1>
+    
+  
+    
+  </div>
+  
+
+
+</header>
+
+
 <section id="introduction" class="level2">
 <h2 class="anchored" data-anchor-id="introduction">Introduction</h2>
-<p>This project explores AI vs Non-AI careers using the <code>lightcast_job_postings.csv</code> dataset.<br>
+<p>This project explores <strong>AI vs Non-AI careers</strong> using the <code>lightcast_job_postings.csv</code> dataset.<br>
 We apply clustering, regression, and classification to evaluate trends in job markets, with a focus on salary and employability.<br>
 The goal is to help job seekers understand how AI is shaping opportunities in 2024.</p>
 <hr>
@@ -176,7 +187,6 @@ The goal is to help job seekers understand how AI is shaping opportunities in 20
 <section id="data-preparation" class="level2">
 <h2 class="anchored" data-anchor-id="data-preparation">Data Preparation</h2>
 <p>import pandas as pd import numpy as np</p>
-</section>
 </section>
 <section id="load-dataset" class="level1">
 <h1>Load dataset</h1>
@@ -192,7 +202,7 @@ The goal is to help job seekers understand how AI is shaping opportunities in 20
 </section>
 <section id="ai-flag--" class="level1">
 <h1>—- AI Flag —-</h1>
-<p>df[“is_ai”] = df[“TITLE”].str.contains(“AI|Artificial Intelligence|Machine Learning|Deep Learning”, case=False, na=False).astype(int)</p>
+<p>df[“is_ai”] = df[“TITLE”].str.contains( “AI|Artificial Intelligence|Machine Learning|Deep Learning”, case=False, na=False ).astype(int)</p>
 </section>
 <section id="preview-cleaned-data" class="level1">
 <h1>Preview cleaned data</h1>
@@ -230,11 +240,11 @@ The goal is to help job seekers understand how AI is shaping opportunities in 20
 </section>
 <section id="salary-distribution-by-ai-vs-non-ai" class="level1">
 <h1>Salary distribution by AI vs Non-AI</h1>
-<p>fig1 = px.histogram(df, x=“salary”, color=“is_ai”, barmode=“overlay”, title=“Salary Distribution: AI vs Non-AI Jobs”) fig1.show()</p>
+<p>fig1 = px.histogram( df, x=“salary”, color=“is_ai”, barmode=“overlay”, title=“Salary Distribution: AI vs Non-AI Jobs” ) fig1.show()</p>
 </section>
 <section id="clustering-visualization" class="level1">
 <h1>Clustering visualization</h1>
-<p>fig2 = px.scatter(features, x=“salary”, y=“is_ai”, color=“cluster”, title=“KMeans Clusters of Jobs (by Salary &amp; AI)”) fig2.show()</p>
+<p>fig2 = px.scatter( features, x=“salary”, y=“is_ai”, color=“cluster”, title=“KMeans Clusters of Jobs (by Salary &amp; AI)” ) fig2.show()</p>
 <p>Interpretation</p>
 <p>Regression: shows how salary varies by industry and other features.</p>
 <p>Classification: predicts which jobs are AI-related with measurable accuracy and F1 score.</p>

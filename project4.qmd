@@ -1,13 +1,23 @@
-# Project 4: AI vs Non-AI Careers
+---
+title: "Project 4: AI vs Non-AI Careers"
+format: html
+execute:
+  eval: true
+  echo: true
+  warning: false
+  cache: false
+---
 
 ## Introduction
-This project explores AI vs Non-AI careers using the `lightcast_job_postings.csv` dataset.  
+
+This project explores **AI vs Non-AI careers** using the `lightcast_job_postings.csv` dataset.  
 We apply clustering, regression, and classification to evaluate trends in job markets, with a focus on salary and employability.  
 The goal is to help job seekers understand how AI is shaping opportunities in 2024.
 
 ---
 
 ## Data Preparation
+
 ```{python}
 import pandas as pd
 import numpy as np
@@ -29,8 +39,11 @@ else:
     df["industry"] = df.get("INDUSTRY", "Unknown")
 
 # ---- AI Flag ----
-df["is_ai"] = df["TITLE"].str.contains("AI|Artificial Intelligence|Machine Learning|Deep Learning",
-                                      case=False, na=False).astype(int)
+df["is_ai"] = df["TITLE"].str.contains(
+    "AI|Artificial Intelligence|Machine Learning|Deep Learning",
+    case=False,
+    na=False
+).astype(int)
 
 # Preview cleaned data
 df[["TITLE","industry","salary","is_ai"]].head(10)
@@ -95,14 +108,17 @@ import plotly.io as pio
 pio.templates.default = "plotly_white"
 
 # Salary distribution by AI vs Non-AI
-fig1 = px.histogram(df, x="salary", color="is_ai",
-                    barmode="overlay",
-                    title="Salary Distribution: AI vs Non-AI Jobs")
+fig1 = px.histogram(
+    df, x="salary", color="is_ai", barmode="overlay",
+    title="Salary Distribution: AI vs Non-AI Jobs"
+)
 fig1.show()
 
 # Clustering visualization
-fig2 = px.scatter(features, x="salary", y="is_ai", color="cluster",
-                  title="KMeans Clusters of Jobs (by Salary & AI)")
+fig2 = px.scatter(
+    features, x="salary", y="is_ai", color="cluster",
+    title="KMeans Clusters of Jobs (by Salary & AI)"
+)
 fig2.show()
 
 Interpretation
