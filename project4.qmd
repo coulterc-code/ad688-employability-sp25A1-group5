@@ -1,0 +1,34 @@
+## Modeling
+
+### Dataset Prep
+```{python}
+import pandas as pd
+import numpy as np
+
+# Load dataset
+df = pd.read_csv("data/lightcast_job_postings.csv", low_memory=False)
+
+# ---- Salary ----
+salary_candidates = ["SALARY", "SALARY_ANNUAL", "SALARY_MEDIAN"]
+for c in salary_candidates:
+    if c in df.columns:
+        df["salary"] = pd.to_numeric(df[c], errors="coerce")
+        break
+
+# ---- Industry ----
+if "NAICS_2022_6_NAME" in df.columns:
+    df["industry"] = df["NAICS_2022_6_NAME"]
+else:
+    df["industry"] = df.get("INDUSTRY", "Unknown")
+
+# ---- AI vs Non-AI ----
+df["is_ai"] = df["TITLE"].str.contains(
+    "AI|Artificial Intelligence|Machine Learning|Deep Learning",
+    case=False, na=False
+).astype(int)
+
+# ---- Clean up ----
+df = df.dropna(subset=["salary"])
+df[["TITLE","industry","salary","is_ai"]].head(10)
+```
+
