@@ -65,9 +65,23 @@
   {
     "objectID": "project4.html",
     "href": "project4.html",
-    "title": "Modeling",
+    "title": "Project 4: AI vs Non-AI Careers",
     "section": "",
-    "text": "Dataset Prep\n\n\n\n\n\n\n\n\n\nTITLE\nindustry\nsalary\nis_ai\n\n\n\n\n4\nET0000000000000000\nUnclassified Industry\n92500.0\n0\n\n\n5\nET95DB859B53CCACA7\nAll Other Telecommunications\n110155.0\n0\n\n\n9\nET1CE3CFA5447376E9\nCustom Computer Programming Services\n92962.0\n0\n\n\n10\nET3037E0C947A02404\nIndustrial Machinery and Equipment Merchant Wh...\n107645.0\n0\n\n\n13\nET8AEDEB1F4C3091D3\nAdministrative Management and General Manageme...\n192800.0\n0\n\n\n14\nET0000000000000000\nPortfolio Management and Investment Advice\n81286.0\n0\n\n\n16\nETF594A2C05D212506\nComputer Systems Design Services\n125900.0\n0\n\n\n19\nET54F46C4290228B21\nUnclassified Industry\n170000.0\n0\n\n\n20\nET95DB859B53CCACA7\nAll Other Telecommunications\n110155.0\n0\n\n\n21\nET5AA72D0E18D0EFE5\nDirect Health and Medical Insurance Carriers\n136950.0\n0"
+    "text": "This project explores AI vs Non-AI careers using the lightcast_job_postings.csv dataset.\nWe apply clustering, regression, and classification to evaluate trends in job markets, with a focus on salary and employability.\nThe goal is to help job seekers understand how AI is shaping opportunities in 2024.\n\n\n\n\nimport pandas as pd import numpy as np"
+  },
+  {
+    "objectID": "project4.html#introduction",
+    "href": "project4.html#introduction",
+    "title": "Project 4: AI vs Non-AI Careers",
+    "section": "",
+    "text": "This project explores AI vs Non-AI careers using the lightcast_job_postings.csv dataset.\nWe apply clustering, regression, and classification to evaluate trends in job markets, with a focus on salary and employability.\nThe goal is to help job seekers understand how AI is shaping opportunities in 2024."
+  },
+  {
+    "objectID": "project4.html#data-preparation",
+    "href": "project4.html#data-preparation",
+    "title": "Project 4: AI vs Non-AI Careers",
+    "section": "",
+    "text": "import pandas as pd import numpy as np"
   },
   {
     "objectID": "index.html",

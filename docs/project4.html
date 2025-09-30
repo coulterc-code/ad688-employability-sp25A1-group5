@@ -23,7 +23,7 @@ ul.task-list li input[type="checkbox"] {
 </style>
 
 
-<script src="https://cdn.jsdelivr.net/npm/jquery@3.5.1/dist/jquery.min.js" integrity="sha384-ZvpUoO/+PpLXR1lu4jmpXWu80pZlYUAfxl5NsBMWOEPSjUn/6Z/hRTt8+pR6L4N2" crossorigin="anonymous"></script><script src="site_libs/quarto-nav/quarto-nav.js"></script>
+<script src="site_libs/quarto-nav/quarto-nav.js"></script>
 <script src="site_libs/quarto-nav/headroom.min.js"></script>
 <script src="site_libs/clipboard/clipboard.min.js"></script>
 <script src="site_libs/quarto-search/autocomplete.umd.js"></script>
@@ -68,9 +68,6 @@ ul.task-list li input[type="checkbox"] {
     "search-label": "Search"
   }
 }</script>
-<script src="https://cdn.jsdelivr.net/npm/requirejs@2.3.6/require.min.js" integrity="sha384-c9c+LnTbwQ3aujuU7ULEPVvgLs+Fn6fJUvIGTsuu1ZcCf11fiEubah0ttpca4ntM sha384-6V1/AdqZRWk1KAlWbKBlGhN7VG4iE/yAZcO6NZPMF8od0vukrvr0tg4qY6NSrItx" crossorigin="anonymous"></script>
-
-<script type="application/javascript">define('jquery', [],function() {return window.jQuery;})</script>
 
 
 </head>
@@ -142,126 +139,110 @@ ul.task-list li input[type="checkbox"] {
     <h2 id="toc-title">On this page</h2>
    
   <ul>
-  <li><a href="#dataset-prep" id="toc-dataset-prep" class="nav-link active" data-scroll-target="#dataset-prep">Dataset Prep</a></li>
+  <li><a href="#project-4-ai-vs-non-ai-careers" id="toc-project-4-ai-vs-non-ai-careers" class="nav-link active" data-scroll-target="#project-4-ai-vs-non-ai-careers">Project 4: AI vs Non-AI Careers</a>
+  <ul class="collapse">
+  <li><a href="#introduction" id="toc-introduction" class="nav-link" data-scroll-target="#introduction">Introduction</a></li>
+  <li><a href="#data-preparation" id="toc-data-preparation" class="nav-link" data-scroll-target="#data-preparation">Data Preparation</a></li>
+  </ul></li>
+  <li><a href="#load-dataset" id="toc-load-dataset" class="nav-link" data-scroll-target="#load-dataset">Load dataset</a></li>
+  <li><a href="#salary--" id="toc-salary--" class="nav-link" data-scroll-target="#salary--">—- Salary —-</a></li>
+  <li><a href="#industry--" id="toc-industry--" class="nav-link" data-scroll-target="#industry--">—- Industry —-</a></li>
+  <li><a href="#ai-flag--" id="toc-ai-flag--" class="nav-link" data-scroll-target="#ai-flag--">—- AI Flag —-</a></li>
+  <li><a href="#preview-cleaned-data" id="toc-preview-cleaned-data" class="nav-link" data-scroll-target="#preview-cleaned-data">Preview cleaned data</a></li>
+  <li><a href="#keep-only-rows-with-salary" id="toc-keep-only-rows-with-salary" class="nav-link" data-scroll-target="#keep-only-rows-with-salary">Keep only rows with salary</a></li>
+  <li><a href="#encode-industry-as-categorical-features" id="toc-encode-industry-as-categorical-features" class="nav-link" data-scroll-target="#encode-industry-as-categorical-features">Encode industry as categorical features</a></li>
+  <li><a href="#encode-industry-for-classification" id="toc-encode-industry-for-classification" class="nav-link" data-scroll-target="#encode-industry-for-classification">Encode industry for classification</a></li>
+  <li><a href="#example-clustering-with-salary-and-ai-flag" id="toc-example-clustering-with-salary-and-ai-flag" class="nav-link" data-scroll-target="#example-clustering-with-salary-and-ai-flag">Example clustering with salary and AI flag</a></li>
+  <li><a href="#salary-distribution-by-ai-vs-non-ai" id="toc-salary-distribution-by-ai-vs-non-ai" class="nav-link" data-scroll-target="#salary-distribution-by-ai-vs-non-ai">Salary distribution by AI vs Non-AI</a></li>
+  <li><a href="#clustering-visualization" id="toc-clustering-visualization" class="nav-link" data-scroll-target="#clustering-visualization">Clustering visualization</a></li>
   </ul>
 </nav>
     </div>
 <!-- main -->
-<main class="content" id="quarto-document-content">
-
-<header id="title-block-header" class="quarto-title-block default">
-<div class="quarto-title">
-<h1 class="title">Modeling</h1>
-</div>
+<main class="content" id="quarto-document-content"><header id="title-block-header" class="quarto-title-block"></header>
 
 
 
-<div class="quarto-title-meta">
 
-    
-  
-    
-  </div>
-  
-
-
-</header>
-
-
-<section id="dataset-prep" class="level3">
-<h3 class="anchored" data-anchor-id="dataset-prep">Dataset Prep</h3>
-<div id="1eec74ab" class="cell" data-execution_count="1">
-<div class="cell-output cell-output-display" data-execution_count="1">
-<div>
-
-
-<table class="dataframe caption-top table table-sm table-striped small" data-border="1">
-<thead>
-<tr class="header">
-<th data-quarto-table-cell-role="th"></th>
-<th data-quarto-table-cell-role="th">TITLE</th>
-<th data-quarto-table-cell-role="th">industry</th>
-<th data-quarto-table-cell-role="th">salary</th>
-<th data-quarto-table-cell-role="th">is_ai</th>
-</tr>
-</thead>
-<tbody>
-<tr class="odd">
-<th data-quarto-table-cell-role="th">4</th>
-<td>ET0000000000000000</td>
-<td>Unclassified Industry</td>
-<td>92500.0</td>
-<td>0</td>
-</tr>
-<tr class="even">
-<th data-quarto-table-cell-role="th">5</th>
-<td>ET95DB859B53CCACA7</td>
-<td>All Other Telecommunications</td>
-<td>110155.0</td>
-<td>0</td>
-</tr>
-<tr class="odd">
-<th data-quarto-table-cell-role="th">9</th>
-<td>ET1CE3CFA5447376E9</td>
-<td>Custom Computer Programming Services</td>
-<td>92962.0</td>
-<td>0</td>
-</tr>
-<tr class="even">
-<th data-quarto-table-cell-role="th">10</th>
-<td>ET3037E0C947A02404</td>
-<td>Industrial Machinery and Equipment Merchant Wh...</td>
-<td>107645.0</td>
-<td>0</td>
-</tr>
-<tr class="odd">
-<th data-quarto-table-cell-role="th">13</th>
-<td>ET8AEDEB1F4C3091D3</td>
-<td>Administrative Management and General Manageme...</td>
-<td>192800.0</td>
-<td>0</td>
-</tr>
-<tr class="even">
-<th data-quarto-table-cell-role="th">14</th>
-<td>ET0000000000000000</td>
-<td>Portfolio Management and Investment Advice</td>
-<td>81286.0</td>
-<td>0</td>
-</tr>
-<tr class="odd">
-<th data-quarto-table-cell-role="th">16</th>
-<td>ETF594A2C05D212506</td>
-<td>Computer Systems Design Services</td>
-<td>125900.0</td>
-<td>0</td>
-</tr>
-<tr class="even">
-<th data-quarto-table-cell-role="th">19</th>
-<td>ET54F46C4290228B21</td>
-<td>Unclassified Industry</td>
-<td>170000.0</td>
-<td>0</td>
-</tr>
-<tr class="odd">
-<th data-quarto-table-cell-role="th">20</th>
-<td>ET95DB859B53CCACA7</td>
-<td>All Other Telecommunications</td>
-<td>110155.0</td>
-<td>0</td>
-</tr>
-<tr class="even">
-<th data-quarto-table-cell-role="th">21</th>
-<td>ET5AA72D0E18D0EFE5</td>
-<td>Direct Health and Medical Insurance Carriers</td>
-<td>136950.0</td>
-<td>0</td>
-</tr>
-</tbody>
-</table>
-
-</div>
-</div>
-</div>
+<section id="project-4-ai-vs-non-ai-careers" class="level1">
+<h1>Project 4: AI vs Non-AI Careers</h1>
+<section id="introduction" class="level2">
+<h2 class="anchored" data-anchor-id="introduction">Introduction</h2>
+<p>This project explores AI vs Non-AI careers using the <code>lightcast_job_postings.csv</code> dataset.<br>
+We apply clustering, regression, and classification to evaluate trends in job markets, with a focus on salary and employability.<br>
+The goal is to help job seekers understand how AI is shaping opportunities in 2024.</p>
+<hr>
+</section>
+<section id="data-preparation" class="level2">
+<h2 class="anchored" data-anchor-id="data-preparation">Data Preparation</h2>
+<p>import pandas as pd import numpy as np</p>
+</section>
+</section>
+<section id="load-dataset" class="level1">
+<h1>Load dataset</h1>
+<p>df = pd.read_csv(“data/lightcast_job_postings.csv”, low_memory=False)</p>
+</section>
+<section id="salary--" class="level1">
+<h1>—- Salary —-</h1>
+<p>salary_candidates = [“SALARY”, “SALARY_ANNUAL”, “SALARY_MEDIAN”] for c in salary_candidates: if c in df.columns: df[“salary”] = pd.to_numeric(df[c], errors=“coerce”) break</p>
+</section>
+<section id="industry--" class="level1">
+<h1>—- Industry —-</h1>
+<p>if “NAICS_2022_6_NAME” in df.columns: df[“industry”] = df[“NAICS_2022_6_NAME”] else: df[“industry”] = df.get(“INDUSTRY”, “Unknown”)</p>
+</section>
+<section id="ai-flag--" class="level1">
+<h1>—- AI Flag —-</h1>
+<p>df[“is_ai”] = df[“TITLE”].str.contains(“AI|Artificial Intelligence|Machine Learning|Deep Learning”, case=False, na=False).astype(int)</p>
+</section>
+<section id="preview-cleaned-data" class="level1">
+<h1>Preview cleaned data</h1>
+<p>df[[“TITLE”,“industry”,“salary”,“is_ai”]].head(10)</p>
+<p>Regression: Salary Prediction from sklearn.model_selection import train_test_split from sklearn.linear_model import LinearRegression from sklearn.metrics import mean_squared_error, r2_score</p>
+</section>
+<section id="keep-only-rows-with-salary" class="level1">
+<h1>Keep only rows with salary</h1>
+<p>df_model = df.dropna(subset=[“salary”]).copy()</p>
+</section>
+<section id="encode-industry-as-categorical-features" class="level1">
+<h1>Encode industry as categorical features</h1>
+<p>df_model = pd.get_dummies(df_model, columns=[“industry”], drop_first=True)</p>
+<p>X = df_model.drop(columns=[“TITLE”,“salary”,“is_ai”]) y = df_model[“salary”]</p>
+<p>X_train, X_test, y_train, y_test = train_test_split(X, y, test_size=0.3, random_state=42)</p>
+<p>reg = LinearRegression() reg.fit(X_train, y_train) y_pred = reg.predict(X_test)</p>
+<p>print(“RMSE:”, mean_squared_error(y_test, y_pred, squared=False)) print(“R²:”, r2_score(y_test, y_pred))</p>
+<p>Classification: AI vs Non-AI Jobs from sklearn.linear_model import LogisticRegression from sklearn.metrics import accuracy_score, f1_score, confusion_matrix</p>
+</section>
+<section id="encode-industry-for-classification" class="level1">
+<h1>Encode industry for classification</h1>
+<p>df_clf = pd.get_dummies(df.dropna(subset=[“salary”]).copy(), columns=[“industry”], drop_first=True)</p>
+<p>X = df_clf.drop(columns=[“TITLE”,“salary”,“is_ai”]) y = df_clf[“is_ai”]</p>
+<p>X_train, X_test, y_train, y_test = train_test_split(X, y, test_size=0.3, random_state=42)</p>
+<p>clf = LogisticRegression(max_iter=1000) clf.fit(X_train, y_train) y_pred = clf.predict(X_test)</p>
+<p>print(“Accuracy:”, accuracy_score(y_test, y_pred)) print(“F1 Score:”, f1_score(y_test, y_pred)) print(“Confusion Matrix:”, confusion_matrix(y_test, y_pred))</p>
+<p>Clustering: Job Segmentation from sklearn.cluster import KMeans</p>
+</section>
+<section id="example-clustering-with-salary-and-ai-flag" class="level1">
+<h1>Example clustering with salary and AI flag</h1>
+<p>features = df[[“salary”,“is_ai”]].dropna()</p>
+<p>kmeans = KMeans(n_clusters=3, random_state=42, n_init=10) features[“cluster”] = kmeans.fit_predict(features)</p>
+<p>features.head(10)</p>
+<p>Visualizations import plotly.express as px import plotly.io as pio pio.templates.default = “plotly_white”</p>
+</section>
+<section id="salary-distribution-by-ai-vs-non-ai" class="level1">
+<h1>Salary distribution by AI vs Non-AI</h1>
+<p>fig1 = px.histogram(df, x=“salary”, color=“is_ai”, barmode=“overlay”, title=“Salary Distribution: AI vs Non-AI Jobs”) fig1.show()</p>
+</section>
+<section id="clustering-visualization" class="level1">
+<h1>Clustering visualization</h1>
+<p>fig2 = px.scatter(features, x=“salary”, y=“is_ai”, color=“cluster”, title=“KMeans Clusters of Jobs (by Salary &amp; AI)”) fig2.show()</p>
+<p>Interpretation</p>
+<p>Regression: shows how salary varies by industry and other features.</p>
+<p>Classification: predicts which jobs are AI-related with measurable accuracy and F1 score.</p>
+<p>Clustering: segments jobs into natural groups (e.g., high-salary AI-heavy vs lower-salary non-AI).</p>
+<p>Implications for job seekers:</p>
+<p>AI roles may show higher salary clusters.</p>
+<p>Certain industries have stronger AI adoption.</p>
+<p>Understanding these trends helps candidates position themselves competitively.</p>
 
 
 </section>
