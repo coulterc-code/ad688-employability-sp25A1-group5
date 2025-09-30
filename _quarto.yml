@@ -20,6 +20,8 @@ website:
         text: "ML Methods"
       - href: nlp_methods.qmd
         text: "NLP Methods"
+      - href: project4.qmd
+        text: "Assignment IV: AI vs Non-AI Careers"
 
 format:
   html:
