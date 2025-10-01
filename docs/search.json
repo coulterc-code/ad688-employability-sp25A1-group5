@@ -138,5 +138,47 @@
     "title": "Data Analysis",
     "section": "",
     "text": "1 Import Data\nimport pandas as pd, numpy as np, os\nCSV_PATHS = [“data/lightcast_job_postings.csv”, “lightcast_job_postings.csv”] csv_path = next((p for p in CSV_PATHS if os.path.exists(p)), None) if not csv_path: raise FileNotFoundError(“⚠️ lightcast_job_postings.csv not found”)\ndf = pd.read_csv(csv_path, low_memory=False) print(“Loaded dataset:”, df.shape) df.head(5)\n\n\n2 Derive helper columns\ndf[“INDUSTRY_DISPLAY”] = ( df[“NAICS_2022_6_NAME”] if “NAICS_2022_6_NAME” in df.columns else df.get(“INDUSTRY”, pd.Series([“Unknown”]*len(df))) )\nsalary_candidates = [“SALARY”,“SALARY_MEDIAN”,“SALARY_MID”,“SALARY_ANNUAL”,“PAY_RATE”] for c in salary_candidates: if c in df.columns: df[c] = pd.to_numeric(df[c], errors=“coerce”)\ndf[“SALARY_DISPLAY”] = next( (df[c] for c in salary_candidates if c in df.columns), pd.Series([np.nan]*len(df)) )\nprint(“Derived non-null:”, { “INDUSTRY_DISPLAY”: df[“INDUSTRY_DISPLAY”].notna().sum(), “SALARY_DISPLAY”: df[“SALARY_DISPLAY”].notna().sum() }) Data Cleaning & Preprocessing Drop Unnecessary Columns columns_to_drop = [ “ID”,“LAST_UPDATED_TIMESTAMP”,“DUPLICATES”,“ACTIVE_URLS”,“ACTIVE_SOURCES_INFO”, “TITLE_RAW”,“BODY”,“COMPANY_RAW”, “NAICS2”,“NAICS2_NAME”,“NAICS3”,“NAICS3_NAME”,“NAICS4”,“NAICS4_NAME”, “NAICS5”,“NAICS5_NAME”,“NAICS6”,“NAICS6_NAME”, “NAICS_2022_2”,“NAICS_2022_2_NAME”,“NAICS_2022_3”,“NAICS_2022_3_NAME”, “NAICS_2022_4”,“NAICS_2022_4_NAME”,“NAICS_2022_5”,“NAICS_2022_5_NAME”, “SOC_2”,“SOC_2_NAME”,“SOC_3”,“SOC_3_NAME”,“SOC_5”,“SOC_5_NAME”, “CIP2”,“CIP2_NAME”,“CIP4”,“CIP4_NAME”,“CIP6”,“CIP6_NAME”, “LOT_CAREER_AREA”,“LOT_CAREER_AREA_NAME”,“LOT_OCCUPATION”,“LOT_OCCUPATION_NAME”, “LOT_SPECIALIZED_OCCUPATION”,“LOT_SPECIALIZED_OCCUPATION_NAME”, “LOT_OCCUPATION_GROUP”,“LOT_OCCUPATION_GROUP_NAME”, “LOT_V6_SPECIALIZED_OCCUPATION”,“LOT_V6_SPECIALIZED_OCCUPATION_NAME”, “LOT_V6_OCCUPATION”,“LOT_V6_OCCUPATION_NAME”,“LOT_V6_OCCUPATION_GROUP”, “LOT_V6_OCCUPATION_GROUP_NAME”,“LOT_V6_CAREER_AREA”,“LOT_V6_CAREER_AREA_NAME”, “ONET”,“ONET_NAME”,“ONET_2019”,“ONET_2019_NAME”] drop_existing = [c for c in columns_to_drop if c in df.columns] df.drop(columns=drop_existing, inplace=True) print(“Remaining columns (first 30):”, list(df.columns)[:30])\nHandle Missing Values import missingno as msno, matplotlib.pyplot as plt\nmsno.heatmap(df) plt.title(“Missing Values Heatmap”) plt.show()\ndf.dropna(thresh=len(df) * 0.5, axis=1, inplace=True)\nif “SALARY_DISPLAY” in df.columns: df[“SALARY_DISPLAY”].fillna(df[“SALARY_DISPLAY”].median(), inplace=True)\nfor col in df.select_dtypes(include=“object”).columns: df[col].fillna(“Unknown”, inplace=True)\nRemove Duplicates subset_cols = [c for c in [“TITLE”,“COMPANY_NAME”,“LOCATION”,“POSTED”] if c in df.columns] if subset_cols: before = len(df) df.drop_duplicates(subset=subset_cols, keep=“first”, inplace=True) print(f”Removed {before - len(df)} duplicates using {subset_cols}“)\nExploratory Data Analysis (EDA) Job Postings by Industry (Top 15) import plotly.express as px\ncounts = ( df[“INDUSTRY_DISPLAY”] .value_counts(dropna=False) .head(15) .reset_index(name=“Count”) .rename(columns={“index”: “Industry”}) .sort_values(“Count”) ) fig1 = px.bar( counts, x=“Count”, y=“Industry”, orientation=“h”, title=“Top 15 Industries by Number of Job Postings” ) fig1.show()\nSalary Distribution by Industry (Top 15) sdf = df[[“INDUSTRY_DISPLAY”,“SALARY_DISPLAY”]].copy() sdf = sdf.dropna() sdf = sdf[sdf[“SALARY_DISPLAY”] &gt; 0]\ntop_industries = sdf[“INDUSTRY_DISPLAY”].value_counts().head(15).index sdf = sdf[sdf[“INDUSTRY_DISPLAY”].isin(top_industries)]\nfig2 = px.box( sdf, x=“INDUSTRY_DISPLAY”, y=“SALARY_DISPLAY”, title=“Salary Distribution by Industry (Top 15)”, points=False ) fig2.update_layout(xaxis_tickangle=-45) fig2.show()\nRemote vs. On-Site Jobs if “REMOTE_TYPE_NAME” in df.columns: rc = df[“REMOTE_TYPE_NAME”].value_counts().reset_index() rc.columns = [“Remote Type”,“Count”] fig3 = px.pie( rc, names=“Remote Type”, values=“Count”, title=“Remote vs. On-Site Job Distribution” ) fig3.show()\nEDA: Rationale & Insights Job Postings by Industry\nWhy: Highlights sectors where demand is concentrated, showing which industries are actively hiring. Key Insights: The top three industries by job postings are Temporary Help Services, Miscellaneous Ambulatory Health Care Services, and Semiconductor and Related Device Manufacturing.\nSalary Distribution by Industry\nWhy: Shows where negotiation power exists and highlights industries paying well. Key Insights: Automotive Parts and Accessories Retailers show a wide range (negotiation potential), while Barber Shops show a narrow range (little negotiation).\nRemote vs. On-Site Jobs\nWhy: Workplace flexibility is a major factor in today’s job market. Key Insights: Most postings (78.3%) don’t specify remote status. About 17% are remote, 3.1% hybrid, and 1.6% explicitly not remote."
+  },
+  {
+    "objectID": "project4.html#load-dataset",
+    "href": "project4.html#load-dataset",
+    "title": "Project 4: AI vs Non-AI Careers",
+    "section": "Load dataset",
+    "text": "Load dataset\n\n\nOriginal dataset: 72498 rows\nAfter removing missing salary and years_experience: 23697 rows"
+  },
+  {
+    "objectID": "project4.html#regression-salary-prediction",
+    "href": "project4.html#regression-salary-prediction",
+    "title": "Project 4: AI vs Non-AI Careers",
+    "section": "Regression: Salary Prediction",
+    "text": "Regression: Salary Prediction"
+  },
+  {
+    "objectID": "project4.html#classification-ai-vs-non-ai-jobs",
+    "href": "project4.html#classification-ai-vs-non-ai-jobs",
+    "title": "Project 4: AI vs Non-AI Careers",
+    "section": "Classification: AI vs Non-AI Jobs",
+    "text": "Classification: AI vs Non-AI Jobs"
+  },
+  {
+    "objectID": "project4.html#clustering-job-segmentation",
+    "href": "project4.html#clustering-job-segmentation",
+    "title": "Project 4: AI vs Non-AI Careers",
+    "section": "Clustering: Job Segmentation",
+    "text": "Clustering: Job Segmentation"
+  },
+  {
+    "objectID": "project4.html#visualizations",
+    "href": "project4.html#visualizations",
+    "title": "Project 4: AI vs Non-AI Careers",
+    "section": "Visualizations",
+    "text": "Visualizations"
+  },
+  {
+    "objectID": "project4.html#takeaways",
+    "href": "project4.html#takeaways",
+    "title": "Project 4: AI vs Non-AI Careers",
+    "section": "Takeaways:",
+    "text": "Takeaways:\n\nHighlight AI-related skills to access higher-paying roles.\n\nLeverage industry trends to target fields with high AI adoption.\n\nUse clustering insights to understand where your profile fits (AI-heavy vs. traditional roles)."
   }
 ]
