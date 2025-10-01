@@ -34,7 +34,7 @@ pio.templates.default = "plotly_white"
 # Load dataset
 df = pd.read_csv("data/lightcast_job_postings.csv", low_memory=False)
 
-# Salary (cleaning: remove NaN and <=0)
+# Salary cleaning
 df["salary"] = pd.to_numeric(df["SALARY"], errors="coerce")
 df = df.dropna(subset=["salary"])
 df = df[df["salary"] > 0]
@@ -58,8 +58,10 @@ df["years_experience"] = df[["MIN_YEARS_EXPERIENCE","MAX_YEARS_EXPERIENCE"]].mea
 fig_preview = ff.create_table(df[["TITLE_NAME","industry","salary","years_experience","is_ai"]].head(10))
 fig_preview.show()
 
-# ---------------- Regression ----------------
-df_model = pd.get_dummies(df, columns=["industry"], drop_first=True)
+# Regression: Salary Prediction
+df_model = df.copy()
+df_model = pd.get_dummies(df_model, columns=["industry"], drop_first=True)
+
 X = df_model.drop(columns=["TITLE_NAME","salary","is_ai"])
 X = X.select_dtypes(include=["int64","float64","uint8"])
 y = df_model["salary"]
@@ -68,6 +70,7 @@ imputer = SimpleImputer(strategy="median")
 X_imputed = imputer.fit_transform(X)
 
 X_train, X_test, y_train, y_test = train_test_split(X_imputed, y, test_size=0.3, random_state=42)
+
 reg = LinearRegression()
 reg.fit(X_train, y_train)
 y_pred = reg.predict(X_test)
@@ -81,8 +84,10 @@ fig_reg = px.bar(reg_results, x="Metric", y="Value",
                  text_auto=True)
 fig_reg.show()
 
-# ---------------- Classification ----------------
-df_clf = pd.get_dummies(df, columns=["industry"], drop_first=True)
+# Classification: AI vs Non-AI Jobs
+df_clf = df.copy()
+df_clf = pd.get_dummies(df_clf, columns=["industry"], drop_first=True)
+
 X = df_clf.drop(columns=["TITLE_NAME","salary","is_ai"])
 X = X.select_dtypes(include=["int64","float64","uint8"])
 y = df_clf["is_ai"]
@@ -111,7 +116,7 @@ if len(y.unique()) > 1:
 else:
     print("⚠️ Only one class found — cannot run classification.")
 
-# ---------------- Clustering ----------------
+# Clustering: Job Segmentation
 features = df[["salary","years_experience"]].dropna()
 kmeans = KMeans(n_clusters=3, random_state=42, n_init=10)
 features["cluster"] = kmeans.fit_predict(features)
@@ -123,7 +128,7 @@ fig2 = px.scatter(features, x="salary", y="years_experience", color="cluster",
                   title="KMeans Clusters of Jobs (by Salary & Experience)")
 fig2.show()
 
-# ---------------- Salary Distribution ----------------
+# Salary Distribution
 fig1 = px.histogram(df, x="salary", color="is_ai",
                     barmode="overlay",
                     title="Salary Distribution: AI vs Non-AI Jobs")
