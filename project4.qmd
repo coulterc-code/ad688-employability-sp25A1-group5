@@ -8,7 +8,7 @@ execute:
   cache: false
 ---
 
-## Introduction
+# Introduction
 
 This project explores **AI vs Non-AI careers** using the `lightcast_job_postings.csv` dataset.  
 We apply **clustering, regression, and classification** to evaluate trends in job markets, with a focus on **salary, experience, and employability**.  
@@ -16,7 +16,7 @@ The goal is to help job seekers understand how AI is shaping opportunities in 20
 
 ---
 
-## Analysis
+# Analysis
 
 ```{python}
 import pandas as pd, numpy as np
@@ -34,13 +34,16 @@ pio.templates.default = "plotly_white"
 
 ---
 
-### Load dataset
+## Load dataset
 
 ```{python}
-df = pd.read_csv("data/lightcast_job_postings.csv", low_memory=False)
+df = pd.read_csv("lightcast_job_postings.csv", low_memory=False)
 
 # Salary
-df["salary"] = pd.to_numeric(df["SALARY"], errors="coerce")
+if "SALARY" in df.columns:
+    df["salary"] = pd.to_numeric(df["SALARY"], errors="coerce")
+else:
+    df["salary"] = None
 
 # Industry
 if "NAICS_2022_6_NAME" in df.columns:
@@ -57,14 +60,33 @@ df["is_ai"] = df["TITLE_NAME"].str.contains(
 # Experience
 df["years_experience"] = df[["MIN_YEARS_EXPERIENCE","MAX_YEARS_EXPERIENCE"]].mean(axis=1)
 
-# Preview table
-fig_preview = ff.create_table(df[["TITLE_NAME","industry","salary","years_experience","is_ai"]].head(10))
-fig_preview.show()
-```
+# Keep only rows with actual salary and years_experience data
+print(f"Original dataset: {len(df)} rows")
+df = df.dropna(subset=["salary", "years_experience"])
+print(f"After removing missing salary and years_experience: {len(df)} rows")
 
+# Handle Missing Values
+derived_cols = ["salary", "industry", "is_ai", "years_experience"]
+cols_to_check = [col for col in df.columns if col not in derived_cols]
+cols_to_drop = [col for col in cols_to_check if df[col].isna().sum() > len(df) * 0.5]
+df.drop(columns=cols_to_drop, inplace=True)
+
+# Fill missing values
+for col in df.select_dtypes(include="object").columns:
+    df[col].fillna("Unknown", inplace=True)
+
+# Preview table
+preview = df[["TITLE_NAME", "industry", "salary", "years_experience", "is_ai"]].head(10).copy()
+preview["salary"] = preview["salary"].apply(lambda x: f"${x:,.0f}" if pd.notna(x) else "")
+preview["years_experience"] = preview["years_experience"].round(1)
+fig_preview = ff.create_table(preview, index=False)
+fig_preview.update_layout(width=2500, height=500)
+fig_preview.show()
+
+```
 ---
 
-### Regression: Salary Prediction
+## Regression: Salary Prediction
 
 ```{python}
 df_model = df.dropna(subset=["salary"]).copy()
@@ -96,7 +118,7 @@ fig_reg.show()
 
 ---
 
-### Classification: AI vs Non-AI Jobs
+## Classification: AI vs Non-AI Jobs
 
 ```{python}
 df_clf = df.dropna(subset=["salary"]).copy()
@@ -135,7 +157,7 @@ else:
 
 ---
 
-### Clustering: Job Segmentation
+## Clustering: Job Segmentation
 
 ```{python}
 features = df[["salary","years_experience"]].dropna()
@@ -154,7 +176,7 @@ fig2.show()
 
 ---
 
-### Visualizations
+## Visualizations
 
 ```{python}
 fig1 = px.histogram(df, x="salary", color="is_ai",
@@ -165,13 +187,13 @@ fig1.show()
 
 ---
 
-## Insights for Job Seekers
+# Insights for Job Seekers
 
 - **AI roles often cluster at higher salaries** compared to non-AI roles.  
 - **Experience remains critical** — higher years of experience align with higher pay clusters.  
 - **Industries with strong AI adoption** (e.g., tech, finance) show clearer salary advantages.  
 
-### Takeaways:
+## Takeaways:
 - Highlight **AI-related skills** to access higher-paying roles.  
 - Leverage **industry trends** to target fields with high AI adoption.  
 - Use clustering insights to understand **where your profile fits** (AI-heavy vs. traditional roles).  
