@@ -26,7 +26,7 @@ import numpy as np
 df = pd.read_csv("data/lightcast_job_postings.csv", low_memory=False)
 
 # ---- Salary ----
-salary_candidates = ["SALARY", "SALARY_ANNUAL", "SALARY_MEDIAN"]
+salary_candidates = ["SALARY","SALARY_ANNUAL","SALARY_MEDIAN"]
 for c in salary_candidates:
     if c in df.columns:
         df["salary"] = pd.to_numeric(df[c], errors="coerce")
@@ -56,6 +56,7 @@ df[["TITLE","industry","salary","is_ai"]].head(10)
 from sklearn.model_selection import train_test_split
 from sklearn.linear_model import LinearRegression
 from sklearn.metrics import mean_squared_error, r2_score
+from sklearn.impute import SimpleImputer
 
 # Keep only rows with salary
 df_model = df.dropna(subset=["salary"]).copy()
@@ -68,15 +69,21 @@ X = df_model.drop(columns=["TITLE","salary","is_ai"])
 X = X.select_dtypes(include=["int64","float64","uint8"])
 y = df_model["salary"]
 
-X_train, X_test, y_train, y_test = train_test_split(X, y, test_size=0.3, random_state=42)
+# Impute missing values (median)
+imputer = SimpleImputer(strategy="median")
+X_imputed = imputer.fit_transform(X)
 
+# Split
+X_train, X_test, y_train, y_test = train_test_split(X_imputed, y, test_size=0.3, random_state=42)
+
+# Train regression model
 reg = LinearRegression()
 reg.fit(X_train, y_train)
 y_pred = reg.predict(X_test)
 
+# Metrics
 rmse = mean_squared_error(y_test, y_pred, squared=False)
 r2 = r2_score(y_test, y_pred)
-
 rmse, r2
 ```
 
@@ -87,6 +94,7 @@ rmse, r2
 ```{python}
 from sklearn.linear_model import LogisticRegression
 from sklearn.metrics import accuracy_score, f1_score, confusion_matrix
+from sklearn.impute import SimpleImputer
 
 # Keep only rows with salary
 df_clf = df.dropna(subset=["salary"]).copy()
@@ -99,16 +107,22 @@ X = df_clf.drop(columns=["TITLE","salary","is_ai"])
 X = X.select_dtypes(include=["int64","float64","uint8"])
 y = df_clf["is_ai"]
 
-X_train, X_test, y_train, y_test = train_test_split(X, y, test_size=0.3, random_state=42)
+# Impute missing values
+imputer = SimpleImputer(strategy="median")
+X_imputed = imputer.fit_transform(X)
 
+# Train/test split
+X_train, X_test, y_train, y_test = train_test_split(X_imputed, y, test_size=0.3, random_state=42)
+
+# Train classifier
 clf = LogisticRegression(max_iter=1000)
 clf.fit(X_train, y_train)
 y_pred = clf.predict(X_test)
 
+# Metrics
 acc = accuracy_score(y_test, y_pred)
 f1 = f1_score(y_test, y_pred)
 cm = confusion_matrix(y_test, y_pred)
-
 acc, f1, cm
 ```
 
@@ -119,7 +133,7 @@ acc, f1, cm
 ```{python}
 from sklearn.cluster import KMeans
 
-# Example clustering with salary and AI flag
+# Use salary + AI flag for clustering
 features = df[["salary","is_ai"]].dropna()
 
 kmeans = KMeans(n_clusters=3, random_state=42, n_init=10)
@@ -140,7 +154,8 @@ pio.templates.default = "plotly_white"
 # Salary distribution by AI vs Non-AI
 fig1 = px.histogram(
     df, x="salary", color="is_ai",
-    barmode="overlay", title="Salary Distribution: AI vs Non-AI Jobs"
+    barmode="overlay",
+    title="Salary Distribution: AI vs Non-AI Jobs"
 )
 fig1.show()
 
@@ -156,12 +171,12 @@ fig2.show()
 
 ## Interpretation
 
-- **Regression:** shows how salary varies by industry and other features.  
-- **Classification:** predicts which jobs are AI-related with measurable accuracy and F1 score.  
-- **Clustering:** segments jobs into natural groups (e.g., high-salary AI-heavy vs lower-salary non-AI).  
+- **Regression**: shows how salary varies by industry and other features.  
+- **Classification**: predicts which jobs are AI-related with measurable accuracy and F1 score.  
+- **Clustering**: segments jobs into natural groups (e.g., high-salary AI-heavy vs lower-salary non-AI).  
 
-**Implications for job seekers:**
+**Implications for job seekers**:  
 - AI roles may show higher salary clusters.  
 - Certain industries have stronger AI adoption.  
-- Understanding these trends helps candidates position themselves competitively.
+- Understanding these trends helps candidates position themselves competitively.  
 
