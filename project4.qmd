@@ -82,7 +82,7 @@ preview["salary"] = preview["salary"].apply(lambda x: f"${x:,.0f}" if pd.notna(x
 preview["years_experience"] = preview["years_experience"].round(1)
 fig_preview = ff.create_table(preview, index=False)
 fig_preview.update_layout(width=2500, height=500)
-fig_preview.show()
+#fig_preview.show()
 
 ```
 ---
@@ -114,7 +114,7 @@ reg_results = pd.DataFrame({"Metric": ["RMSE","R²"], "Value": [rmse, r2]})
 fig_reg = px.bar(reg_results, x="Metric", y="Value",
                  title="Regression Performance: Salary Prediction",
                  text_auto=True)
-fig_reg.show()
+#fig_reg.show()
 ```
 
 ---
@@ -146,7 +146,7 @@ if len(y.unique()) > 1:
     fig_clf = px.bar(clf_results, x="Metric", y="Value",
                      title="Classification Performance: AI vs Non-AI",
                      text_auto=True)
-    fig_clf.show()
+    #fig_clf.show()
 
     # Confusion Matrix
     fig_cm = px.imshow(cm, text_auto=True, title="Confusion Matrix",
@@ -172,7 +172,7 @@ fig_cluster_table.show()
 # Scatter plot
 fig2 = px.scatter(features, x="salary", y="years_experience", color="cluster",
                   title="KMeans Clusters of Jobs (by Salary & Experience)")
-fig2.show()
+#fig2.show()
 ```
 
 ---
