@@ -31,13 +31,10 @@ import plotly.figure_factory as ff
 
 pio.templates.default = "plotly_white"
 
-# Load dataset
 df = pd.read_csv("data/lightcast_job_postings.csv", low_memory=False)
 
-# Salary cleaning
+# Salary
 df["salary"] = pd.to_numeric(df["SALARY"], errors="coerce")
-df = df.dropna(subset=["salary"])
-df = df[df["salary"] > 0]
 
 # Industry
 if "NAICS_2022_6_NAME" in df.columns:
@@ -59,7 +56,7 @@ fig_preview = ff.create_table(df[["TITLE_NAME","industry","salary","years_experi
 fig_preview.show()
 
 # Regression: Salary Prediction
-df_model = df.copy()
+df_model = df.dropna(subset=["salary"]).copy()
 df_model = pd.get_dummies(df_model, columns=["industry"], drop_first=True)
 
 X = df_model.drop(columns=["TITLE_NAME","salary","is_ai"])
@@ -78,6 +75,7 @@ y_pred = reg.predict(X_test)
 rmse = np.sqrt(mean_squared_error(y_test, y_pred))
 r2 = r2_score(y_test, y_pred)
 
+# Bar chart of results
 reg_results = pd.DataFrame({"Metric": ["RMSE","R²"], "Value": [rmse, r2]})
 fig_reg = px.bar(reg_results, x="Metric", y="Value",
                  title="Regression Performance: Salary Prediction",
@@ -85,7 +83,7 @@ fig_reg = px.bar(reg_results, x="Metric", y="Value",
 fig_reg.show()
 
 # Classification: AI vs Non-AI Jobs
-df_clf = df.copy()
+df_clf = df.dropna(subset=["salary"]).copy()
 df_clf = pd.get_dummies(df_clf, columns=["industry"], drop_first=True)
 
 X = df_clf.drop(columns=["TITLE_NAME","salary","is_ai"])
@@ -104,12 +102,14 @@ if len(y.unique()) > 1:
     f1 = f1_score(y_test, y_pred, zero_division=0)
     cm = confusion_matrix(y_test, y_pred)
 
+    # Performance bar chart
     clf_results = pd.DataFrame({"Metric": ["Accuracy","F1 Score"], "Value": [acc, f1]})
     fig_clf = px.bar(clf_results, x="Metric", y="Value",
                      title="Classification Performance: AI vs Non-AI",
                      text_auto=True)
     fig_clf.show()
 
+    # Confusion Matrix
     fig_cm = px.imshow(cm, text_auto=True, title="Confusion Matrix",
                        labels=dict(x="Predicted", y="Actual"))
     fig_cm.show()
@@ -121,9 +121,11 @@ features = df[["salary","years_experience"]].dropna()
 kmeans = KMeans(n_clusters=3, random_state=42, n_init=10)
 features["cluster"] = kmeans.fit_predict(features)
 
+# Show sample table
 fig_cluster_table = ff.create_table(features.head(10))
 fig_cluster_table.show()
 
+# Scatter plot
 fig2 = px.scatter(features, x="salary", y="years_experience", color="cluster",
                   title="KMeans Clusters of Jobs (by Salary & Experience)")
 fig2.show()
