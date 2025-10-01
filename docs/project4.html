@@ -141,14 +141,16 @@ ul.task-list li input[type="checkbox"] {
   <ul>
   <li><a href="#introduction" id="toc-introduction" class="nav-link active" data-scroll-target="#introduction">Introduction</a></li>
   <li><a href="#analysis" id="toc-analysis" class="nav-link" data-scroll-target="#analysis">Analysis</a></li>
-  <li><a href="#salary-cleaning-drop-nanblank0" id="toc-salary-cleaning-drop-nanblank0" class="nav-link" data-scroll-target="#salary-cleaning-drop-nanblank0">Salary (cleaning: drop NaN/blank/0)</a></li>
+  <li><a href="#load-dataset" id="toc-load-dataset" class="nav-link" data-scroll-target="#load-dataset">Load dataset</a></li>
+  <li><a href="#salary-cleaning-remove-nan-and-0" id="toc-salary-cleaning-remove-nan-and-0" class="nav-link" data-scroll-target="#salary-cleaning-remove-nan-and-0">Salary (cleaning: remove NaN and &lt;=0)</a></li>
   <li><a href="#industry" id="toc-industry" class="nav-link" data-scroll-target="#industry">Industry</a></li>
   <li><a href="#ai-flag" id="toc-ai-flag" class="nav-link" data-scroll-target="#ai-flag">AI Flag</a></li>
   <li><a href="#experience" id="toc-experience" class="nav-link" data-scroll-target="#experience">Experience</a></li>
   <li><a href="#preview-table" id="toc-preview-table" class="nav-link" data-scroll-target="#preview-table">Preview table</a></li>
-  <li><a href="#bar-chart-of-results" id="toc-bar-chart-of-results" class="nav-link" data-scroll-target="#bar-chart-of-results">Bar chart of results</a></li>
-  <li><a href="#show-sample-table" id="toc-show-sample-table" class="nav-link" data-scroll-target="#show-sample-table">Show sample table</a></li>
-  <li><a href="#scatter-plot" id="toc-scatter-plot" class="nav-link" data-scroll-target="#scatter-plot">Scatter plot</a></li>
+  <li><a href="#regression--" id="toc-regression--" class="nav-link" data-scroll-target="#regression--">—————- Regression —————-</a></li>
+  <li><a href="#classification--" id="toc-classification--" class="nav-link" data-scroll-target="#classification--">—————- Classification —————-</a></li>
+  <li><a href="#clustering--" id="toc-clustering--" class="nav-link" data-scroll-target="#clustering--">—————- Clustering —————-</a></li>
+  <li><a href="#salary-distribution--" id="toc-salary-distribution--" class="nav-link" data-scroll-target="#salary-distribution--">—————- Salary Distribution —————-</a></li>
   </ul>
 </nav>
     </div>
@@ -185,10 +187,13 @@ The goal is to help job seekers understand how AI is shaping opportunities in 20
 <h2 class="anchored" data-anchor-id="analysis">Analysis</h2>
 <p>import pandas as pd, numpy as np from sklearn.model_selection import train_test_split from sklearn.linear_model import LinearRegression, LogisticRegression from sklearn.metrics import mean_squared_error, r2_score, accuracy_score, f1_score, confusion_matrix from sklearn.impute import SimpleImputer from sklearn.cluster import KMeans import plotly.express as px import plotly.io as pio import plotly.figure_factory as ff</p>
 <p>pio.templates.default = “plotly_white”</p>
-<p>Load dataset df = pd.read_csv(“data/lightcast_job_postings.csv”, low_memory=False)</p>
 </section>
-<section id="salary-cleaning-drop-nanblank0" class="level1">
-<h1>Salary (cleaning: drop NaN/blank/0)</h1>
+<section id="load-dataset" class="level1">
+<h1>Load dataset</h1>
+<p>df = pd.read_csv(“data/lightcast_job_postings.csv”, low_memory=False)</p>
+</section>
+<section id="salary-cleaning-remove-nan-and-0" class="level1">
+<h1>Salary (cleaning: remove NaN and &lt;=0)</h1>
 <p>df[“salary”] = pd.to_numeric(df[“SALARY”], errors=“coerce”) df = df.dropna(subset=[“salary”]) df = df[df[“salary”] &gt; 0]</p>
 </section>
 <section id="industry" class="level1">
@@ -206,55 +211,44 @@ The goal is to help job seekers understand how AI is shaping opportunities in 20
 <section id="preview-table" class="level1">
 <h1>Preview table</h1>
 <p>fig_preview = ff.create_table(df[[“TITLE_NAME”,“industry”,“salary”,“years_experience”,“is_ai”]].head(10)) fig_preview.show()</p>
-<p>Regression: Salary Prediction df_model = df.copy() df_model = pd.get_dummies(df_model, columns=[“industry”], drop_first=True)</p>
-<p>X = df_model.drop(columns=[“TITLE_NAME”,“salary”,“is_ai”]) X = X.select_dtypes(include=[“int64”,“float64”,“uint8”]) y = df_model[“salary”]</p>
-<p>imputer = SimpleImputer(strategy=“median”) X_imputed = imputer.fit_transform(X)</p>
-<p>X_train, X_test, y_train, y_test = train_test_split(X_imputed, y, test_size=0.3, random_state=42)</p>
-<p>reg = LinearRegression() reg.fit(X_train, y_train) y_pred = reg.predict(X_test)</p>
-<p>rmse = np.sqrt(mean_squared_error(y_test, y_pred)) r2 = r2_score(y_test, y_pred)</p>
 </section>
-<section id="bar-chart-of-results" class="level1">
-<h1>Bar chart of results</h1>
+<section id="regression--" class="level1">
+<h1>—————- Regression —————-</h1>
+<p>df_model = pd.get_dummies(df, columns=[“industry”], drop_first=True) X = df_model.drop(columns=[“TITLE_NAME”,“salary”,“is_ai”]) X = X.select_dtypes(include=[“int64”,“float64”,“uint8”]) y = df_model[“salary”]</p>
+<p>imputer = SimpleImputer(strategy=“median”) X_imputed = imputer.fit_transform(X)</p>
+<p>X_train, X_test, y_train, y_test = train_test_split(X_imputed, y, test_size=0.3, random_state=42) reg = LinearRegression() reg.fit(X_train, y_train) y_pred = reg.predict(X_test)</p>
+<p>rmse = np.sqrt(mean_squared_error(y_test, y_pred)) r2 = r2_score(y_test, y_pred)</p>
 <p>reg_results = pd.DataFrame({“Metric”: [“RMSE”,“R²”], “Value”: [rmse, r2]}) fig_reg = px.bar(reg_results, x=“Metric”, y=“Value”, title=“Regression Performance: Salary Prediction”, text_auto=True) fig_reg.show()</p>
-<p>Classification: AI vs Non-AI Jobs df_clf = df.copy() df_clf = pd.get_dummies(df_clf, columns=[“industry”], drop_first=True)</p>
-<p>X = df_clf.drop(columns=[“TITLE_NAME”,“salary”,“is_ai”]) X = X.select_dtypes(include=[“int64”,“float64”,“uint8”]) y = df_clf[“is_ai”]</p>
+</section>
+<section id="classification--" class="level1">
+<h1>—————- Classification —————-</h1>
+<p>df_clf = pd.get_dummies(df, columns=[“industry”], drop_first=True) X = df_clf.drop(columns=[“TITLE_NAME”,“salary”,“is_ai”]) X = X.select_dtypes(include=[“int64”,“float64”,“uint8”]) y = df_clf[“is_ai”]</p>
 <p>X_imputed = imputer.fit_transform(X)</p>
 <p>if len(y.unique()) &gt; 1: X_train, X_test, y_train, y_test = train_test_split(X_imputed, y, test_size=0.3, random_state=42) clf = LogisticRegression(max_iter=1000) clf.fit(X_train, y_train) y_pred = clf.predict(X_test)</p>
 <pre><code>acc = accuracy_score(y_test, y_pred)
 f1 = f1_score(y_test, y_pred, zero_division=0)
 cm = confusion_matrix(y_test, y_pred)
 
-# Performance bar chart
 clf_results = pd.DataFrame({"Metric": ["Accuracy","F1 Score"], "Value": [acc, f1]})
 fig_clf = px.bar(clf_results, x="Metric", y="Value",
                  title="Classification Performance: AI vs Non-AI",
                  text_auto=True)
 fig_clf.show()
 
-# Confusion Matrix
 fig_cm = px.imshow(cm, text_auto=True, title="Confusion Matrix",
                    labels=dict(x="Predicted", y="Actual"))
 fig_cm.show()</code></pre>
 <p>else: print(“⚠️ Only one class found — cannot run classification.”)</p>
-<p>Clustering: Job Segmentation features = df[[“salary”,“years_experience”]].dropna() features = features[features[“salary”] &gt; 0]</p>
-<p>kmeans = KMeans(n_clusters=3, random_state=42, n_init=10) features[“cluster”] = kmeans.fit_predict(features)</p>
 </section>
-<section id="show-sample-table" class="level1">
-<h1>Show sample table</h1>
+<section id="clustering--" class="level1">
+<h1>—————- Clustering —————-</h1>
+<p>features = df[[“salary”,“years_experience”]].dropna() kmeans = KMeans(n_clusters=3, random_state=42, n_init=10) features[“cluster”] = kmeans.fit_predict(features)</p>
 <p>fig_cluster_table = ff.create_table(features.head(10)) fig_cluster_table.show()</p>
-</section>
-<section id="scatter-plot" class="level1">
-<h1>Scatter plot</h1>
 <p>fig2 = px.scatter(features, x=“salary”, y=“years_experience”, color=“cluster”, title=“KMeans Clusters of Jobs (by Salary &amp; Experience)”) fig2.show()</p>
-<p>Visualizations fig1 = px.histogram(df, x=“salary”, color=“is_ai”, barmode=“overlay”, title=“Salary Distribution: AI vs Non-AI Jobs”) fig1.show()</p>
-<p>Insights for Job Seekers</p>
-<p>AI roles often cluster at higher salaries compared to non-AI roles.</p>
-<p>Experience remains critical — higher years of experience align with higher pay clusters.</p>
-<p>Industries with strong AI adoption (e.g., tech, finance) show clearer salary advantages.</p>
-<p>Takeaways:</p>
-<p>Highlight AI-related skills to access higher-paying roles.</p>
-<p>Leverage industry trends to target fields with high AI adoption.</p>
-<p>Use clustering insights to understand where your profile fits (AI-heavy vs.&nbsp;traditional roles).</p>
+</section>
+<section id="salary-distribution--" class="level1">
+<h1>—————- Salary Distribution —————-</h1>
+<p>fig1 = px.histogram(df, x=“salary”, color=“is_ai”, barmode=“overlay”, title=“Salary Distribution: AI vs Non-AI Jobs”) fig1.show()</p>
 
 
 </section>
