@@ -141,26 +141,16 @@ ul.task-list li input[type="checkbox"] {
   <ul>
   <li><a href="#introduction" id="toc-introduction" class="nav-link active" data-scroll-target="#introduction">Introduction</a></li>
   <li><a href="#analysis" id="toc-analysis" class="nav-link" data-scroll-target="#analysis">Analysis</a></li>
-  <li><a href="#section" id="toc-section" class="nav-link" data-scroll-target="#section">——————</a></li>
-  <li><a href="#load-dataset" id="toc-load-dataset" class="nav-link" data-scroll-target="#load-dataset">Load dataset</a></li>
-  <li><a href="#section-1" id="toc-section-1" class="nav-link" data-scroll-target="#section-1">——————</a></li>
-  <li><a href="#salary-cleaning-drop-nullzero" id="toc-salary-cleaning-drop-nullzero" class="nav-link" data-scroll-target="#salary-cleaning-drop-nullzero">Salary (cleaning: drop null/zero)</a></li>
+  <li><a href="#load-dataset--" id="toc-load-dataset--" class="nav-link" data-scroll-target="#load-dataset--">—- Load dataset —-</a></li>
+  <li><a href="#salary-cleaning" id="toc-salary-cleaning" class="nav-link" data-scroll-target="#salary-cleaning">Salary cleaning</a></li>
   <li><a href="#industry" id="toc-industry" class="nav-link" data-scroll-target="#industry">Industry</a></li>
   <li><a href="#ai-flag" id="toc-ai-flag" class="nav-link" data-scroll-target="#ai-flag">AI Flag</a></li>
   <li><a href="#experience" id="toc-experience" class="nav-link" data-scroll-target="#experience">Experience</a></li>
-  <li><a href="#preview-cleaned-data" id="toc-preview-cleaned-data" class="nav-link" data-scroll-target="#preview-cleaned-data">Preview cleaned data</a></li>
-  <li><a href="#section-2" id="toc-section-2" class="nav-link" data-scroll-target="#section-2">——————</a></li>
-  <li><a href="#regression-salary-prediction" id="toc-regression-salary-prediction" class="nav-link" data-scroll-target="#regression-salary-prediction">Regression: Salary Prediction</a></li>
-  <li><a href="#section-3" id="toc-section-3" class="nav-link" data-scroll-target="#section-3">——————</a></li>
-  <li><a href="#section-4" id="toc-section-4" class="nav-link" data-scroll-target="#section-4">——————</a></li>
-  <li><a href="#classification-ai-vs-non-ai-jobs" id="toc-classification-ai-vs-non-ai-jobs" class="nav-link" data-scroll-target="#classification-ai-vs-non-ai-jobs">Classification: AI vs Non-AI Jobs</a></li>
-  <li><a href="#section-5" id="toc-section-5" class="nav-link" data-scroll-target="#section-5">——————</a></li>
-  <li><a href="#section-6" id="toc-section-6" class="nav-link" data-scroll-target="#section-6">——————</a></li>
-  <li><a href="#clustering-job-segmentation" id="toc-clustering-job-segmentation" class="nav-link" data-scroll-target="#clustering-job-segmentation">Clustering: Job Segmentation</a></li>
-  <li><a href="#section-7" id="toc-section-7" class="nav-link" data-scroll-target="#section-7">——————</a></li>
-  <li><a href="#section-8" id="toc-section-8" class="nav-link" data-scroll-target="#section-8">——————</a></li>
-  <li><a href="#visualizations" id="toc-visualizations" class="nav-link" data-scroll-target="#visualizations">Visualizations</a></li>
-  <li><a href="#section-9" id="toc-section-9" class="nav-link" data-scroll-target="#section-9">——————</a></li>
+  <li><a href="#preview--" id="toc-preview--" class="nav-link" data-scroll-target="#preview--">—- Preview —-</a></li>
+  <li><a href="#regression--" id="toc-regression--" class="nav-link" data-scroll-target="#regression--">—- Regression —-</a></li>
+  <li><a href="#classification--" id="toc-classification--" class="nav-link" data-scroll-target="#classification--">—- Classification —-</a></li>
+  <li><a href="#clustering--" id="toc-clustering--" class="nav-link" data-scroll-target="#clustering--">—- Clustering —-</a></li>
+  <li><a href="#salary-distribution--" id="toc-salary-distribution--" class="nav-link" data-scroll-target="#salary-distribution--">—- Salary Distribution —-</a></li>
   </ul>
 </nav>
     </div>
@@ -189,7 +179,7 @@ ul.task-list li input[type="checkbox"] {
 <section id="introduction" class="level2">
 <h2 class="anchored" data-anchor-id="introduction">Introduction</h2>
 <p>This project explores <strong>AI vs Non-AI careers</strong> using the <code>lightcast_job_postings.csv</code> dataset.<br>
-We apply <strong>clustering, regression, and classification</strong> to evaluate trends in job markets, with a focus on salary, experience, and employability.<br>
+We apply clustering, regression, and classification to evaluate trends in job markets, with a focus on salary, experience, and employability.<br>
 The goal is to help job seekers understand how AI is shaping opportunities in 2024.</p>
 </section>
 <section id="analysis" class="level2">
@@ -197,18 +187,12 @@ The goal is to help job seekers understand how AI is shaping opportunities in 20
 <p>import pandas as pd, numpy as np from sklearn.model_selection import train_test_split from sklearn.linear_model import LinearRegression, LogisticRegression from sklearn.metrics import mean_squared_error, r2_score, accuracy_score, f1_score, confusion_matrix from sklearn.impute import SimpleImputer from sklearn.cluster import KMeans import plotly.express as px, plotly.io as pio import plotly.figure_factory as ff</p>
 <p>pio.templates.default = “plotly_white”</p>
 </section>
-<section id="section" class="level1">
-<h1>——————</h1>
-</section>
-<section id="load-dataset" class="level1">
-<h1>Load dataset</h1>
-</section>
-<section id="section-1" class="level1">
-<h1>——————</h1>
+<section id="load-dataset--" class="level1">
+<h1>—- Load dataset —-</h1>
 <p>df = pd.read_csv(“data/lightcast_job_postings.csv”, low_memory=False)</p>
 </section>
-<section id="salary-cleaning-drop-nullzero" class="level1">
-<h1>Salary (cleaning: drop null/zero)</h1>
+<section id="salary-cleaning" class="level1">
+<h1>Salary cleaning</h1>
 <p>df[“salary”] = pd.to_numeric(df[“SALARY”], errors=“coerce”) df = df.dropna(subset=[“salary”]) df = df[df[“salary”] &gt; 0]</p>
 </section>
 <section id="industry" class="level1">
@@ -223,36 +207,21 @@ The goal is to help job seekers understand how AI is shaping opportunities in 20
 <h1>Experience</h1>
 <p>df[“years_experience”] = df[[“MIN_YEARS_EXPERIENCE”,“MAX_YEARS_EXPERIENCE”]].mean(axis=1)</p>
 </section>
-<section id="preview-cleaned-data" class="level1">
-<h1>Preview cleaned data</h1>
+<section id="preview--" class="level1">
+<h1>—- Preview —-</h1>
 <p>fig_preview = ff.create_table(df[[“TITLE_NAME”,“industry”,“salary”,“years_experience”,“is_ai”]].head(10)) fig_preview.show()</p>
 </section>
-<section id="section-2" class="level1">
-<h1>——————</h1>
-</section>
-<section id="regression-salary-prediction" class="level1">
-<h1>Regression: Salary Prediction</h1>
-</section>
-<section id="section-3" class="level1">
-<h1>——————</h1>
-<p>df_model = pd.get_dummies(df, columns=[“industry”], drop_first=True)</p>
-<p>X = df_model.drop(columns=[“TITLE_NAME”,“salary”,“is_ai”]) X = X.select_dtypes(include=[“int64”,“float64”,“uint8”]) y = df_model[“salary”]</p>
+<section id="regression--" class="level1">
+<h1>—- Regression —-</h1>
+<p>df_model = pd.get_dummies(df, columns=[“industry”], drop_first=True) X = df_model.drop(columns=[“TITLE_NAME”,“salary”,“is_ai”]).select_dtypes(include=[“int64”,“float64”,“uint8”]) y = df_model[“salary”]</p>
 <p>imputer = SimpleImputer(strategy=“median”) X_imputed = imputer.fit_transform(X)</p>
-<p>X_train, X_test, y_train, y_test = train_test_split(X_imputed, y, test_size=0.3, random_state=42)</p>
-<p>reg = LinearRegression() reg.fit(X_train, y_train) y_pred = reg.predict(X_test)</p>
+<p>X_train, X_test, y_train, y_test = train_test_split(X_imputed, y, test_size=0.3, random_state=42) reg = LinearRegression() reg.fit(X_train, y_train) y_pred = reg.predict(X_test)</p>
 <p>rmse = np.sqrt(mean_squared_error(y_test, y_pred)) r2 = r2_score(y_test, y_pred)</p>
 <p>reg_results = pd.DataFrame({“Metric”: [“RMSE”,“R²”], “Value”: [rmse, r2]}) fig_reg = px.bar(reg_results, x=“Metric”, y=“Value”, title=“Regression Performance: Salary Prediction”, text_auto=True) fig_reg.show()</p>
 </section>
-<section id="section-4" class="level1">
-<h1>——————</h1>
-</section>
-<section id="classification-ai-vs-non-ai-jobs" class="level1">
-<h1>Classification: AI vs Non-AI Jobs</h1>
-</section>
-<section id="section-5" class="level1">
-<h1>——————</h1>
-<p>df_clf = pd.get_dummies(df, columns=[“industry”], drop_first=True)</p>
-<p>X = df_clf.drop(columns=[“TITLE_NAME”,“salary”,“is_ai”]) X = X.select_dtypes(include=[“int64”,“float64”,“uint8”]) y = df_clf[“is_ai”]</p>
+<section id="classification--" class="level1">
+<h1>—- Classification —-</h1>
+<p>df_clf = pd.get_dummies(df, columns=[“industry”], drop_first=True) X = df_clf.drop(columns=[“TITLE_NAME”,“salary”,“is_ai”]).select_dtypes(include=[“int64”,“float64”,“uint8”]) y = df_clf[“is_ai”]</p>
 <p>X_imputed = imputer.fit_transform(X)</p>
 <p>if len(y.unique()) &gt; 1: X_train, X_test, y_train, y_test = train_test_split(X_imputed, y, test_size=0.3, random_state=42) clf = LogisticRegression(max_iter=1000) clf.fit(X_train, y_train) y_pred = clf.predict(X_test)</p>
 <pre><code>acc = accuracy_score(y_test, y_pred)
@@ -267,35 +236,23 @@ fig_cm = px.imshow(cm, text_auto=True, title="Confusion Matrix", labels=dict(x="
 fig_cm.show()</code></pre>
 <p>else: print(“⚠️ Only one class found — cannot run classification.”)</p>
 </section>
-<section id="section-6" class="level1">
-<h1>——————</h1>
-</section>
-<section id="clustering-job-segmentation" class="level1">
-<h1>Clustering: Job Segmentation</h1>
-</section>
-<section id="section-7" class="level1">
-<h1>——————</h1>
+<section id="clustering--" class="level1">
+<h1>—- Clustering —-</h1>
 <p>features = df[[“salary”,“years_experience”]].dropna() kmeans = KMeans(n_clusters=3, random_state=42, n_init=10) features[“cluster”] = kmeans.fit_predict(features)</p>
 <p>fig_cluster_table = ff.create_table(features.head(10)) fig_cluster_table.show()</p>
 <p>fig2 = px.scatter(features, x=“salary”, y=“years_experience”, color=“cluster”, title=“KMeans Clusters of Jobs (by Salary &amp; Experience)”) fig2.show()</p>
 </section>
-<section id="section-8" class="level1">
-<h1>——————</h1>
-</section>
-<section id="visualizations" class="level1">
-<h1>Visualizations</h1>
-</section>
-<section id="section-9" class="level1">
-<h1>——————</h1>
+<section id="salary-distribution--" class="level1">
+<h1>—- Salary Distribution —-</h1>
 <p>fig1 = px.histogram(df, x=“salary”, color=“is_ai”, barmode=“overlay”, title=“Salary Distribution: AI vs Non-AI Jobs”) fig1.show()</p>
 <p>Insights for Job Seekers</p>
 <p>AI roles often cluster at higher salaries compared to non-AI roles.</p>
-<p>Experience remains critical — higher years of experience align with higher pay clusters.</p>
+<p>Experience matters: more years → higher salary clusters.</p>
 <p>Industries with strong AI adoption (e.g., tech, finance) show clearer salary advantages.</p>
 <p>Takeaways:</p>
 <p>Highlight AI-related skills to access higher-paying roles.</p>
-<p>Leverage industry trends to target fields with high AI adoption.</p>
-<p>Use clustering insights to understand where your profile fits (AI-heavy vs.&nbsp;traditional roles).</p>
+<p>Target industries where AI adoption is accelerating.</p>
+<p>Use clustering insights to position yourself in AI-heavy vs.&nbsp;traditional roles.</p>
 
 
 </section>
