@@ -2,7 +2,7 @@
 title: "Project 4: AI vs Non-AI Careers"
 format: html
 execute:
-  echo: true
+  echo: false
   warning: false
   error: true
   cache: false
