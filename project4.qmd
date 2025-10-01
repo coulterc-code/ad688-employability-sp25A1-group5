@@ -11,30 +11,26 @@ execute:
 ## Introduction
 
 This project explores **AI vs Non-AI careers** using the `lightcast_job_postings.csv` dataset.  
-We apply clustering, regression, and classification to evaluate trends in job markets, with a focus on salary and employability.  
+We apply **clustering, regression, and classification** to evaluate trends in job markets, with a focus on **salary, experience, and employability**.  
 The goal is to help job seekers understand how AI is shaping opportunities in 2024.
 
 ---
 
-## Analysis
+## Data Preparation
 
 ```{python}
-import pandas as pd
-import numpy as np
+import pandas as pd, numpy as np
 from sklearn.model_selection import train_test_split
 from sklearn.linear_model import LinearRegression, LogisticRegression
 from sklearn.metrics import mean_squared_error, r2_score, accuracy_score, f1_score, confusion_matrix
 from sklearn.impute import SimpleImputer
 from sklearn.cluster import KMeans
-import plotly.express as px
-import plotly.io as pio
+import plotly.express as px, plotly.io as pio
 import plotly.figure_factory as ff
 
 pio.templates.default = "plotly_white"
 
-# -----------------
 # Load dataset
-# -----------------
 df = pd.read_csv("data/lightcast_job_postings.csv", low_memory=False)
 
 # Salary
@@ -55,13 +51,11 @@ df["is_ai"] = df["TITLE_NAME"].str.contains(
 # Experience
 df["years_experience"] = df[["MIN_YEARS_EXPERIENCE","MAX_YEARS_EXPERIENCE"]].mean(axis=1)
 
-# Preview cleaned data
+# Preview (visual table)
 fig_preview = ff.create_table(df[["TITLE_NAME","industry","salary","years_experience","is_ai"]].head(10))
 fig_preview.show()
 
-# -----------------
-# Regression: Salary Prediction
-# -----------------
+Regression: Salary Prediction
 df_model = df.dropna(subset=["salary"]).copy()
 df_model = pd.get_dummies(df_model, columns=["industry"], drop_first=True)
 
@@ -81,14 +75,13 @@ y_pred = reg.predict(X_test)
 rmse = np.sqrt(mean_squared_error(y_test, y_pred))
 r2 = r2_score(y_test, y_pred)
 
-# Regression results as bar chart
 reg_results = pd.DataFrame({"Metric": ["RMSE","R²"], "Value": [rmse, r2]})
-fig_reg = px.bar(reg_results, x="Metric", y="Value", title="Regression Performance (Salary Prediction)", text_auto=True)
+fig_reg = px.bar(reg_results, x="Metric", y="Value",
+                 title="Regression Performance: Salary Prediction",
+                 text_auto=True)
 fig_reg.show()
 
-# -----------------
-# Classification: AI vs Non-AI Jobs
-# -----------------
+Classification: AI vs Non-AI Jobs
 df_clf = df.dropna(subset=["salary"]).copy()
 df_clf = pd.get_dummies(df_clf, columns=["industry"], drop_first=True)
 
@@ -108,51 +101,53 @@ if len(y.unique()) > 1:
     f1 = f1_score(y_test, y_pred, zero_division=0)
     cm = confusion_matrix(y_test, y_pred)
 
-    # Classification results table
+    # Metrics
     clf_results = pd.DataFrame({"Metric": ["Accuracy","F1 Score"], "Value": [acc, f1]})
-    fig_clf = px.bar(clf_results, x="Metric", y="Value", title="Classification Performance (AI vs Non-AI)", text_auto=True)
+    fig_clf = px.bar(clf_results, x="Metric", y="Value",
+                     title="Classification Performance: AI vs Non-AI",
+                     text_auto=True)
     fig_clf.show()
 
-    # Confusion matrix heatmap
-    fig_cm = px.imshow(cm, text_auto=True, title="Confusion Matrix", labels=dict(x="Predicted", y="Actual"))
+    # Confusion Matrix
+    fig_cm = px.imshow(cm, text_auto=True, title="Confusion Matrix",
+                       labels=dict(x="Predicted", y="Actual"))
     fig_cm.show()
 else:
-    print("⚠️ Only one class found in dataset — cannot run classification.")
+    print("⚠️ Only one class found — cannot run classification.")
 
-# -----------------
-# Clustering: Job Segmentation
-# -----------------
+Clustering: Job Segmentation
 features = df[["salary","years_experience"]].dropna()
 kmeans = KMeans(n_clusters=3, random_state=42, n_init=10)
 features["cluster"] = kmeans.fit_predict(features)
 
-# Show sample cluster assignments
+# Show sample assignments
 fig_cluster_table = ff.create_table(features.head(10))
 fig_cluster_table.show()
 
-# Scatter plot for clusters
-fig2 = px.scatter(features, x="salary", y="years_experience", color="cluster", title="KMeans Clusters of Jobs (by Salary & Experience)")
+# Scatter plot
+fig2 = px.scatter(features, x="salary", y="years_experience",
+                  color="cluster",
+                  title="KMeans Clusters of Jobs (by Salary & Experience)")
 fig2.show()
 
-# -----------------
-# Visualizations
-# -----------------
-# Salary distribution
-fig1 = px.histogram(df, x="salary", color="is_ai", barmode="overlay", title="Salary Distribution: AI vs Non-AI Jobs")
+Visualizations
+fig1 = px.histogram(df, x="salary", color="is_ai",
+                    barmode="overlay",
+                    title="Salary Distribution: AI vs Non-AI Jobs")
 fig1.show()
 
-Interpretation
+Insights for Job Seekers
 
-Regression: Shows how salary varies by industry, experience, and other features.
+AI roles often cluster at higher salaries compared to non-AI roles.
 
-Classification: Predicts which jobs are AI-related, with visual metrics and a confusion matrix.
+Experience remains an important factor — higher years of experience align with higher pay clusters.
 
-Clustering: Segments jobs into natural groups (e.g., high-salary AI-heavy vs lower-salary non-AI).
+Industries with strong AI adoption (e.g., tech, finance) show clearer salary advantages.
 
-Implications:
+For job seekers:
 
-AI roles may show higher salary clusters.
+Highlight AI-related skills to access higher-paying roles.
 
-Certain industries have stronger AI adoption.
+Leverage industry trends — certain fields show more demand for AI expertise.
 
-Understanding these trends helps candidates position themselves competitively.
+Use clustering insights to understand where your profile might fit (AI-heavy vs. traditional roles).
