@@ -2,9 +2,9 @@
 title: "Project 4: AI vs Non-AI Careers"
 format: html
 execute:
-  echo: false
+  eval: true
+  echo: true
   warning: false
-  error: true
   cache: false
 ---
 
@@ -41,8 +41,7 @@ else:
 # ---- AI Flag ----
 df["is_ai"] = df["TITLE"].str.contains(
     "AI|Artificial Intelligence|Machine Learning|Deep Learning",
-    case=False,
-    na=False
+    case=False, na=False
 ).astype(int)
 
 # Preview cleaned data
@@ -61,10 +60,12 @@ from sklearn.metrics import mean_squared_error, r2_score
 # Keep only rows with salary
 df_model = df.dropna(subset=["salary"]).copy()
 
-# Encode industry
+# One-hot encode industry
 df_model = pd.get_dummies(df_model, columns=["industry"], drop_first=True)
 
+# Keep only numeric features
 X = df_model.drop(columns=["TITLE","salary","is_ai"])
+X = X.select_dtypes(include=["int64","float64","uint8"])
 y = df_model["salary"]
 
 X_train, X_test, y_train, y_test = train_test_split(X, y, test_size=0.3, random_state=42)
@@ -87,10 +88,15 @@ rmse, r2
 from sklearn.linear_model import LogisticRegression
 from sklearn.metrics import accuracy_score, f1_score, confusion_matrix
 
-# Encode industry for classification
-df_clf = pd.get_dummies(df.dropna(subset=["salary"]).copy(), columns=["industry"], drop_first=True)
+# Keep only rows with salary
+df_clf = df.dropna(subset=["salary"]).copy()
 
+# One-hot encode industry
+df_clf = pd.get_dummies(df_clf, columns=["industry"], drop_first=True)
+
+# Keep only numeric features
 X = df_clf.drop(columns=["TITLE","salary","is_ai"])
+X = X.select_dtypes(include=["int64","float64","uint8"])
 y = df_clf["is_ai"]
 
 X_train, X_test, y_train, y_test = train_test_split(X, y, test_size=0.3, random_state=42)
@@ -113,7 +119,7 @@ acc, f1, cm
 ```{python}
 from sklearn.cluster import KMeans
 
-# Example clustering with salary + AI flag
+# Example clustering with salary and AI flag
 features = df[["salary","is_ai"]].dropna()
 
 kmeans = KMeans(n_clusters=3, random_state=42, n_init=10)
@@ -133,13 +139,11 @@ pio.templates.default = "plotly_white"
 
 # Salary distribution by AI vs Non-AI
 fig1 = px.histogram(
-    df, x="salary", color="is_ai", barmode="overlay",
-    title="Salary Distribution: AI vs Non-AI Jobs"
+    df, x="salary", color="is_ai",
+    barmode="overlay", title="Salary Distribution: AI vs Non-AI Jobs"
 )
 fig1.show()
-```
 
-```{python}
 # Clustering visualization
 fig2 = px.scatter(
     features, x="salary", y="is_ai", color="cluster",
@@ -152,11 +156,11 @@ fig2.show()
 
 ## Interpretation
 
-- **Regression**: shows how salary varies by industry and other features.  
-- **Classification**: predicts which jobs are AI-related with measurable accuracy and F1 score.  
-- **Clustering**: segments jobs into natural groups (e.g., high-salary AI-heavy vs lower-salary non-AI).  
+- **Regression:** shows how salary varies by industry and other features.  
+- **Classification:** predicts which jobs are AI-related with measurable accuracy and F1 score.  
+- **Clustering:** segments jobs into natural groups (e.g., high-salary AI-heavy vs lower-salary non-AI).  
 
-**Implications for job seekers**:  
+**Implications for job seekers:**
 - AI roles may show higher salary clusters.  
 - Certain industries have stronger AI adoption.  
 - Understanding these trends helps candidates position themselves competitively.
