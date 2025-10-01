@@ -172,7 +172,7 @@ fig_cluster_table.show()
 # Scatter plot
 fig2 = px.scatter(features, x="salary", y="years_experience", color="cluster",
                   title="KMeans Clusters of Jobs (by Salary & Experience)")
-fig2
+#fig2
 ```
 
 ---
