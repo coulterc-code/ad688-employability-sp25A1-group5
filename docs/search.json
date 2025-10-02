@@ -144,7 +144,7 @@
     "href": "project4.html#load-dataset",
     "title": "Project 4: AI vs Non-AI Careers",
     "section": "Load dataset",
-    "text": "Load dataset\n\n\nOriginal dataset: 72498 rows\nAfter removing missing salary and years_experience: 23697 rows"
+    "text": "Load dataset\n\n\nOriginal dataset: 72498 rows\nAfter removing missing salary and years_experience: 23697 rows\n\n\n\n\n\n\n%% ## Regression: Salary Prediction"
   },
   {
     "objectID": "project4.html#regression-salary-prediction",

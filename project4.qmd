@@ -87,7 +87,7 @@ fig_preview.update_layout(width=2500, height=500)
 ```
 ---
 
-## Regression: Salary Prediction
+%% ## Regression: Salary Prediction
 
 ```{python}
 df_model = df.dropna(subset=["salary"]).copy()
