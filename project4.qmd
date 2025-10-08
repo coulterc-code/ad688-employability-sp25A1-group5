@@ -15,8 +15,6 @@ This project explores **AI vs Non-AI careers** using the `lightcast_job_postings
 We apply **clustering, regression, and classification** to evaluate trends in job markets, with a focus on **salary, experience, and employability**.  
 The goal is to help job seekers understand how AI is shaping opportunities in 2024.
 
----
-
 # Analysis
 
 ```{python}
@@ -33,8 +31,6 @@ import plotly.figure_factory as ff
 pio.templates.default = "plotly_white"
 pio.renderers.default = "png"
 ```
-
----
 
 ## Load dataset
 
@@ -87,7 +83,6 @@ fig_preview.write_image("preview_table.png")
 #fig_preview.show()
 
 ```
----
 
 <!-- ## Regression: Salary Prediction -->
 
@@ -119,8 +114,6 @@ fig_reg = px.bar(reg_results, x="Metric", y="Value",
 fig_reg.write_image("regression_performance.png") 
 #fig_reg.show()
 ```
-
----
 
 ## Classification: AI vs Non-AI Jobs
 
@@ -158,9 +151,6 @@ if len(y.unique()) > 1:
 else:
     print("⚠️ Only one class found — cannot run classification.")
 ```
-
----
-
 ## Clustering: Job Segmentation
 
 ```{python}
@@ -178,8 +168,6 @@ fig2 = px.scatter(features, x="salary", y="years_experience", color="cluster",
 #fig2
 ```
 
----
-
 ## Visualizations
 
 ```{python}
@@ -189,8 +177,6 @@ fig1 = px.histogram(df, x="salary", color="is_ai",
 fig1.write_image("salary_distribution.png")
 fig1.show()
 ```
-
----
 
 # Insights for Job Seekers
 
