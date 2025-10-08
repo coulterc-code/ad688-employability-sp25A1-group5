@@ -22,11 +22,18 @@ date-format: long
 format: 
   docx: default
 ---
-
 {{< include introduction.qmd >}}
-{{< include data_cleaning.qmd >}}
-[]{.quarto-shortcode__-escaped data-is-shortcode="1" data-value="}
-{{{< embed skill_gap_analysis.ipynb >}}"}
-{{< embed ml_methods.ipynb >}}
-{{< embed project4.qmd >}}
 
+{{< include data_cleaning.qmd >}}
+
+[]{.quarto-shortcode__-escaped data-is-shortcode="1" data-value="}
+
+{{< include eda.qmd >}}
+
+{{< include skill_gap_analysis.qmd >}}
+
+{{< include ml_methods.qmd >}}
+
+{{< include nlp_methods.qmd >}}
+
+{{< include project4.qmd >}}
