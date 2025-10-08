@@ -24,6 +24,7 @@ format:
 ---
 {{< include introduction.qmd >}}
 {{< include data_cleaning.qmd >}}
+{{< include eda.qmd >}}
 {{< include skill_gap_analysis.qmd >}}
 {{< include ml_methods.qmd >}}
 {{< include nlp_methods.qmd >}}

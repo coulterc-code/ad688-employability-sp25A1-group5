@@ -1,6 +1,6 @@
 ---
 title: "Skill Gap Analysis"
-format: 
+format:
   html:
     embed-resources: true
     toc: true

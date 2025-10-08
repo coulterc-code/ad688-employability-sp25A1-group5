@@ -43,7 +43,7 @@ pio.renderers.default = "notebook"
 CSV_PATHS = ["data/lightcast_job_postings.csv", "lightcast_job_postings.csv"]
 csv_path = next((p for p in CSV_PATHS if os.path.exists(p)), None)
 if not csv_path:
-    raise FileNotFoundError("⚠️ lightcast_job_postings.csv not found")
+    raise FileNotFoundError("WARNING: lightcast_job_postings.csv not found")
 
 df = pd.read_csv(csv_path, low_memory=False)
 print("Loaded dataset:", df.shape)
@@ -155,7 +155,7 @@ Custom Computer Programming, Management Consulting, and Employment Agencies domi
 - Skewed Distribution:
 The top 4 industries account for a significantly larger share of job postings than the rest.
 - Professional Services Focus:
-Many high-posting sectors are centered around tech, consulting, healthcare and education — reflecting demand for knowledge-based roles.
+Many high-posting sectors are centered around tech, consulting, healthcare and education -- reflecting demand for knowledge-based roles.
 
 # Salary Distribution by Industry (Top 15)
 ```{python}
@@ -187,7 +187,7 @@ Shows where negotiation power exists and highlights industries paying well.
 - Wide Salary Ranges in Staffing & Tech Services:
 Industries like Temporary Help Services and Employment Placement Agencies exhibit large salary spreads with high outliers, though their median pay remains modest.
 - Stable Pay in Professional Sectors:
-Most industries maintain a consistent median salary around $100K–$150K, reflecting standardized compensation and less variation in negotiation power.
+Most industries maintain a consistent median salary around $100K-$150K, reflecting standardized compensation and less variation in negotiation power.
 
 # Remote vs. On-Site Jobs
 ```{python}
@@ -210,10 +210,10 @@ if "REMOTE_TYPE_NAME" in df.columns:
 ```
 
 ## Rationale
-Workplace flexibility is a major factor in today’s job market.
+Workplace flexibility is a major factor in today's job market.
 
 ## Key Insights
 - Limited Remote Availability:
 Only about 17% of job postings are labeled as Remote, with Hybrid Remote and Not Remote making up even smaller portions.
 - Data Gaps in Job Listings:
-A significant 78.3% of postings lack remote classification, indicating either incomplete employer data or inconsistent labeling, which may affect job seekers’ filtering and selection.
+A significant 78.3% of postings lack remote classification, indicating either incomplete employer data or inconsistent labeling, which may affect job seekers' filtering and selection.
