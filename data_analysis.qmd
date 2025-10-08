@@ -65,8 +65,8 @@ print("Derived non-null:", {
     "INDUSTRY_DISPLAY": df["INDUSTRY_DISPLAY"].notna().sum(),
     "SALARY_DISPLAY": df["SALARY_DISPLAY"].notna().sum()
 })
-Data Cleaning & Preprocessing
-Drop Unnecessary Columns
+# Data Cleaning & Preprocessing
+# Drop Unnecessary Columns
 columns_to_drop = [
     "ID","LAST_UPDATED_TIMESTAMP","DUPLICATES","ACTIVE_URLS","ACTIVE_SOURCES_INFO",
     "TITLE_RAW","BODY","COMPANY_RAW",
@@ -88,7 +88,7 @@ drop_existing = [c for c in columns_to_drop if c in df.columns]
 df.drop(columns=drop_existing, inplace=True)
 print("Remaining columns (first 30):", list(df.columns)[:30])
 
-Handle Missing Values
+# Handle Missing Values
 import missingno as msno, matplotlib.pyplot as plt
 
 msno.heatmap(df)
@@ -103,15 +103,15 @@ if "SALARY_DISPLAY" in df.columns:
 for col in df.select_dtypes(include="object").columns:
     df[col].fillna("Unknown", inplace=True)
 
-Remove Duplicates
+# Remove Duplicates
 subset_cols = [c for c in ["TITLE","COMPANY_NAME","LOCATION","POSTED"] if c in df.columns]
 if subset_cols:
     before = len(df)
     df.drop_duplicates(subset=subset_cols, keep="first", inplace=True)
     print(f"Removed {before - len(df)} duplicates using {subset_cols}")
 
-Exploratory Data Analysis (EDA)
-Job Postings by Industry (Top 15)
+# Exploratory Data Analysis (EDA)
+# Job Postings by Industry (Top 15)
 import plotly.express as px
 
 counts = (
@@ -123,12 +123,12 @@ counts = (
     .sort_values("Count")
 )
 fig1 = px.bar(
-    counts, x="Count", y="Industry", orientation="h",
+    counts, x="Count", y="INDUSTRY_DISPLAY", orientation="h",
     title="Top 15 Industries by Number of Job Postings"
 )
 fig1.show()
 
-Salary Distribution by Industry (Top 15)
+# Salary Distribution by Industry (Top 15)
 sdf = df[["INDUSTRY_DISPLAY","SALARY_DISPLAY"]].copy()
 sdf = sdf.dropna()
 sdf = sdf[sdf["SALARY_DISPLAY"] > 0]
@@ -144,7 +144,7 @@ fig2 = px.box(
 fig2.update_layout(xaxis_tickangle=-45)
 fig2.show()
 
-Remote vs. On-Site Jobs
+# Remote vs. On-Site Jobs
 if "REMOTE_TYPE_NAME" in df.columns:
     rc = df["REMOTE_TYPE_NAME"].value_counts().reset_index()
     rc.columns = ["Remote Type","Count"]
@@ -153,19 +153,19 @@ if "REMOTE_TYPE_NAME" in df.columns:
         title="Remote vs. On-Site Job Distribution"
     )
     fig3.show()
-
-EDA: Rationale & Insights
-Job Postings by Industry
+```
+# EDA: Rationale & Insights
+## Job Postings by Industry
 
 Why: Highlights sectors where demand is concentrated, showing which industries are actively hiring.
 Key Insights: The top three industries by job postings are Temporary Help Services, Miscellaneous Ambulatory Health Care Services, and Semiconductor and Related Device Manufacturing.
 
-Salary Distribution by Industry
+## Salary Distribution by Industry
 
 Why: Shows where negotiation power exists and highlights industries paying well.
 Key Insights: Automotive Parts and Accessories Retailers show a wide range (negotiation potential), while Barber Shops show a narrow range (little negotiation).
 
-Remote vs. On-Site Jobs
+## Remote vs. On-Site Jobs
 
 Why: Workplace flexibility is a major factor in today’s job market.
 Key Insights: Most postings (78.3%) don’t specify remote status. About 17% are remote, 3.1% hybrid, and 1.6% explicitly not remote.

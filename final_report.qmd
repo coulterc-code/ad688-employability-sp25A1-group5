@@ -1,0 +1,35 @@
+---
+title: "Evaluating Personal Job Market Prospects in 2024"
+subtitle: "Final Report"
+author:
+  - name: Connor Coulter
+    affiliations:
+      - ref: bu
+  - name: Wei Wang
+    affiliations:
+      - ref: bu
+  - name: Balqis Bevi Abdul Hannan Kanaga
+    affiliations:
+      - ref: bu
+affiliations:
+  - id: bu
+    name: Boston University
+    city: Boston
+    state: MA
+date: today
+date-modified: today
+date-format: long
+format: 
+  docx: default
+---
+{{< include introduction.qmd >}}
+
+{{< include data_cleaning.qmd >}}
+
+{{< include skill_gap_analysis.qmd >}}
+
+{{< include ml_methods.qmd >}}
+
+{{< include nlp_methods.qmd >}}
+
+{{< include project4.qmd >}}
