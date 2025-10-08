@@ -6,6 +6,7 @@ execute:
   echo: false
   warning: false
   cache: false
+  fig-format: png
 ---
 
 # Introduction
@@ -27,11 +28,10 @@ from sklearn.impute import SimpleImputer
 from sklearn.cluster import KMeans
 import plotly.express as px
 import plotly.io as pio
-pio.renderers.default = "png"
 import plotly.figure_factory as ff
 
-pio.renderers.default = "iframe_connected" 
 pio.templates.default = "plotly_white"
+pio.renderers.default = "png"
 ```
 
 ---
@@ -83,6 +83,7 @@ preview["salary"] = preview["salary"].apply(lambda x: f"${x:,.0f}" if pd.notna(x
 preview["years_experience"] = preview["years_experience"].round(1)
 fig_preview = ff.create_table(preview, index=False)
 fig_preview.update_layout(width=2500, height=500)
+fig_preview.write_image("preview_table.png") 
 #fig_preview.show()
 
 ```
@@ -115,6 +116,7 @@ reg_results = pd.DataFrame({"Metric": ["RMSE","R²"], "Value": [rmse, r2]})
 fig_reg = px.bar(reg_results, x="Metric", y="Value",
                  title="Regression Performance: Salary Prediction",
                  text_auto=True)
+fig_reg.write_image("regression_performance.png") 
 #fig_reg.show()
 ```
 
@@ -184,6 +186,7 @@ fig2 = px.scatter(features, x="salary", y="years_experience", color="cluster",
 fig1 = px.histogram(df, x="salary", color="is_ai",
                     barmode="overlay",
                     title="Salary Distribution: AI vs Non-AI Jobs")
+fig1.write_image("salary_distribution.png")
 fig1.show()
 ```
 
