@@ -7,7 +7,7 @@
 <meta name="viewport" content="width=device-width, initial-scale=1.0, user-scalable=yes">
 
 
-<title>ml_methods – Job Market Analysis 2024</title>
+<title>Machine Learning Methods: AI vs Non-AI Careers – Job Market Analysis 2024</title>
 <style>
 code{white-space: pre-wrap;}
 span.smallcaps{font-variant: small-caps;}
@@ -40,7 +40,7 @@ ul.task-list li input[type="checkbox"] {
 <link href="site_libs/quarto-html/quarto-syntax-highlighting-dc55a5b9e770e841cd82e46aadbfb9b0.css" rel="stylesheet" id="quarto-text-highlighting-styles">
 <script src="site_libs/bootstrap/bootstrap.min.js"></script>
 <link href="site_libs/bootstrap/bootstrap-icons.css" rel="stylesheet">
-<link href="site_libs/bootstrap/bootstrap-5b4ad623e5705c0698d39aec6f10cf02.min.css" rel="stylesheet" append-hash="true" id="quarto-bootstrap" data-mode="light">
+<link href="site_libs/bootstrap/bootstrap-56309892f1c796412271d97dce1f9b6b.min.css" rel="stylesheet" append-hash="true" id="quarto-bootstrap" data-mode="light">
 <script id="quarto-search-options" type="application/json">{
   "location": "navbar",
   "copy-button": false,
@@ -116,11 +116,11 @@ ul.task-list li input[type="checkbox"] {
 <span class="menu-text">ML Methods</span></a>
   </li>  
   <li class="nav-item">
-    <a class="nav-link" href="./nlp_methods.html"> 
+    <a class="nav-link" href="./nlp_methods.qmd"> 
 <span class="menu-text">NLP Methods</span></a>
   </li>  
   <li class="nav-item">
-    <a class="nav-link" href="./project4.html"> 
+    <a class="nav-link" href="./project4.qmd"> 
 <span class="menu-text">Assignment IV: AI vs Non-AI Careers</span></a>
   </li>  
 </ul>
@@ -134,17 +134,125 @@ ul.task-list li input[type="checkbox"] {
 <div id="quarto-content" class="quarto-container page-columns page-rows-contents page-layout-article page-navbar">
 <!-- sidebar -->
 <!-- margin-sidebar -->
-    <div id="quarto-margin-sidebar" class="sidebar margin-sidebar zindex-bottom">
-        
+    <div id="quarto-margin-sidebar" class="sidebar margin-sidebar">
+        <nav id="TOC" role="doc-toc" class="toc-active">
+    <h2 id="toc-title">On this page</h2>
+   
+  <ul>
+  <li><a href="#introduction" id="toc-introduction" class="nav-link active" data-scroll-target="#introduction">Introduction</a></li>
+  <li><a href="#analysis" id="toc-analysis" class="nav-link" data-scroll-target="#analysis">Analysis</a>
+  <ul class="collapse">
+  <li><a href="#load-dataset" id="toc-load-dataset" class="nav-link" data-scroll-target="#load-dataset">Load dataset</a></li>
+  <li><a href="#classification-ai-vs-non-ai-jobs" id="toc-classification-ai-vs-non-ai-jobs" class="nav-link" data-scroll-target="#classification-ai-vs-non-ai-jobs">Classification: AI vs Non-AI Jobs</a></li>
+  <li><a href="#clustering-job-segmentation" id="toc-clustering-job-segmentation" class="nav-link" data-scroll-target="#clustering-job-segmentation">Clustering: Job Segmentation</a></li>
+  <li><a href="#visualizations" id="toc-visualizations" class="nav-link" data-scroll-target="#visualizations">Visualizations</a></li>
+  </ul></li>
+  <li><a href="#insights-for-job-seekers" id="toc-insights-for-job-seekers" class="nav-link" data-scroll-target="#insights-for-job-seekers">Insights for Job Seekers</a>
+  <ul class="collapse">
+  <li><a href="#takeaways" id="toc-takeaways" class="nav-link" data-scroll-target="#takeaways">Takeaways:</a></li>
+  </ul></li>
+  </ul>
+</nav>
     </div>
 <!-- main -->
-<main class="content" id="quarto-document-content"><header id="title-block-header" class="quarto-title-block"></header>
+<main class="content" id="quarto-document-content">
+
+<header id="title-block-header" class="quarto-title-block default">
+<div class="quarto-title">
+<h1 class="title">Machine Learning Methods: AI vs Non-AI Careers</h1>
+</div>
 
 
 
+<div class="quarto-title-meta">
+
+    
+  
+    
+  </div>
+  
 
 
+</header>
 
+
+<section id="introduction" class="level1">
+<h1>Introduction</h1>
+<p>This project explores <strong>AI vs Non-AI careers</strong> using the <code>lightcast_job_postings.csv</code> dataset.<br>
+We apply <strong>clustering, regression, and classification</strong> to evaluate trends in job markets, with a focus on <strong>salary, experience, and employability</strong>.<br>
+The goal is to help job seekers understand how AI is shaping opportunities in 2024.</p>
+</section>
+<section id="analysis" class="level1">
+<h1>Analysis</h1>
+<section id="load-dataset" class="level2">
+<h2 class="anchored" data-anchor-id="load-dataset">Load dataset</h2>
+<div id="3dd92c35" class="cell" data-execution_count="2">
+<div class="cell-output cell-output-stdout">
+<pre><code>Original dataset: 72498 rows
+After removing missing salary and years_experience: 23697 rows</code></pre>
+</div>
+</div>
+<!-- ## Regression: Salary Prediction -->
+</section>
+<section id="classification-ai-vs-non-ai-jobs" class="level2">
+<h2 class="anchored" data-anchor-id="classification-ai-vs-non-ai-jobs">Classification: AI vs Non-AI Jobs</h2>
+<div id="429da34f" class="cell" data-execution_count="4">
+<div class="cell-output cell-output-display">
+<div>
+<figure class="figure">
+<p><img src="ml_methods_files/figure-html/cell-5-output-1.png" class="img-fluid figure-img"></p>
+</figure>
+</div>
+</div>
+</div>
+</section>
+<section id="clustering-job-segmentation" class="level2">
+<h2 class="anchored" data-anchor-id="clustering-job-segmentation">Clustering: Job Segmentation</h2>
+<div id="24eb75c6" class="cell" data-execution_count="5">
+<div class="cell-output cell-output-display">
+<div>
+<figure class="figure">
+<p><img src="ml_methods_files/figure-html/cell-6-output-1.png" class="img-fluid figure-img"></p>
+</figure>
+</div>
+</div>
+</div>
+</section>
+<section id="visualizations" class="level2">
+<h2 class="anchored" data-anchor-id="visualizations">Visualizations</h2>
+<div id="ff74fa4f" class="cell" data-execution_count="6">
+<div class="cell-output cell-output-display">
+<div>
+<figure class="figure">
+<p><img src="ml_methods_files/figure-html/cell-7-output-1.png" class="img-fluid figure-img"></p>
+</figure>
+</div>
+</div>
+</div>
+</section>
+</section>
+<section id="insights-for-job-seekers" class="level1">
+<h1>Insights for Job Seekers</h1>
+<ul>
+<li><strong>AI roles often cluster at higher salaries</strong> compared to non-AI roles.<br>
+</li>
+<li><strong>Experience remains critical</strong> — higher years of experience align with higher pay clusters.<br>
+</li>
+<li><strong>Industries with strong AI adoption</strong> (e.g., tech, finance) show clearer salary advantages.</li>
+</ul>
+<section id="takeaways" class="level2">
+<h2 class="anchored" data-anchor-id="takeaways">Takeaways:</h2>
+<ul>
+<li>Highlight <strong>AI-related skills</strong> to access higher-paying roles.<br>
+</li>
+<li>Leverage <strong>industry trends</strong> to target fields with high AI adoption.<br>
+</li>
+<li>Use clustering insights to understand <strong>where your profile fits</strong> (AI-heavy vs.&nbsp;traditional roles).</li>
+</ul>
+
+
+</section>
+</section>
 
 </main> <!-- /main -->
 <script id="quarto-html-after-body" type="application/javascript">

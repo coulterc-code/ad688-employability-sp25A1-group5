@@ -50,7 +50,8 @@ df["INDUSTRY_DISPLAY"] = (
     if "NAICS_2022_6_NAME" in df.columns
     else df.get("INDUSTRY", pd.Series(["Unknown"]*len(df)))
 )
-
+```
+```{python}
 salary_candidates = ["SALARY","SALARY_MEDIAN","SALARY_MID","SALARY_ANNUAL","PAY_RATE"]
 for c in salary_candidates:
     if c in df.columns:
@@ -65,6 +66,8 @@ print("Derived non-null:", {
     "INDUSTRY_DISPLAY": df["INDUSTRY_DISPLAY"].notna().sum(),
     "SALARY_DISPLAY": df["SALARY_DISPLAY"].notna().sum()
 })
+```
+```{python}
 # Data Cleaning & Preprocessing
 # Drop Unnecessary Columns
 columns_to_drop = [
@@ -87,7 +90,8 @@ columns_to_drop = [
 drop_existing = [c for c in columns_to_drop if c in df.columns]
 df.drop(columns=drop_existing, inplace=True)
 print("Remaining columns (first 30):", list(df.columns)[:30])
-
+```
+```{python}
 # Handle Missing Values
 import missingno as msno, matplotlib.pyplot as plt
 
@@ -127,7 +131,8 @@ fig1 = px.bar(
     title="Top 15 Industries by Number of Job Postings"
 )
 fig1.show()
-
+```
+```{python}
 # Salary Distribution by Industry (Top 15)
 sdf = df[["INDUSTRY_DISPLAY","SALARY_DISPLAY"]].copy()
 sdf = sdf.dropna()
