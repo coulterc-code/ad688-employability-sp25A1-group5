@@ -1,0 +1,132 @@
+---
+title: "Assignment 04: Machine Learning on Scale"
+subtitle: "Causal and Predictive Analytics in Spark"
+author: "Connor Coulter"
+format:
+  html:
+    toc: true
+    code-fold: true
+    theme: flatly
+execute:
+  echo: true
+  warning: false
+  message: false
+---
+
+## 1️ Load the Dataset
+```{python}
+from pyspark.sql import SparkSession
+import pandas as pd, numpy as np, seaborn as sns, matplotlib.pyplot as plt
+import plotly.express as px
+
+spark = SparkSession.builder.appName("LightcastData").getOrCreate()
+
+df = (
+    spark.read.option("header", "true")
+    .option("inferSchema", "true")
+    .option("multiLine", "true")
+    .option("escape", "\"")
+    .csv("data/lightcast_job_postings.csv")
+)
+
+df.show(5)
+```
+
+## 2. Feature Engineering
+```{python}
+from pyspark.sql import functions as F
+from pyspark.ml.feature import StringIndexer, OneHotEncoder, VectorAssembler
+from pyspark.ml import Pipeline
+
+# Drop missing values and create new feature
+df = df.dropna(subset=["SALARY","MIN_YEARS_EXPERIENCE","EMPLOYMENT_TYPE_NAME","NAICS_2022_2_NAME"])
+df = df.withColumn("MIN_YEARS_EXPERIENCE_SQ", F.col("MIN_YEARS_EXPERIENCE")**2)
+
+# Encode categorical features
+indexers = [
+    StringIndexer(inputCol="NAICS_2022_2_NAME", outputCol="naics_idx"),
+    StringIndexer(inputCol="EMPLOYMENT_TYPE_NAME", outputCol="emp_idx")
+]
+encoders = [OneHotEncoder(inputCols=["naics_idx","emp_idx"], outputCols=["naics_vec","emp_vec"])]
+
+# Assemble features into one vector
+assembler = VectorAssembler(
+    inputCols=["MIN_YEARS_EXPERIENCE","MIN_YEARS_EXPERIENCE_SQ","SALARY_FROM","SALARY_TO","naics_vec","emp_vec"],
+    outputCol="features"
+)
+
+pipeline = Pipeline(stages=indexers+encoders+[assembler])
+model = pipeline.fit(df)
+data = model.transform(df)
+
+data.select("features","SALARY").show(5)
+```
+
+##3️ Train/Test Split
+```{python}
+train, test = data.randomSplit([0.8, 0.2], seed=42)
+print("Training rows:", train.count(), "| Test rows:", test.count())
+```
+
+##4️ Linear Regression
+```{python}
+from pyspark.ml.regression import LinearRegression
+
+lr = LinearRegression(featuresCol="features", labelCol="SALARY")
+lr_model = lr.fit(train)
+pred_lr = lr_model.transform(test)
+
+print("Linear Regression Results:")
+print("R²:", lr_model.summary.r2)
+print("RMSE:", lr_model.summary.rootMeanSquaredError)
+```
+
+###5 Polynomial Regression
+```{python}
+poly_lr = LinearRegression(featuresCol="features", labelCol="SALARY")
+poly_model = poly_lr.fit(train)
+pred_poly = poly_model.transform(test)
+
+print("Polynomial Regression Results:")
+print("R²:", poly_model.summary.r2)
+print("RMSE:", poly_model.summary.rootMeanSquaredError)
+```
+
+##6️ Random Forest Regressor
+```{python}
+from pyspark.ml.regression import RandomForestRegressor
+
+rf = RandomForestRegressor(featuresCol="features", labelCol="SALARY", numTrees=200, maxDepth=8, seed=42)
+rf_model = rf.fit(train)
+pred_rf = rf_model.transform(test)
+
+importance = pd.DataFrame({
+    "Feature": assembler.getInputCols(),
+    "Importance": rf_model.featureImportances.toArray()[:len(assembler.getInputCols())]
+}).sort_values("Importance", ascending=False)
+
+importance.head(10)
+```
+
+##7️ Compare Models
+```{python}
+from pyspark.ml.evaluation import RegressionEvaluator
+
+evaluator = RegressionEvaluator(labelCol="SALARY", predictionCol="prediction", metricName="rmse")
+
+metrics = pd.DataFrame({
+    "Model": ["Linear Regression","Polynomial Regression","Random Forest"],
+    "RMSE": [
+        evaluator.evaluate(pred_lr),
+        evaluator.evaluate(pred_poly),
+        evaluator.evaluate(pred_rf)
+    ],
+    "R2": [
+        lr_model.summary.r2,
+        poly_model.summary.r2,
+        None
+    ]
+})
+metrics
+```
+

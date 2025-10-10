@@ -19,12 +19,20 @@ affiliations:
 date: today
 date-modified: today
 date-format: long
-format: 
+format:
+  html:
+    toc: true
+    number-sections: true
+    embed-resources: true
+    code-fold: true
+    theme: cosmo
   docx: default
 ---
 
+{{< include _common.qmd >}}
 {{< include introduction.qmd >}}
 {{< include data_analysis.qmd >}}
 {{< include eda.qmd >}}
 {{< include skill_gap_analysis.qmd >}}
 {{< include ml_methods.qmd >}}
+{{< include project4.qmd >}}

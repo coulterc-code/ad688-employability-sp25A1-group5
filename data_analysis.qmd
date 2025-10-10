@@ -31,36 +31,42 @@ jupyter: python3
 ---
 
 # Import Data
-
 ```{python}
 import pandas as pd, numpy as np, os
 
+# --- Load dataset safely ---
 CSV_PATHS = ["data/lightcast_job_postings.csv", "lightcast_job_postings.csv"]
 csv_path = next((p for p in CSV_PATHS if os.path.exists(p)), None)
 if not csv_path:
     raise FileNotFoundError("⚠️ lightcast_job_postings.csv not found")
 
 df = pd.read_csv(csv_path, low_memory=False)
-print("Loaded dataset:", df.shape)
-df.head(5)
+print("✅ Loaded dataset:", df.shape)
 
-# Derive helper columns
-df["INDUSTRY_DISPLAY"] = (
-    df["NAICS_2022_6_NAME"]
-    if "NAICS_2022_6_NAME" in df.columns
-    else df.get("INDUSTRY", pd.Series(["Unknown"]*len(df)))
-)
-```
-```{python}
+# --- Ensure key derived columns exist ---
+# Industry display
+if "NAICS_2022_6_NAME" in df.columns:
+    df["INDUSTRY_DISPLAY"] = df["NAICS_2022_6_NAME"]
+elif "INDUSTRY" in df.columns:
+    df["INDUSTRY_DISPLAY"] = df["INDUSTRY"]
+else:
+    df["INDUSTRY_DISPLAY"] = "Unknown"
+
+# Salary display
 salary_candidates = ["SALARY","SALARY_MEDIAN","SALARY_MID","SALARY_ANNUAL","PAY_RATE"]
-for c in salary_candidates:
-    if c in df.columns:
-        df[c] = pd.to_numeric(df[c], errors="coerce")
+found_salary = next((c for c in salary_candidates if c in df.columns), None)
+if found_salary:
+    df["SALARY_DISPLAY"] = pd.to_numeric(df[found_salary], errors="coerce")
+    df["SALARY_DISPLAY"].fillna(df["SALARY_DISPLAY"].median(), inplace=True)
+else:
+    df["SALARY_DISPLAY"] = np.nan
 
-df["SALARY_DISPLAY"] = next(
-    (df[c] for c in salary_candidates if c in df.columns),
-    pd.Series([np.nan]*len(df))
-)
+print("Derived columns:", {
+    "INDUSTRY_DISPLAY": df["INDUSTRY_DISPLAY"].notna().sum(),
+    "SALARY_DISPLAY": df["SALARY_DISPLAY"].notna().sum()
+})
+
+```
 
 print("Derived non-null:", {
     "INDUSTRY_DISPLAY": df["INDUSTRY_DISPLAY"].notna().sum(),

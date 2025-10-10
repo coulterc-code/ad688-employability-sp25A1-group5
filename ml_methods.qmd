@@ -35,7 +35,15 @@ pio.renderers.default = "png"
 ## Load dataset
 
 ```{python}
-df = pd.read_csv("lightcast_job_postings.csv", low_memory=False)
+import os
+
+CSV_PATHS = ["data/lightcast_job_postings.csv", "lightcast_job_postings.csv"]
+csv_path = next((p for p in CSV_PATHS if os.path.exists(p)), None)
+if not csv_path:
+    raise FileNotFoundError("⚠️ Dataset not found in data/ or project root")
+
+df = pd.read_csv(csv_path, low_memory=False)
+print(f"✅ Loaded dataset: {csv_path} → {df.shape}")
 
 # Salary
 if "SALARY" in df.columns:

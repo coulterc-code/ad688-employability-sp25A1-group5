@@ -1,0 +1,36 @@
+```{python}
+# _common.qmd
+# Shared setup file for Quarto project
+# Handles imports, dataset loading, and global variables.
+
+import os
+import pandas as pd
+import numpy as np
+import plotly.express as px
+
+# Load dataset safely
+CSV_PATHS = ["data/lightcast_job_postings.csv", "lightcast_job_postings.csv"]
+csv_path = next((p for p in CSV_PATHS if os.path.exists(p)), None)
+
+if not csv_path:
+    print("⚠️ lightcast_job_postings.csv not found — continuing with empty DataFrame.")
+    df = pd.DataFrame()
+else:
+    df = pd.read_csv(csv_path, low_memory=False)
+    print(f"✅ Dataset loaded: {csv_path} → {df.shape[0]} rows, {df.shape[1]} columns")
+
+# Optional cleanup or derived columns
+if not df.empty:
+    if "SALARY" in df.columns:
+        df["SALARY"] = pd.to_numeric(df["SALARY"], errors="coerce")
+        df["SALARY_DISPLAY"] = df["SALARY"].fillna(df["SALARY"].median())
+    elif "SALARY_DISPLAY" not in df.columns:
+        df["SALARY_DISPLAY"] = np.nan
+
+    if "NAICS_2022_6_NAME" in df.columns:
+        df["INDUSTRY_DISPLAY"] = df["NAICS_2022_6_NAME"]
+    elif "INDUSTRY" in df.columns:
+        df["INDUSTRY_DISPLAY"] = df["INDUSTRY"]
+    else:
+        df["INDUSTRY_DISPLAY"] = "Unknown"
+```

@@ -3,21 +3,36 @@ project:
   output-dir: docs
 
 website:
-  title: "Job Market Analysis 2024"
+  title: "AD688 Employability Project"
   navbar:
     left:
       - href: index.qmd
-        text: "Home"
-      - href: introduction.qmd
-        text: "Introduction"
-      - href: data_cleaning.qmd
-        text: "Data Cleaning & Exploration"
-      - href: eda.qmd
-        text: "Exploratory Data Analysis"
+        text: Home
+      - text: Project Overview
+        menu:
+          - href: introduction.qmd
+            text: Introduction
+          - href: data_cleaning.qmd
+            text: Data Cleaning
+          - href: data_analysis.qmd
+            text: Data Analysis
+          - href: eda.qmd
+            text: Exploratory Data Analysis
+      - text: Methods
+        menu:
+          - href: ml_methods.qmd
+            text: Machine Learning Methods
+          - href: nlp_methods.qmd
+            text: NLP Methods
+          - href: final_report.qmd
+            text: Final Report
+      - href: project4.qmd
+        text: "Assignment IV: AI vs Non-AI Careers"
       - href: skill_gap_analysis.qmd
-        text: "Skill Gap Analysis"
-      - href: ml_methods.qmd
-        text: "ML Methods"
+        text: Skill Gap Analysis
+    right:
+      - icon: github
+        href: https://github.com/coulterc-code/ad688-employability-sp25A1-group5
 
 format:
   html:

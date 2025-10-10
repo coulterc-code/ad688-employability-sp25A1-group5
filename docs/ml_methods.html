@@ -7,7 +7,7 @@
 <meta name="viewport" content="width=device-width, initial-scale=1.0, user-scalable=yes">
 
 
-<title>Machine Learning Methods: AI vs Non-AI Careers – Job Market Analysis 2024</title>
+<title>Machine Learning Methods: AI vs Non-AI Careers – AD688 Employability Project</title>
 <style>
 code{white-space: pre-wrap;}
 span.smallcaps{font-variant: small-caps;}
@@ -40,7 +40,7 @@ ul.task-list li input[type="checkbox"] {
 <link href="site_libs/quarto-html/quarto-syntax-highlighting-dc55a5b9e770e841cd82e46aadbfb9b0.css" rel="stylesheet" id="quarto-text-highlighting-styles">
 <script src="site_libs/bootstrap/bootstrap.min.js"></script>
 <link href="site_libs/bootstrap/bootstrap-icons.css" rel="stylesheet">
-<link href="site_libs/bootstrap/bootstrap-56309892f1c796412271d97dce1f9b6b.min.css" rel="stylesheet" append-hash="true" id="quarto-bootstrap" data-mode="light">
+<link href="site_libs/bootstrap/bootstrap-5b4ad623e5705c0698d39aec6f10cf02.min.css" rel="stylesheet" append-hash="true" id="quarto-bootstrap" data-mode="light">
 <script id="quarto-search-options" type="application/json">{
   "location": "navbar",
   "copy-button": false,
@@ -82,7 +82,7 @@ ul.task-list li input[type="checkbox"] {
     <a href="./index.html" class="navbar-brand navbar-brand-logo">
     </a>
     <a class="navbar-brand" href="./index.html">
-    <span class="navbar-title">Job Market Analysis 2024</span>
+    <span class="navbar-title">AD688 Employability Project</span>
     </a>
   </div>
             <div id="quarto-search" class="" title="Search"></div>
@@ -95,33 +95,62 @@ ul.task-list li input[type="checkbox"] {
     <a class="nav-link" href="./index.html"> 
 <span class="menu-text">Home</span></a>
   </li>  
-  <li class="nav-item">
-    <a class="nav-link" href="./introduction.html"> 
-<span class="menu-text">Introduction</span></a>
+  <li class="nav-item dropdown ">
+    <a class="nav-link dropdown-toggle" href="#" id="nav-menu-project-overview" role="link" data-bs-toggle="dropdown" aria-expanded="false">
+ <span class="menu-text">Project Overview</span>
+    </a>
+    <ul class="dropdown-menu" aria-labelledby="nav-menu-project-overview">    
+        <li>
+    <a class="dropdown-item" href="./introduction.html">
+ <span class="dropdown-text">Introduction</span></a>
   </li>  
-  <li class="nav-item">
-    <a class="nav-link" href="./data_cleaning.html"> 
-<span class="menu-text">Data Cleaning &amp; Exploration</span></a>
+        <li>
+    <a class="dropdown-item" href="./data_cleaning.html">
+ <span class="dropdown-text">Data Cleaning</span></a>
   </li>  
+        <li>
+    <a class="dropdown-item" href="./data_analysis.html">
+ <span class="dropdown-text">Data Analysis</span></a>
+  </li>  
+        <li>
+    <a class="dropdown-item" href="./eda.html">
+ <span class="dropdown-text">Exploratory Data Analysis</span></a>
+  </li>  
+    </ul>
+  </li>
+  <li class="nav-item dropdown ">
+    <a class="nav-link dropdown-toggle" href="#" id="nav-menu-methods" role="link" data-bs-toggle="dropdown" aria-expanded="false">
+ <span class="menu-text">Methods</span>
+    </a>
+    <ul class="dropdown-menu" aria-labelledby="nav-menu-methods">    
+        <li>
+    <a class="dropdown-item" href="./ml_methods.html">
+ <span class="dropdown-text">Machine Learning Methods</span></a>
+  </li>  
+        <li>
+    <a class="dropdown-item" href="./nlp_methods.html">
+ <span class="dropdown-text">NLP Methods</span></a>
+  </li>  
+        <li>
+    <a class="dropdown-item" href="./final_report.html">
+ <span class="dropdown-text">Final Report</span></a>
+  </li>  
+    </ul>
+  </li>
   <li class="nav-item">
-    <a class="nav-link" href="./eda.html"> 
-<span class="menu-text">Exploratory Data Analysis</span></a>
+    <a class="nav-link" href="./project4.html"> 
+<span class="menu-text">Assignment IV: AI vs Non-AI Careers</span></a>
   </li>  
   <li class="nav-item">
     <a class="nav-link" href="./skill_gap_analysis.html"> 
 <span class="menu-text">Skill Gap Analysis</span></a>
   </li>  
-  <li class="nav-item">
-    <a class="nav-link active" href="./ml_methods.html" aria-current="page"> 
-<span class="menu-text">ML Methods</span></a>
-  </li>  
-  <li class="nav-item">
-    <a class="nav-link" href="./nlp_methods.qmd"> 
-<span class="menu-text">NLP Methods</span></a>
-  </li>  
-  <li class="nav-item">
-    <a class="nav-link" href="./project4.qmd"> 
-<span class="menu-text">Assignment IV: AI vs Non-AI Careers</span></a>
+</ul>
+            <ul class="navbar-nav navbar-nav-scroll ms-auto">
+  <li class="nav-item compact">
+    <a class="nav-link" href="https://github.com/coulterc-code/ad688-employability-sp25A1-group5"> <i class="bi bi-github" role="img">
+</i> 
+<span class="menu-text"></span></a>
   </li>  
 </ul>
           </div> <!-- /navcollapse -->
@@ -186,9 +215,10 @@ The goal is to help job seekers understand how AI is shaping opportunities in 20
 <h1>Analysis</h1>
 <section id="load-dataset" class="level2">
 <h2 class="anchored" data-anchor-id="load-dataset">Load dataset</h2>
-<div id="3dd92c35" class="cell" data-execution_count="2">
+<div id="ea03c446" class="cell" data-execution_count="2">
 <div class="cell-output cell-output-stdout">
-<pre><code>Original dataset: 72498 rows
+<pre><code>✅ Loaded dataset: data/lightcast_job_postings.csv → (72498, 131)
+Original dataset: 72498 rows
 After removing missing salary and years_experience: 23697 rows</code></pre>
 </div>
 </div>
@@ -196,7 +226,7 @@ After removing missing salary and years_experience: 23697 rows</code></pre>
 </section>
 <section id="classification-ai-vs-non-ai-jobs" class="level2">
 <h2 class="anchored" data-anchor-id="classification-ai-vs-non-ai-jobs">Classification: AI vs Non-AI Jobs</h2>
-<div id="429da34f" class="cell" data-execution_count="4">
+<div id="2bc0e1da" class="cell" data-execution_count="4">
 <div class="cell-output cell-output-display">
 <div>
 <figure class="figure">
@@ -208,7 +238,7 @@ After removing missing salary and years_experience: 23697 rows</code></pre>
 </section>
 <section id="clustering-job-segmentation" class="level2">
 <h2 class="anchored" data-anchor-id="clustering-job-segmentation">Clustering: Job Segmentation</h2>
-<div id="24eb75c6" class="cell" data-execution_count="5">
+<div id="119adbc1" class="cell" data-execution_count="5">
 <div class="cell-output cell-output-display">
 <div>
 <figure class="figure">
@@ -220,7 +250,7 @@ After removing missing salary and years_experience: 23697 rows</code></pre>
 </section>
 <section id="visualizations" class="level2">
 <h2 class="anchored" data-anchor-id="visualizations">Visualizations</h2>
-<div id="ff74fa4f" class="cell" data-execution_count="6">
+<div id="45ec5181" class="cell" data-execution_count="6">
 <div class="cell-output cell-output-display">
 <div>
 <figure class="figure">

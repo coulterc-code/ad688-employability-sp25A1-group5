@@ -8,7 +8,7 @@ subtitle: "About The Team"
 **Topic:** AI vs. Non-AI Job Growth — Is AI taking over or creating more jobs?
 
 
-**Course:** AD 688 – Cloud Analytics for Business
+**Course:** AD 688
 
 
 This site hosts our research rationale, intro, and literature review for Project Selection I, II and III.
