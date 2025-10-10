@@ -22,8 +22,6 @@ website:
         menu:
           - href: ml_methods.qmd
             text: Machine Learning Methods
-          - href: nlp_methods.qmd
-            text: NLP Methods
           - href: final_report.qmd
             text: Final Report
       - href: project4.qmd
